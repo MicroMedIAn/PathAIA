@@ -11,6 +11,10 @@ def preview_from_queries(slide, queries, level_preview=7, color=[255, 255, 0], t
 
     Arguments:
         - slide: openslide object
+        - queries: patch queries
+        - level_preview: int, pyramid level for preview thumbnail
+        - color: list of int, rgb color for patch boundaries
+        - thickness: int, thickness of patch boundaries
 
     Returns:
         - thumbnail: thumbnail image with patches displayed.
