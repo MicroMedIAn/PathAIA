@@ -86,8 +86,8 @@ def regular_coords(image_dims, query):
     """
     maxi = query["y"] * int(image_dims["y"] / query["y"])
     maxj = query["x"] * int(image_dims["x"] / query["x"])
-    col = numpy.arange(start=0, stop=maxj, step=query["x"], dtype=int)
-    line = numpy.arange(start=0, stop=maxi, step=query["y"], dtype=int)
+    col = numpy.arange(start=0, stop=maxj + 1, step=query["x"], dtype=int)
+    line = numpy.arange(start=0, stop=maxi + 1, step=query["y"], dtype=int)
     for y, x in itertools.product(line, col):
         yield {"x": x, "y": y}
 
@@ -104,10 +104,11 @@ def regular_patch_queries(slide, query):
 
     """
     mag = magnification(slide, query["level"])
-    dx = query["x"] * mag
-    dy = query["y"] * mag
+    dx = query["x"]
+    dy = query["y"]
     level = query["level"]
-    image_dims = slide.level_dimensions[level]
+    image_dims = dict()
+    image_dims["x"], image_dims["y"] = slide.level_dimensions[level]
     for coord in regular_coords(image_dims, query):
         request = dict()
         request["x"] = coord["x"] * mag
