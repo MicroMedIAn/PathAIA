@@ -13,55 +13,62 @@ def magnification(slide, level):
     return int(slide.level_dimensions[0][0] / slide.level_dimensions[level][0])
 
 
+def iter_patches(slide, rois):
+    """
+    Iterate on patches, from locations.
 
-def iterpatches(slide, rois):
+    Arguments:
+        - slide: openslide object
+        - rois: postion queries
 
+    Yields:
+        - query: position
+        - patch: rgb image
+
+    """
     for patch in rois:
-        istart = patch[0]
-        jstart = patch[2]
-        di = patch[1] - patch[0]
-        dj = patch[3] - patch[2]
 
-        image = slide.read_region((jstart, istart), 0, (dj, di))
+        image = slide.read_region((patch["x"], patch["y"]),
+                                  patch["level"],
+                                  (patch["dx"], patch["dy"]))
         image = numpy.array(image)[:, :, 0:3]
 
         yield patch, image
 
 
-def iterpatches_at_level(slide, level, rois):
+def list_patches(slide, rois):
+    """
+    Put patches in a list, from their location.
 
-    for patch in rois:
-        istart = patch[0]
-        jstart = patch[2]
-        di = patch[1] - patch[0]
-        dj = patch[3] - patch[2]
+    Arguments:
+        - slide: openslide object
+        - rois: position queries
 
-        image = slide.read_region((jstart, istart), level, (dj, di))
-        image = numpy.array(image)[:, :, 0:3]
+    Yields:
+        - queries: list of positions
+        - patches: list of images
 
-        yield patch, image
-
-
-def listpatches(slide, rois):
+    """
     lp = []
     li = []
 
-    for patch in rois:
-        istart = patch[0]
-        jstart = patch[2]
-        di = patch[1] - patch[0]
-        dj = patch[3] - patch[2]
-
-        image = slide.read_region((jstart, istart), 0, (dj, di))
-        image = numpy.array(image)[:, :, 0:3]
-        li.append(image)
+    for patch, img in iter_patches(slide, rois):
         lp.append(patch)
-
+        li.append(img)
     return lp, li
 
 
 def slides_in_folder(folder):
+    """
+    Get all slide paths inside a folder.
 
+    Arguments:
+        - folder: str, path to a directory containing slides
+
+    Returns:
+        - paths: list of str, list of files
+
+    """
     abspathlist = []
 
     for name in os.listdir(folder):
@@ -74,16 +81,53 @@ def slides_in_folder(folder):
 
 
 def slide_basename(slidepath):
+    """
+    Get basename of a slide from the path.
 
+    Arguments:
+        - slidepath: str, path to a slide file
+
+    Returns:
+        - basename: str, base name of the slide
+
+    """
     base = os.path.basename(slidepath)
     slidebasename = base[0:-len('.mrxs')]
     return slidebasename
 
 
-def regular_grid(shape, width):
-    maxi = width * int(shape[0] / width)
-    maxj = width * int(shape[1] / width)
-    col = numpy.arange(start=0, stop=maxj, step=width, dtype=int)
-    line = numpy.arange(start=0, stop=maxi, step=width, dtype=int)
-    for p in itertools.product(line, col):
-        yield p
+def slide_get_basename(slide):
+    """
+    Get basename of a slide from the slide object.
+
+    Arguments:
+        - slide: an openslide object
+
+    Returns:
+        - basename: str, base name of the slide
+
+    """
+    slidepath = slide._filename
+    base = os.path.basename(slidepath)
+    slidebasename, ext = os.path.splitext(base)
+    return slidebasename
+
+
+def regular_grid(shape, step):
+    """
+    Get a regular grid of position on a slide given its dimensions.
+
+    Arguments:
+        - shape: dictionary, {"x", "y"} shape of the slide
+        - step: dictionary, {"x", "y"} step between patch sampling
+
+    Yields:
+        - positions: dictionary, {"x", "y"} positions on a regular grid
+
+    """
+    maxi = step["y"] * int(shape["y"] / step["y"])
+    maxj = step["x"] * int(shape["x"] / step["y"])
+    col = numpy.arange(start=0, stop=maxj + 1, step=step["x"], dtype=int)
+    line = numpy.arange(start=0, stop=maxi + 1, step=step["y"], dtype=int)
+    for i, j in itertools.product(line, col):
+        yield {"x": j, "y": i}
