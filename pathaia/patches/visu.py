@@ -11,7 +11,7 @@ def preview_from_queries(slide, queries, level_preview=7, color=[255, 255, 0], t
 
     Arguments:
         - slide: openslide object
-        - queries: patch queries
+        - queries: patch queries {"x", "y", "dx", "dy", "level"}
         - level_preview: int, pyramid level for preview thumbnail
         - color: list of int, rgb color for patch boundaries
         - thickness: int, thickness of patch boundaries
@@ -29,8 +29,14 @@ def preview_from_queries(slide, queries, level_preview=7, color=[255, 255, 0], t
         # position in queries are absolute
         x = int(query["x"] / 2 ** level_preview)
         y = int(query["y"] / 2 ** level_preview)
-        grid[y, :] = 0
-        grid[:, x] = 0
+        dx = int(query["dx"] / 2 ** level_preview)
+        dy = int(query["dy"] / 2 ** level_preview)
+        # horizontal segments
+        grid[y, x:x + dx] = 0
+        grid[y + dy, x:x + dx]
+        # vertical segments
+        grid[y:y + dy, x] = 0
+        grid[y:y + dy, x + dx] = 0
     grid = grid < 255
     d = disk(thickness)
     grid = binary_dilation(grid, d)

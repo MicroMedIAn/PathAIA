@@ -6,10 +6,26 @@ import itertools
 
 
 def log_magnification(slide, level):
+    """
+    Get effective log magnification for a level.
+
+    Arguments:
+        - slide: an openslide object.
+        - level: int, level to extract magnification.
+
+    """
     return int(numpy.log2(slide.level_dimensions[0][0] / slide.level_dimensions[level][0]))
 
 
 def magnification(slide, level):
+    """
+    Get effective magnification for a level.
+
+    Arguments:
+        - slide: openslide object.
+        - level: int, level to extract magnification.
+
+    """
     return int(slide.level_dimensions[0][0] / slide.level_dimensions[level][0])
 
 
@@ -127,7 +143,7 @@ def regular_grid(shape, step):
     """
     maxi = step["y"] * int(shape["y"] / step["y"])
     maxj = step["x"] * int(shape["x"] / step["y"])
-    col = numpy.arange(start=0, stop=maxj + 1, step=step["x"], dtype=int)
-    line = numpy.arange(start=0, stop=maxi + 1, step=step["y"], dtype=int)
+    col = numpy.arange(start=0, stop=maxj, step=step["x"], dtype=int)
+    line = numpy.arange(start=0, stop=maxi, step=step["y"], dtype=int)
     for i, j in itertools.product(line, col):
         yield {"x": j, "y": i}

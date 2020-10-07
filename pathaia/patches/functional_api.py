@@ -10,10 +10,14 @@ import openslide
 from skimage.color import rgb2lab
 from .util import regular_grid, magnification, slides_in_folder, slide_basename
 from .visu import preview_from_queries
+from .filters import filter_dapi
 import os
 import csv
 from skimage.io import imsave
 import shutil
+
+
+izi_filters = {"dapi": filter_dapi}
 
 
 class Error(Exception):
@@ -106,7 +110,31 @@ def get_tissue(image, blacktol=5, whitetol=90, method="lab"):
         return get_tissue_from_rgb(image, blacktol, whitetol)
 
 
-def slide_rois(slide, level, psize, interval, offset={"x": 0, "y": 0}, coords=True, tissue=True):
+def filter_image(image, filters):
+    """
+    Check multiple filters on an image.
+
+    Arguments:
+        - image: numpy array, patch to filter.
+        - filters: list of functions, image to bool.
+
+    Returns:
+        - acceptable: bool, whether an image has passed every filters.
+
+    """
+    for filt in filters:
+        if callable(filt):
+            if not filt(image):
+                return False
+        elif type(filt) == str:
+            if not izi_filters[filt](image):
+                return False
+        else:
+            raise UnknownMethodError("{} is not a valid filter !!!".format(filt))
+    return True
+
+
+def slide_rois(slide, level, psize, interval, offset={"x": 0, "y": 0}, coords=True, filters=[]):
     """
     Return the absolute coordinates of patches.
 
@@ -127,15 +155,11 @@ def slide_rois(slide, level, psize, interval, offset={"x": 0, "y": 0}, coords=Tr
         - coords: tuple of numpy arrays, (icoords, jcoords).
 
     """
-    if tissue:
-        for patch in slide_rois_tissue_(slide, level, psize, interval, offset, coords):
-            yield patch
-    else:
-        for patch in slide_rois_(slide, level, psize, interval, offset, coords):
-            yield patch
+    for patch in slide_rois_(slide, level, psize, interval, offset, coords, filters):
+        yield patch
 
 
-def slide_rois_(slide, level, psize, interval, offset, coords):
+def slide_rois_(slide, level, psize, interval, offset, coords, filters=[]):
     """
     Return the absolute coordinates of patches.
 
@@ -164,10 +188,11 @@ def slide_rois_(slide, level, psize, interval, offset, coords):
         try:
             image = slide.read_region((x, y), level, (psize, psize))
             image = numpy.array(image)[:, :, 0:3]
-            if coords:
-                yield {"x": x, "y": y, "level": level}, image
-            else:
-                yield image
+            if filter_image(image, filters):
+                if coords:
+                    yield {"x": x, "y": y, "level": level}, image
+                else:
+                    yield image
         except openslide.lowlevel.OpenSlideError:
             print("small failure while reading tile x={}, y={} in {}".format(x, y, slide._filename))
 
@@ -198,19 +223,29 @@ def slide_rois_tissue_(slide, level, psize, interval, offset, coords):
     for patch in regular_grid(shape, interval):
         y = patch["y"] * mag + offset["y"]
         x = patch["x"] * mag + offset["x"]
+        dx = psize * mag
+        dy = psize * mag
         try:
             image = slide.read_region((x, y), level, (psize, psize))
             image = numpy.array(image)[:, :, 0:3]
             if get_tissue(image).sum() > 0.5 * psize * psize:
                 if coords:
-                    yield {"x": x, "y": y, "level": level}, image
+                    yield {"x": x, "y": y, "level": level, "dx": dx, "dy": dy}, image
                 else:
                     yield image
         except openslide.lowlevel.OpenSlideError:
             print("small failure while reading tile x={}, y={} in {}".format(x, y, slide._filename))
 
 
-def patchify_slide(slidefile, outdir, level, psize, interval, offset={"x": 0, "y": 0}, coords=True, tissue=False, verbose=2):
+def patchify_slide(slidefile,
+                   outdir,
+                   level,
+                   psize,
+                   interval,
+                   offset={"x": 0, "y": 0},
+                   coords=True,
+                   filters=[],
+                   verbose=2):
     """
     Save patches of a given wsi.
 
@@ -233,18 +268,18 @@ def patchify_slide(slidefile, outdir, level, psize, interval, offset={"x": 0, "y
             print("patch-size: {}".format(psize))
             print("interval: {}".format(interval))
             print("offset: {}".format(offset))
-            print("tissue filtering: {}".format(tissue))
+            print("filtering: {}".format(filters))
             print("starting patchification...")
     slide = openslide.OpenSlide(slidefile)
     plist = []
-    for data, img in slide_rois(slide, level, psize, interval, offset=offset, coords=coords, tissue=tissue):
+    for data, img in slide_rois(slide, level, psize, interval, offset=offset, coords=coords, filters=filters):
         outfile = os.path.join(outdir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
         imsave(outfile, img)
         plist.append(data)
     if verbose > 1:
         print("end of patchification.")
         print("starting metadata csv export...")
-    csv_columns = ["level", "x", "y"]
+    csv_columns = ["level", "x", "y", "dx", "dy"]
     csv_path = os.path.join(outdir, "patches.csv")
     with open(csv_path, "w") as csvfile:
         writer = csv.DictWriter(csvfile, csv_columns)
@@ -259,7 +294,7 @@ def patchify_slide(slidefile, outdir, level, psize, interval, offset={"x": 0, "y
         print("ending thumbnail export.")
 
 
-def patchify_folder(infolder, outfolder, level, psize, interval, offset={"x": 0, "y": 0}, coords=True, tissue=False, verbose=2):
+def patchify_folder(infolder, outfolder, level, psize, interval, offset={"x": 0, "y": 0}, coords=True, filters=[], verbose=2):
     """
     Save patches of all wsi inside a folder.
 
@@ -287,4 +322,4 @@ def patchify_folder(infolder, outfolder, level, psize, interval, offset={"x": 0,
         if os.path.isdir(outdir):
             shutil.rmtree(outdir, ignore_errors=True)
         os.makedirs(outdir)
-        patchify_slide(slidefile, outdir, level, psize, interval, offset=offset, coords=coords, tissue=tissue, verbose=verbose)
+        patchify_slide(slidefile, outdir, level, psize, interval, offset=offset, coords=coords, filters=filters, verbose=verbose)
