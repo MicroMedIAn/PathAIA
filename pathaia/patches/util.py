@@ -5,30 +5,6 @@ import os
 import itertools
 
 
-def log_magnification(slide, level):
-    """
-    Get effective log magnification for a level.
-
-    Arguments:
-        - slide: an openslide object.
-        - level: int, level to extract magnification.
-
-    """
-    return int(numpy.log2(slide.level_dimensions[0][0] / slide.level_dimensions[level][0]))
-
-
-def magnification(slide, level):
-    """
-    Get effective magnification for a level.
-
-    Arguments:
-        - slide: openslide object.
-        - level: int, level to extract magnification.
-
-    """
-    return int(slide.level_dimensions[0][0] / slide.level_dimensions[level][0])
-
-
 def iter_patches(slide, rois):
     """
     Iterate on patches, from locations.
@@ -134,11 +110,11 @@ def regular_grid(shape, step):
     Get a regular grid of position on a slide given its dimensions.
 
     Arguments:
-        - shape: dictionary, {"x", "y"} shape of the slide
-        - step: dictionary, {"x", "y"} step between patch sampling
+        - shape: dictionary, {"x", "y"} shape of the window to tile.
+        - step: dictionary, {"x", "y"} steps between patch samples.
 
     Yields:
-        - positions: dictionary, {"x", "y"} positions on a regular grid
+        - positions: dictionary, {"x", "y"} positions on a regular grid.
 
     """
     maxi = step["y"] * int(shape["y"] / step["y"])

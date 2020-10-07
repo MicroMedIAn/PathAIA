@@ -33,7 +33,7 @@ def preview_from_queries(slide, queries, level_preview=7, color=[255, 255, 0], t
         dy = int(query["dy"] / 2 ** level_preview)
         # horizontal segments
         grid[y, x:x + dx] = 0
-        grid[y + dy, x:x + dx]
+        grid[y + dy, x:x + dx] = 0
         # vertical segments
         grid[y:y + dy, x] = 0
         grid[y:y + dy, x + dx] = 0
