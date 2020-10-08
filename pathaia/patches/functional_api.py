@@ -156,20 +156,20 @@ def slide_rois(slide, level, psize, interval, ancestors=[], offset={"x": 0, "y":
 
     """
     if len(ancestors) > 0:
+        mag = slide.level_downsamples[level]
+        shape = dict()
+        shape["x"] = int(ancestors[0]["dx"] / mag)
+        shape["y"] = int(ancestors[0]["dy"] / mag)
         for ancestor in ancestors:
             # ancestor is a patch
             rx, ry = ancestor["x"], ancestor["y"]
-            mag = slide.level_downsamples[level]
-            shape = dict()
-            shape["x"] = int(ancestor["dx"] / mag)
-            shape["y"] = int(ancestor["dy"] / mag)
             prefix = ancestor["id"]
             k = 0
             for patch in regular_grid(shape, interval):
                 k += 1
                 idx = "{}#{}".format(prefix, k)
-                y = int(patch["y"] * mag + rx)
-                x = int(patch["x"] * mag + ry)
+                y = int(patch["y"] * mag + ry)
+                x = int(patch["x"] * mag + rx)
                 dx = int(psize * mag)
                 dy = int(psize * mag)
                 try:
