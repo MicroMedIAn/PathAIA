@@ -162,7 +162,10 @@ def slide_rois(slide, level, psize, interval, ancestors=[], offset={"x": 0, "y":
         shape = dict()
         shape["x"] = int(ancestors[0]["dx"] / mag)
         shape["y"] = int(ancestors[0]["dy"] / mag)
-        for ancestor in tqdm(ancestors):
+        dx = int(psize * mag)
+        dy = int(psize * mag)
+        patches = []
+        for ancestor in ancestors:
             # ancestor is a patch
             rx, ry = ancestor["x"], ancestor["y"]
             prefix = ancestor["id"]
@@ -172,21 +175,21 @@ def slide_rois(slide, level, psize, interval, ancestors=[], offset={"x": 0, "y":
                 idx = "{}#{}".format(prefix, k)
                 y = int(patch["y"] * mag + ry)
                 x = int(patch["x"] * mag + rx)
-                dx = int(psize * mag)
-                dy = int(psize * mag)
-                try:
-                    image = slide.read_region((x, y), level, (psize, psize))
-                    image = numpy.array(image)[:, :, 0:3]
-                    if filter_image(image, filters):
-                        yield {"id": idx,
-                               "x": x,
-                               "y": y,
-                               "level": level,
-                               "dx": dx,
-                               "dy": dy,
-                               "parent": prefix}, image
-                except openslide.lowlevel.OpenSlideError:
-                    print("small failure while reading tile x={}, y={} in {}".format(x, y, slide._filename))
+                patches.append({"id": idx,
+                                "x": x,
+                                "y": y,
+                                "level": level,
+                                "dx": dx,
+                                "dy": dy,
+                                "parent": prefix})
+        for patch in tqdm(patches):
+            try:
+                image = slide.read_region((patch["x"], patch["y"]), patch["level"], (psize, psize))
+                image = numpy.array(image)[:, :, 0:3]
+                if filter_image(image, filters):
+                    yield patch, image
+            except openslide.lowlevel.OpenSlideError:
+                print("small failure while reading tile x={}, y={} in {}".format(patch["x"], patch["y"], slide._filename))
     else:
         shape = dict()
         shape["x"], shape["y"] = slide.level_dimensions[level]
