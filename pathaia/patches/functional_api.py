@@ -15,6 +15,8 @@ import os
 import csv
 from skimage.io import imsave
 import shutil
+import warnings
+from tqdm import tqdm
 
 
 izi_filters = {"has-dapi": filter_hasdapi,
@@ -160,7 +162,7 @@ def slide_rois(slide, level, psize, interval, ancestors=[], offset={"x": 0, "y":
         shape = dict()
         shape["x"] = int(ancestors[0]["dx"] / mag)
         shape["y"] = int(ancestors[0]["dy"] / mag)
-        for ancestor in ancestors:
+        for ancestor in tqdm(ancestors):
             # ancestor is a patch
             rx, ry = ancestor["x"], ancestor["y"]
             prefix = ancestor["id"]
@@ -252,10 +254,12 @@ def patchify_slide(slidefile,
         shutil.rmtree(outleveldir, ignore_errors=True)
     os.makedirs(outleveldir)
     ########################
-    for data, img in slide_rois(slide, level, psize, interval, offset=offset, filters=filters):
-        outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
-        imsave(outfile, img)
-        plist.append(data)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        for data, img in slide_rois(slide, level, psize, interval, offset=offset, filters=filters):
+            outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
+            imsave(outfile, img)
+            plist.append(data)
     if verbose > 1:
         print("end of patchification.")
         print("starting metadata csv export...")
@@ -324,10 +328,12 @@ def patchify_slide_hierarchically(slidefile,
                 shutil.rmtree(outleveldir, ignore_errors=True)
             os.makedirs(outleveldir)
             ########################
-            for data, img in slide_rois(slide, level, psize, interval, ancestors=plist, offset=offset, filters=filters):
-                outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
-                imsave(outfile, img)
-                current_plist.append(data)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                for data, img in slide_rois(slide, level, psize, interval, ancestors=plist, offset=offset, filters=filters):
+                    outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
+                    imsave(outfile, img)
+                    current_plist.append(data)
             plist = [p for p in current_plist]
             if verbose > 1:
                 print("end of patchification.")
