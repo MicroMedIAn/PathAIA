@@ -10,14 +10,15 @@ import openslide
 from skimage.color import rgb2lab
 from .util import regular_grid, slides_in_folder, slide_basename
 from .visu import preview_from_queries
-from .filters import filter_dapi
+from .filters import filter_hasdapi, filter_has_significant_dapi
 import os
 import csv
 from skimage.io import imsave
 import shutil
 
 
-izi_filters = {"dapi": filter_dapi}
+izi_filters = {"has-dapi": filter_hasdapi,
+               "has-significant-dapi": filter_has_significant_dapi}
 
 
 class Error(Exception):
@@ -299,9 +300,11 @@ def patchify_slide_hierarchically(slidefile,
     """
     csv_columns = ["id", "parent", "level", "x", "y", "dx", "dy"]
     csv_path = os.path.join(outdir, "patches.csv")
+    slide = openslide.OpenSlide(slidefile)
     with open(csv_path, "w") as csvfile:
         writer = csv.DictWriter(csvfile, csv_columns)
         writer.writeheader()
+        plist = []
         for level in range(top_level, low_level - 1, -1):
             if verbose > 0:
                 print("patchifying: {}".format(slidefile))
@@ -312,8 +315,7 @@ def patchify_slide_hierarchically(slidefile,
                     print("offset: {}".format(offset))
                     print("filtering: {}".format(filters))
                     print("starting patchification...")
-            slide = openslide.OpenSlide(slidefile)
-            plist = []
+            current_plist = []
             # level directory
             outleveldir = os.path.join(outdir, "level_{}".format(level))
             if os.path.isdir(outleveldir):
@@ -323,7 +325,8 @@ def patchify_slide_hierarchically(slidefile,
             for data, img in slide_rois(slide, level, psize, interval, ancestors=plist, offset=offset, filters=filters):
                 outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
                 imsave(outfile, img)
-                plist.append(data)
+                current_plist.append(data)
+            plist = [p for p in current_plist]
             if verbose > 1:
                 print("end of patchification.")
                 print("starting metadata csv export...")
