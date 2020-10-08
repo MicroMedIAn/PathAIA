@@ -155,7 +155,7 @@ def slide_rois(slide, level, psize, interval, ancestors=[], offset={"x": 0, "y":
         - coords: tuple of numpy arrays, (icoords, jcoords).
 
     """
-    if ancestors:
+    if len(ancestors) > 0:
         for ancestor in ancestors:
             # ancestor is a patch
             rx, ry = ancestor["x"], ancestor["y"]
@@ -305,6 +305,7 @@ def patchify_slide_hierarchically(slidefile,
         writer = csv.DictWriter(csvfile, csv_columns)
         writer.writeheader()
         plist = []
+        current_plist = []
         for level in range(top_level, low_level - 1, -1):
             if verbose > 0:
                 print("patchifying: {}".format(slidefile))
@@ -314,6 +315,7 @@ def patchify_slide_hierarchically(slidefile,
                     print("interval: {}".format(interval))
                     print("offset: {}".format(offset))
                     print("filtering: {}".format(filters))
+                    print("ancestors: {} patches".format(len(plist)))
                     print("starting patchification...")
             current_plist = []
             # level directory
@@ -335,7 +337,7 @@ def patchify_slide_hierarchically(slidefile,
                 print("end of metadata export.")
                 print("starting thumbnail export...")
                 out_thumbnailfile = os.path.join(outleveldir, "thumbnail.png")
-                thumbnail = preview_from_queries(slide, plist)
+                thumbnail = preview_from_queries(slide, current_plist)
                 imsave(out_thumbnailfile, thumbnail)
                 print("ending thumbnail export.")
 
