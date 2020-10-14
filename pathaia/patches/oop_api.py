@@ -95,6 +95,7 @@ class HierarchicalPatchifier(object):
                  interval,
                  offset={"x": 0, "y": 0},
                  filters={},
+                 silent=[],
                  verbose=2):
         """
         Create the patchifier.
@@ -111,6 +112,7 @@ class HierarchicalPatchifier(object):
         self.offset = offset
         self.filters = standardize_filters(filters, top_level, low_level)
         self.verbose = verbose
+        self.silent = silent
 
     def patchify(self, path):
         """
@@ -129,6 +131,7 @@ class HierarchicalPatchifier(object):
                                            self.interval,
                                            offset=self.offset,
                                            filters=self.filters,
+                                           silent=self.silent,
                                            verbose=self.verbose)
         else:
             patchify_slide_hierarchically(path,
@@ -139,6 +142,7 @@ class HierarchicalPatchifier(object):
                                           self.interval,
                                           offset=self.offset,
                                           filters=self.filters,
+                                          silent=self.silent,
                                           verbose=self.verbose)
 
     def add_filter(self, filter_func, level=None):

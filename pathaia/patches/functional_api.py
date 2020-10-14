@@ -231,6 +231,7 @@ def patchify_slide_hierarchically(slidefile,
                                   interval,
                                   offset={"x": 0, "y": 0},
                                   filters={},
+                                  silent=[],
                                   verbose=2):
     """
     Save patches of a given wsi.
@@ -286,12 +287,20 @@ def patchify_slide_hierarchically(slidefile,
                 shutil.rmtree(outleveldir, ignore_errors=True)
             os.makedirs(outleveldir)
             ########################
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                for data, img in slide_rois(slide, level, psize, interval, ancestors=plist, offset=offset, filters=level_filters[level]):
-                    outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
-                    imsave(outfile, img)
-                    current_plist.append(data)
+            if level not in silent:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    for data, img in slide_rois(slide, level, psize, interval, ancestors=plist, offset=offset, filters=level_filters[level]):
+                        outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
+                        imsave(outfile, img)
+                        current_plist.append(data)
+            else:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    for data, img in slide_rois(slide, level, psize, interval, ancestors=plist, offset=offset, filters=level_filters[level]):
+                        # outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
+                        # imsave(outfile, img)
+                        current_plist.append(data)
             plist = [p for p in current_plist]
             if verbose > 1:
                 print("end of patchification.")
@@ -337,7 +346,7 @@ def patchify_folder(infolder, outfolder, level, psize, interval, offset={"x": 0,
         patchify_slide(slidefile, outdir, level, psize, interval, offset=offset, filters=filters, verbose=verbose)
 
 
-def patchify_folder_hierarchically(infolder, outfolder, top_level, low_level, psize, interval, offset={"x": 0, "y": 0}, filters={}, verbose=2):
+def patchify_folder_hierarchically(infolder, outfolder, top_level, low_level, psize, interval, offset={"x": 0, "y": 0}, filters={}, silent=[], verbose=2):
     """
     Save patches of all wsi inside a folder.
 
@@ -365,4 +374,4 @@ def patchify_folder_hierarchically(infolder, outfolder, top_level, low_level, ps
         if os.path.isdir(outdir):
             shutil.rmtree(outdir, ignore_errors=True)
         os.makedirs(outdir)
-        patchify_slide_hierarchically(slidefile, outdir, top_level, low_level, psize, interval, offset=offset, filters=filters, verbose=verbose)
+        patchify_slide_hierarchically(slidefile, outdir, top_level, low_level, psize, interval, offset=offset, filters=filters, silent=silent, verbose=verbose)
