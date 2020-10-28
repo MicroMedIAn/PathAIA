@@ -50,7 +50,7 @@ def list_patches(slide, rois):
     return lp, li
 
 
-def slides_in_folder(folder):
+def slides_in_folder(folder, slide_type=".mrxs"):
     """
     Get all slide paths inside a folder.
 
@@ -62,13 +62,11 @@ def slides_in_folder(folder):
 
     """
     abspathlist = []
-
     for name in os.listdir(folder):
-
-        if name[0] != '.' and '.mrxs' in name:
-
-            abspathlist.append(os.path.join(folder, name))
-
+        if not name.startswith("."):
+            _, ext = os.path.splitext(name)
+            if ext == slide_type:
+                abspathlist.append(os.path.join(folder, name))
     return abspathlist
 
 
@@ -84,7 +82,7 @@ def slide_basename(slidepath):
 
     """
     base = os.path.basename(slidepath)
-    slidebasename = base[0:-len('.mrxs')]
+    slidebasename, _ = os.path.splitext(base)
     return slidebasename
 
 
@@ -101,8 +99,47 @@ def slide_get_basename(slide):
     """
     slidepath = slide._filename
     base = os.path.basename(slidepath)
-    slidebasename, ext = os.path.splitext(base)
+    slidebasename, _ = os.path.splitext(base)
     return slidebasename
+
+
+def unlabeled_regular_grid(shape, step):
+    """
+    Get a regular grid of position on a slide given its dimensions.
+
+    Arguments:
+        - shape: tuple, (i, j) shape of the window to tile.
+        - step: int, steps between patch samples.
+
+    Yields:
+        - positions: tuples, (i, j) positions on a regular grid.
+
+    """
+    maxi = step * int(shape[0] / step)
+    maxj = step * int(shape[1] / step)
+    col = numpy.arange(start=0, stop=maxj, step=step, dtype=int)
+    line = numpy.arange(start=0, stop=maxi, step=step, dtype=int)
+    for i, j in itertools.product(line, col):
+        yield i, j
+
+
+def unlabeled_regular_grid_list(shape, step):
+    """
+    Get a regular grid of position on a slide given its dimensions.
+
+    Arguments:
+        - shape: tuple, (i, j) shape of the window to tile.
+        - step: int, steps between patch samples.
+
+    Yields:
+        - positions: tuples, (i, j) positions on a regular grid.
+
+    """
+    maxi = step * int(shape[0] / step)
+    maxj = step * int(shape[1] / step)
+    col = numpy.arange(start=0, stop=maxj, step=step, dtype=int)
+    line = numpy.arange(start=0, stop=maxi, step=step, dtype=int)
+    return list(itertools.product(line, col))
 
 
 def regular_grid(shape, step):

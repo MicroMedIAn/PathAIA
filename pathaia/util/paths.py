@@ -18,7 +18,7 @@ def slides_in_folder(folder, extensions=[".mrxs"]):
     abspathlist = []
     for name in os.listdir(folder):
 
-        if name[0] != '.':
+        if not name.startswith("."):
             for extension in extensions:
                 if name.endswith(extension):
                     abspathlist.append(os.path.join(folder, name))
