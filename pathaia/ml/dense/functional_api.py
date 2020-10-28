@@ -78,7 +78,7 @@ def learn_vocabulary(projfolder, outfolder, level,
 
     *********************************
     """
-    vocabulary = MiniBatchKMeans(n_clusters=voclen)
+    vocabulary = MiniBatchKMeans(n_clusters=voclen, batch_size=voclen * spl_per_image)
     slide2folder = dataset2folders(projfolder, level, randomize=True,
                                    slide_data_lim=slide_data_lim)
     k = 0
@@ -96,10 +96,11 @@ def learn_vocabulary(projfolder, outfolder, level,
     for i in range(int(numpy.sqrt(voclen))):
         for j in range(int(numpy.sqrt(voclen))):
             image = vocabulary.cluster_centers_[i * int(numpy.sqrt(voclen)) + j].reshape(patch_shape)
-            print("stats of filter {}:\nmin={}, max={}, mean={}".format(i * int(numpy.sqrt(voclen)) + j,
-                                                                        image.min(),
-                                                                        image.max(),
-                                                                        image.mean()))
+            print("stats of filter {}:\nmin={}, max={}, mean={}, dynamic={}".format(i * int(numpy.sqrt(voclen)) + j,
+                                                                                    image.min(),
+                                                                                    image.max(),
+                                                                                    image.mean(),
+                                                                                    len(numpy.unique(image))))
             ax = fig.add_subplot(int(numpy.sqrt(voclen)), int(numpy.sqrt(voclen)), i * int(numpy.sqrt(voclen)) + j + 1)
             # Turn off tick labels
             ax.set_yticklabels([])
