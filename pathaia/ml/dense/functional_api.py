@@ -79,7 +79,7 @@ def learn_vocabulary(projfolder, outfolder, level,
 
     *********************************
     """
-    vocabulary = MiniBatchKMeans(n_clusters=voclen, reassignment_ratio=0.)
+    vocabulary = MiniBatchKMeans(n_clusters=voclen)
     slide2folder = dataset2folders(projfolder, level, randomize=True,
                                    slide_data_lim=slide_data_lim)
     k = 0
