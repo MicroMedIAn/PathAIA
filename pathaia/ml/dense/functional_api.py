@@ -73,13 +73,13 @@ def fit_on_slide(ptc_folder, vocabulary, voclen, psize, spl_per_image):
 
 def learn_vocabulary(projfolder, outfolder, level,
                      psize=8, voclen=256, spl_per_image=100,
-                     slide_data_lim=100, verbose=2):
+                     slide_data_lim=100, verbose=2, reassignment_ratio=0.):
     """
     Fit vocabulary on a single entire slide dataset.
 
     *********************************
     """
-    vocabulary = MiniBatchKMeans(n_clusters=voclen)
+    vocabulary = MiniBatchKMeans(n_clusters=voclen, reassignment_ratio=reassignment_ratio)
     slide2folder = dataset2folders(projfolder, level, randomize=True,
                                    slide_data_lim=slide_data_lim)
     k = 0
