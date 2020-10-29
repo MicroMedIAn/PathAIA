@@ -23,11 +23,12 @@ def sample_img(image, psize, spl_per_image):
 
     *********************************
     """
+    img = image.astype(float)
     spaceshape = (image.shape[0], image.shape[1])
     positions = unlabeled_regular_grid_list(spaceshape, psize)
     shuffle(positions)
     positions = positions[0:spl_per_image]
-    patches = [image[i:i + psize, j:j + psize].reshape(-1) for i, j in positions]
+    patches = [img[i:i + psize, j:j + psize].reshape(-1) for i, j in positions]
     return patches
 
 
