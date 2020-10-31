@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dense &mdash; pathaia 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="patches" href="pathaia.patches.html" />
+    <link rel="prev" title="ml" href="pathaia.ml.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pathaia
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API References</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pathaia.html">pathaia</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pathaia.ml.html">ml</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dense</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.ml.html#module-pathaia.ml.util">util</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pathaia.patches.html">patches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pathaia.semantic.html">semantic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pathaia.util.html">util</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pathaia.html#module-pathaia">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pathaia</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api.html">API References</a> &raquo;</li>
+        
+          <li><a href="pathaia.html">pathaia</a> &raquo;</li>
+        
+          <li><a href="pathaia.ml.html">ml</a> &raquo;</li>
+        
+      <li>dense</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pathaia.ml.dense.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dense">
+<h1>dense<a class="headerlink" href="#dense" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pathaia.ml.dense.functional_api">
+<span id="functional-api"></span><h2>functional_api<a class="headerlink" href="#module-pathaia.ml.dense.functional_api" title="Permalink to this headline">¶</a></h2>
+<p>A module to learn and predict dense descriptors.</p>
+<p>Can be used to create ml-based filters for image analysis and patch extraction.</p>
+<dl class="py function">
+<dt id="pathaia.ml.dense.functional_api.create_bag_dataset">
+<code class="sig-name descname">create_bag_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">projfolder</span></em>, <em class="sig-param"><span class="n">outfolder</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.create_bag_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict bof on an entire slide dataset.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.dense.functional_api.fit_on_image">
+<code class="sig-name descname">fit_on_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.fit_on_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit vocabulary on a single image.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.dense.functional_api.fit_on_imbatch">
+<code class="sig-name descname">fit_on_imbatch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">images</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.fit_on_imbatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit vocabulary on a batch of images.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.dense.functional_api.fit_on_slide">
+<code class="sig-name descname">fit_on_slide</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptc_folder</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">voclen</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.fit_on_slide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a texture vocabulary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ptc_folder</strong> (<em>-</em>) – str, path to an image folder.</p></li>
+<li><p><strong>psize</strong> (<em>-</em>) – int, size of window in pixels.</p></li>
+<li><p><strong>dictlen</strong> (<em>-</em>) – int, number of words in vocabulary.</p></li>
+<li><p><strong>verbose</strong> (<em>-</em>) – int, verbosity.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.dense.functional_api.learn_bags">
+<code class="sig-name descname">learn_bags</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bagdataset</span></em>, <em class="sig-param"><span class="n">outfolder</span></em>, <em class="sig-param"><span class="n">bagvoclen</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.learn_bags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Learn expressions from a dataset of bags.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.dense.functional_api.learn_vocabulary">
+<code class="sig-name descname">learn_vocabulary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">projfolder</span></em>, <em class="sig-param"><span class="n">outfolder</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">psize</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">voclen</span><span class="o">=</span><span class="default_value">256</span></em>, <em class="sig-param"><span class="n">spl_per_image</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">slide_data_lim</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">reassignment_ratio</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.learn_vocabulary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit vocabulary on a single entire slide dataset.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.dense.functional_api.predict_image_bag">
+<code class="sig-name descname">predict_image_bag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">psize</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.predict_image_bag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict vocabulary on a single image.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.dense.functional_api.predict_imfolder_bags">
+<code class="sig-name descname">predict_imfolder_bags</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imfolder</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">psize</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.predict_imfolder_bags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict vocabulary on slide patches.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.dense.functional_api.sample_img">
+<code class="sig-name descname">sample_img</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.sample_img" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit vocabulary on a single image.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.dense.functional_api.shuffle">
+<code class="sig-name descname">shuffle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.shuffle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify a sequence in-place by shuffling its contents.</p>
+<p>This function only shuffles the array along the first axis of a
+multi-dimensional array. The order of sub-arrays is changed but
+their contents remains the same.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – The array or list to be shuffled.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
+<span class="go">[1 7 5 2 9 4 3 6 0 8] # random</span>
+</pre></div>
+</div>
+<p>Multi-dimensional arrays are only shuffled along the first axis:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
+<span class="go">array([[3, 4, 5], # random</span>
+<span class="go">       [6, 7, 8],</span>
+<span class="go">       [0, 1, 2]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pathaia.ml.dense">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pathaia.ml.dense" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="pathaia.ml.dense.shuffle">
+<code class="sig-name descname">shuffle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.shuffle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify a sequence in-place by shuffling its contents.</p>
+<p>This function only shuffles the array along the first axis of a
+multi-dimensional array. The order of sub-arrays is changed but
+their contents remains the same.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – The array or list to be shuffled.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
+<span class="go">[1 7 5 2 9 4 3 6 0 8] # random</span>
+</pre></div>
+</div>
+<p>Multi-dimensional arrays are only shuffled along the first axis:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
+<span class="go">array([[3, 4, 5], # random</span>
+<span class="go">       [6, 7, 8],</span>
+<span class="go">       [0, 1, 2]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pathaia.patches.html" class="btn btn-neutral float-right" title="patches" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pathaia.ml.html" class="btn btn-neutral float-left" title="ml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, arnaud abreu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

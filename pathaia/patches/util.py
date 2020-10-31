@@ -1,5 +1,9 @@
 # coding: utf8
-"""Useful function for patch extraction."""
+"""
+Useful functions for patch extraction in slides and images.
+
+***********************************************************
+"""
 import numpy
 import os
 import itertools

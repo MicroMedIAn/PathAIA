@@ -98,7 +98,7 @@ class HierarchicalPatchifier(object):
                  silent=[],
                  verbose=2):
         """
-        Create the patchifier.
+        Create the hierarchical patchifier.
 
         Arguments:
             - outdir: str, path to an output directory.
@@ -116,7 +116,7 @@ class HierarchicalPatchifier(object):
 
     def patchify(self, path):
         """
-        Patchify a slide or an entire folder.
+        Patchify hierarchically a slide or an entire folder.
 
         Arguments:
             - path: str, absolute path to a slide or a folder of slides.
@@ -147,7 +147,7 @@ class HierarchicalPatchifier(object):
 
     def add_filter(self, filter_func, level=None):
         """
-        Add a filter function to this patch extractor.
+        Add a filter function to the hierarchical patch extractor.
 
         Arguments:
             - filter_func: callable, a function that take an image as argument and output a bool.

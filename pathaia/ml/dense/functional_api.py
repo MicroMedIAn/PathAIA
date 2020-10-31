@@ -4,8 +4,7 @@ A module to learn and predict dense descriptors.
 
 Can be used to create ml-based filters for image analysis and patch extraction.
 """
-from ..util import images_in_folder, dataset2folders
-from ...patches.util import unlabeled_regular_grid_list
+from ..util import images_in_folder, dataset2folders, unlabeled_regular_grid_list
 from sklearn.cluster import MiniBatchKMeans, KMeans
 import numpy
 from numpy.random import shuffle

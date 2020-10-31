@@ -234,7 +234,7 @@ def patchify_slide_hierarchically(slidefile,
                                   silent=[],
                                   verbose=2):
     """
-    Save patches of a given wsi.
+    Save patches of a given wsi in a hierarchical way.
 
     Arguments:
         - slidefile: str, abs path to slide file.
@@ -348,7 +348,7 @@ def patchify_folder(infolder, outfolder, level, psize, interval, offset={"x": 0,
 
 def patchify_folder_hierarchically(infolder, outfolder, top_level, low_level, psize, interval, offset={"x": 0, "y": 0}, filters={}, silent=[], verbose=2):
     """
-    Save patches of all wsi inside a folder.
+    Save hierarchical patches of all wsi inside a folder.
 
     Arguments:
         - slidefile: str, abs path to slide file.
