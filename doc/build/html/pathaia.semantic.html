@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>semantic &mdash; pathaia 0.1 documentation</title>
+  <title>pathaia.semantic package &mdash; pathaia 0.1 documentation</title>
   
 
   
@@ -87,7 +87,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="pathaia.html">pathaia</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="pathaia.ml.html">ml</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pathaia.patches.html">patches</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">semantic</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pathaia.semantic package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#module-pathaia.semantic.segmentation">segmentation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-pathaia.semantic.util">util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-pathaia.semantic">Module contents</a></li>
@@ -152,7 +152,7 @@
         
           <li><a href="pathaia.html">pathaia</a> &raquo;</li>
         
-      <li>semantic</li>
+      <li>pathaia.semantic package</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -171,8 +171,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="semantic">
-<h1>semantic<a class="headerlink" href="#semantic" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pathaia-semantic-package">
+<h1>pathaia.semantic package<a class="headerlink" href="#pathaia-semantic-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-pathaia.semantic.segmentation">
 <span id="segmentation"></span><h2>segmentation<a class="headerlink" href="#module-pathaia.semantic.segmentation" title="Permalink to this headline">¶</a></h2>
 <p>A module to produce semantic segmentations.</p>
@@ -181,6 +181,22 @@
 <dt id="pathaia.semantic.segmentation.coarse">
 <code class="sig-name descname">coarse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">model</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.semantic.segmentation.coarse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute a coarse semantic segmentation of an image.</p>
+<p>Place a window on every pixel, pixel value in segmentation
+is its prediction (by a model) made on the window.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em>) – an image.</p></li>
+<li><p><strong>model</strong> (<em>pathaia model</em>) – a ml model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>segmentation of the given image.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

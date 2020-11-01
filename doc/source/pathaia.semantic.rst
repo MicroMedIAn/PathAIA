@@ -1,5 +1,5 @@
-pathaia.semantic package
-========================
+semantic
+========
 
 segmentation
 ------------
