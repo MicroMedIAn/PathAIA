@@ -11,6 +11,55 @@ import numpy
 import itertools
 
 
+def sample_img(image, psize, spl_per_image):
+    """Fit vocabulary on a single image.
+
+    Split image in patches and fit on them.
+
+    Args:
+        image (ndarray): numpy image to fit on.
+        psize (int): size in pixels of the side of a patch.
+        spl_per_image (int): maximum number of patches to extract in image.
+
+    Returns:
+        list of ndarray: patches in the image.
+
+    """
+    img = image.astype(float)
+    spaceshape = (image.shape[0], image.shape[1])
+    positions = unlabeled_regular_grid_list(spaceshape, psize)
+    shuffle(positions)
+    positions = positions[0:spl_per_image]
+    patches = [img[i:i + psize, j:j + psize].reshape(-1) for i, j in positions]
+    return patches
+
+
+def sample_img_sep_channels(image, psize, spl_per_image):
+    """Fit vocabulary on a single image.
+
+    Split image in patches and fit on them.
+
+    Args:
+        image (ndarray): numpy image to fit on.
+        psize (int): size in pixels of the side of a patch.
+        spl_per_image (int): maximum number of patches to extract in image.
+
+    Returns:
+        tuple of list of ndarray: patches in the image in separated channels.
+
+    """
+    img = image.astype(float)
+    n_channels = image.shape[-1]
+    spaceshape = (image.shape[0], image.shape[1])
+    positions = unlabeled_regular_grid_list(spaceshape, psize)
+    shuffle(positions)
+    positions = positions[0:spl_per_image]
+    patches = []
+    for c in range(n_channels):
+        patches.append([img[i:i + psize, j:j + psize][c].reshape(-1) for i, j in positions])
+    return tuple(patches)
+
+
 def imfiles_in_folder(folder,
                       authorized=[".png", ".jpg", ".jpeg", ".tif", ".tiff"],
                       forbiden=["thumbnail"],

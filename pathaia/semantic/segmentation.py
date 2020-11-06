@@ -23,7 +23,7 @@ def coarse(image, model):
         ndarray: segmentation of the given image.
 
     """
-    psize = model.context
+    psize = int(numpy.sqrt(model.cluster_centers_.shape[1]))
     img = image.astype(float)
     spaceshape = (image.shape[0], image.shape[1])
     segmentation = numpy.zeros(spaceshape, int)

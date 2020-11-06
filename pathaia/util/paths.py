@@ -8,7 +8,7 @@ def slides_in_folder(folder, extensions=[".mrxs"]):
     """
     Return slide files inside a folder for a given extension.
 
-    Arguments:
+    Args:
         - folder: absolute path to a directory containing slides.
         - extension: list of str, file extensions of the slides.
     Returns:

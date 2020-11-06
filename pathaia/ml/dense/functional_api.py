@@ -4,7 +4,7 @@ A module to learn and predict dense descriptors.
 
 Can be used to create ml-based filters for image analysis and patch extraction.
 """
-from ..util import images_in_folder, dataset2folders, unlabeled_regular_grid_list
+from ..util import images_in_folder, dataset2folders, unlabeled_regular_grid_list, sample_img
 from sklearn.cluster import MiniBatchKMeans, KMeans
 import numpy
 from numpy.random import shuffle
@@ -14,21 +14,6 @@ import pickle
 import csv
 import shutil
 from skimage.io import imread, imsave
-
-
-def sample_img(image, psize, spl_per_image):
-    """
-    Fit vocabulary on a single image.
-
-    *********************************
-    """
-    img = image.astype(float)
-    spaceshape = (image.shape[0], image.shape[1])
-    positions = unlabeled_regular_grid_list(spaceshape, psize)
-    shuffle(positions)
-    positions = positions[0:spl_per_image]
-    patches = [img[i:i + psize, j:j + psize].reshape(-1) for i, j in positions]
-    return patches
 
 
 def fit_on_image(image, vocabulary, psize, spl_per_image):
@@ -57,11 +42,11 @@ def fit_on_slide(ptc_folder, vocabulary, voclen, psize, spl_per_image):
     """
     Create a texture vocabulary.
 
-    Arguments:
-        - ptc_folder: str, path to an image folder.
-        - psize: int, size of window in pixels.
-        - dictlen: int, number of words in vocabulary.
-        - verbose: int, verbosity.
+    Args:
+        ptc_folder: str, path to an image folder.
+        psize: int, size of window in pixels.
+        dictlen: int, number of words in vocabulary.
+        verbose: int, verbosity.
 
     """
     imgs = []
