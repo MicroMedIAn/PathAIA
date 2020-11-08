@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pathaia.ml.util module &mdash; pathaia 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pathaia.patches package" href="pathaia.patches.html" />
+    <link rel="prev" title="pathaia.ml.dense module" href="pathaia.ml.dense.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pathaia
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API References</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pathaia.html">pathaia package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pathaia.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="pathaia.ml.html">pathaia.ml package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.patches.html">pathaia.patches package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.semantic.html">pathaia.semantic package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.util.html">pathaia.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pathaia.html#module-pathaia">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pathaia</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api.html">API References</a> &raquo;</li>
+        
+          <li><a href="pathaia.html">pathaia package</a> &raquo;</li>
+        
+          <li><a href="pathaia.ml.html">pathaia.ml package</a> &raquo;</li>
+        
+      <li>pathaia.ml.util module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pathaia.ml.util.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pathaia.ml.util">
+<span id="pathaia-ml-util-module"></span><h1>pathaia.ml.util module<a class="headerlink" href="#module-pathaia.ml.util" title="Permalink to this headline">¶</a></h1>
+<p>Useful functions for machine learning models on images.</p>
+<hr class="docutils" />
+<dl class="py function">
+<dt id="pathaia.ml.util.shuffle">
+<code class="sig-name descname">shuffle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.util.shuffle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify a sequence in-place by shuffling its contents.</p>
+<p>This function only shuffles the array along the first axis of a
+multi-dimensional array. The order of sub-arrays is changed but
+their contents remains the same.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – The array or list to be shuffled.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
+<span class="go">[1 7 5 2 9 4 3 6 0 8] # random</span>
+</pre></div>
+</div>
+<p>Multi-dimensional arrays are only shuffled along the first axis:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
+<span class="go">array([[3, 4, 5], # random</span>
+<span class="go">       [6, 7, 8],</span>
+<span class="go">       [0, 1, 2]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.util.sample_img">
+<code class="sig-name descname">sample_img</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.util.sample_img" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit vocabulary on a single image.</p>
+<p>Split image in patches and fit on them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em>) – numpy image to fit on.</p></li>
+<li><p><strong>psize</strong> (<em>int</em>) – size in pixels of the side of a patch.</p></li>
+<li><p><strong>spl_per_image</strong> (<em>int</em>) – maximum number of patches to extract in image.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>patches in the image.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.util.sample_img_sep_channels">
+<code class="sig-name descname">sample_img_sep_channels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.util.sample_img_sep_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit vocabulary on a single image.</p>
+<p>Split image in patches and fit on them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em>) – numpy image to fit on.</p></li>
+<li><p><strong>psize</strong> (<em>int</em>) – size in pixels of the side of a patch.</p></li>
+<li><p><strong>spl_per_image</strong> (<em>int</em>) – maximum number of patches to extract in image.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>patches in the image in separated channels.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple of list of ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.util.imfiles_in_folder">
+<code class="sig-name descname">imfiles_in_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em>, <em class="sig-param"><span class="n">authorized</span><span class="o">=</span><span class="default_value">['.png', '.jpg', '.jpeg', '.tif', '.tiff']</span></em>, <em class="sig-param"><span class="n">forbiden</span><span class="o">=</span><span class="default_value">['thumbnail']</span></em>, <em class="sig-param"><span class="n">randomize</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">datalim</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.util.imfiles_in_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get image files in a given folder.</p>
+<p>Get all image files (selected by file extension). You can remove terms
+from the research.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>str</em>) – absolute path to an image directory.</p></li>
+<li><p><strong>authorized</strong> (<em>list</em>) – authorized image file extensions.</p></li>
+<li><p><strong>forbiden</strong> (<em>list</em>) – non-authorized words in file names.</p></li>
+<li><p><strong>randomize</strong> (<em>bool</em>) – whether to randomize output list of files.</p></li>
+<li><p><strong>datalim</strong> (<em>int</em><em> or </em><em>None</em>) – maximum number of file to extract in folder.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>absolute paths of image files in folder.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.util.images_in_folder">
+<code class="sig-name descname">images_in_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em>, <em class="sig-param"><span class="n">authorized</span><span class="o">=</span><span class="default_value">['.png', '.jpg', '.jpeg', '.tif', '.tiff']</span></em>, <em class="sig-param"><span class="n">forbiden</span><span class="o">=</span><span class="default_value">['thumbnail']</span></em>, <em class="sig-param"><span class="n">randomize</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">datalim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">paths</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.util.images_in_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get images in a given folder.</p>
+<p>Get all images as numpy arrays (selected by file extension).
+You can remove terms from the research.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>str</em>) – absolute path to an image directory.</p></li>
+<li><p><strong>authorized</strong> (<em>list</em>) – authorized image file extensions.</p></li>
+<li><p><strong>forbiden</strong> (<em>list</em>) – non-authorized words in file names.</p></li>
+<li><p><strong>randomize</strong> (<em>bool</em>) – whether to randomize output list of files.</p></li>
+<li><p><strong>datalim</strong> (<em>int</em><em> or </em><em>None</em>) – maximum number of file to extract in folder.</p></li>
+<li><p><strong>paths</strong> (<em>bool</em>) – whether to return absolute path with image data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>yield images as numpy arrays.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>iterator</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.util.dataset2folders">
+<code class="sig-name descname">dataset2folders</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">projfolder</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">randomize</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">slide_data_lim</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.util.dataset2folders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Link slidenames to their pathaia patch folder.</p>
+<p>A pathaia patch folder is named with an int corresponding
+to the level of patch extraction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>projfolder</strong> (<em>str</em>) – absolute path to a pathaia project folder.</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – pyramid level of patch extraction to consider.</p></li>
+<li><p><strong>randomize</strong> (<em>bool</em>) – whether to randomize output list of slides.</p></li>
+<li><p><strong>slide_data_lim</strong> (<em>int</em><em> or </em><em>None</em>) – number of slides to consider in project.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>slidenames are keys, absolute path to patch dir are values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.ml.util.unlabeled_regular_grid_list">
+<code class="sig-name descname">unlabeled_regular_grid_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span></em>, <em class="sig-param"><span class="n">step</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.util.unlabeled_regular_grid_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a regular grid of position on a slide given its dimensions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> (<em>tuple</em>) – shape (i, j) of the window to tile.</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – steps in pixels between patch samples.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>positions (i, j) on the regular grid.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pathaia.patches.html" class="btn btn-neutral float-right" title="pathaia.patches package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pathaia.ml.dense.html" class="btn btn-neutral float-left" title="pathaia.ml.dense module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, arnaud abreu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

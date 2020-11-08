@@ -1,0 +1,406 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pathaia.patches.filters module &mdash; pathaia 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pathaia.patches.functional_api module" href="pathaia.patches.functional_api.html" />
+    <link rel="prev" title="pathaia.patches package" href="pathaia.patches.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pathaia
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API References</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pathaia.html">pathaia package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pathaia.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pathaia.ml.html">pathaia.ml package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pathaia.patches.html">pathaia.patches package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.semantic.html">pathaia.semantic package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.util.html">pathaia.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pathaia.html#module-pathaia">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pathaia</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api.html">API References</a> &raquo;</li>
+        
+          <li><a href="pathaia.html">pathaia package</a> &raquo;</li>
+        
+          <li><a href="pathaia.patches.html">pathaia.patches package</a> &raquo;</li>
+        
+      <li>pathaia.patches.filters module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pathaia.patches.filters.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pathaia.patches.filters">
+<span id="pathaia-patches-filters-module"></span><h1>pathaia.patches.filters module<a class="headerlink" href="#module-pathaia.patches.filters" title="Permalink to this headline">¶</a></h1>
+<p>A module to filter patches in a slide.</p>
+<dl class="py exception">
+<dt id="pathaia.patches.filters.Error">
+<em class="property">exception </em><code class="sig-name descname">Error</code><a class="headerlink" href="#pathaia.patches.filters.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Base of custom errors.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="pathaia.patches.filters.UnknownMethodError">
+<em class="property">exception </em><code class="sig-name descname">UnknownMethodError</code><a class="headerlink" href="#pathaia.patches.filters.UnknownMethodError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pathaia.patches.filters.Error" title="pathaia.patches.filters.Error"><code class="xref py py-class docutils literal notranslate"><span class="pre">pathaia.patches.filters.Error</span></code></a></p>
+<p>Raise when no class is found in a datafolder.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.filters.standardize_filters">
+<code class="sig-name descname">standardize_filters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filters</span></em>, <em class="sig-param"><span class="n">top_level</span></em>, <em class="sig-param"><span class="n">low_level</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.filters.standardize_filters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check validity of hierarchical filters.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.filters.filter_hasdapi">
+<code class="sig-name descname">filter_hasdapi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">dapi_channel</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.filters.filter_hasdapi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give presence of dapi in a patch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>-</em>) – image of a patch.</p></li>
+<li><p><strong>dapi_channel</strong> (<em>-</em>) – int, channel to extract dapi signal.</p></li>
+<li><p><strong>tolerance</strong> (<em>-</em>) – int, value on dapi intensity encountered to accept a patch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool, whether dapi is visible in slide.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>has_dapi</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.filters.filter_has_significant_dapi">
+<code class="sig-name descname">filter_has_significant_dapi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">dapi_channel</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">tolerance</span><span class="o">=</span><span class="default_value">0.5</span></em>, <em class="sig-param"><span class="n">dapi_tolerance</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.filters.filter_has_significant_dapi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give if &gt; 50% of dapi in a patch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>-</em>) – image of a patch.</p></li>
+<li><p><strong>dapi_channel</strong> (<em>-</em>) – int, channel to extract dapi signal.</p></li>
+<li><p><strong>tolerance</strong> (<em>-</em>) – int, value on dapi intensity encountered to accept a patch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool, whether dapi is visible in slide.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>has_dapi</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.filters.get_tissue_from_rgb">
+<code class="sig-name descname">get_tissue_from_rgb</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">blacktol</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">whitetol</span><span class="o">=</span><span class="default_value">230</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.filters.get_tissue_from_rgb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tissue mask segmentation of an image.</p>
+<p>True pixels for the tissue, false pixels for the background.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>-</em>) – numpy ndarray, rgb image.</p></li>
+<li><p><strong>blacktol</strong> (<em>-</em>) – float or int, tolerance value for black pixels.</p></li>
+<li><p><strong>whitetol</strong> (<em>-</em>) – float or int, tolerance value for white pixels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>true pixels are tissue, false are background.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>binarymask</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.filters.get_tissue_from_lab">
+<code class="sig-name descname">get_tissue_from_lab</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">blacktol</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">whitetol</span><span class="o">=</span><span class="default_value">90</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.filters.get_tissue_from_lab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tissue mask segmentation of an image.</p>
+<p>This version operates in the lab space, conversion of the image from
+rgb to lab is performed first.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>-</em>) – numpy ndarray, rgb image.</p></li>
+<li><p><strong>blacktol</strong> (<em>-</em>) – float or int, tolerance value for black pixels.</p></li>
+<li><p><strong>whitetol</strong> (<em>-</em>) – float or int, tolerance value for white pixels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>true pixels are tissue, false are background.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>binarymask</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.filters.get_tissue">
+<code class="sig-name descname">get_tissue</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">blacktol</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">whitetol</span><span class="o">=</span><span class="default_value">90</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'lab'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.filters.get_tissue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tissue mask segmentation of an image.</p>
+<p>One can choose the segmentation method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>-</em>) – numpy ndarray, rgb image.</p></li>
+<li><p><strong>blacktol</strong> (<em>-</em>) – float or int, tolerance value for black pixels.</p></li>
+<li><p><strong>whitetol</strong> (<em>-</em>) – float or int, tolerance value for white pixels.</p></li>
+<li><p><strong>method</strong> (<em>-</em>) – str, one of ‘lab’ or ‘rgb’, function to be called.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>true pixels are tissue, false are background.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>binarymask</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.filters.filter_has_tissue_he">
+<code class="sig-name descname">filter_has_tissue_he</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">blacktol</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">whitetol</span><span class="o">=</span><span class="default_value">90</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.filters.filter_has_tissue_he" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return true if tissue inside the patch.</p>
+<p>This version operates in the lab space, conversion of the image from
+rgb to lab is performed first.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>-</em>) – numpy ndarray, rgb image.</p></li>
+<li><p><strong>blacktol</strong> (<em>-</em>) – float or int, tolerance value for black pixels.</p></li>
+<li><p><strong>whitetol</strong> (<em>-</em>) – float or int, tolerance value for white pixels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool, true if tissue is detected.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>has_tissue</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pathaia.patches.functional_api.html" class="btn btn-neutral float-right" title="pathaia.patches.functional_api module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pathaia.patches.html" class="btn btn-neutral float-left" title="pathaia.patches package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, arnaud abreu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

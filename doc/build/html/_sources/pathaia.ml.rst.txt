@@ -1,25 +1,14 @@
 pathaia.ml package
 ==================
 
-Subpackages
------------
+Submodules
+----------
 
 .. toctree::
    :maxdepth: 4
 
    pathaia.ml.dense
-   pathaia.ml.model
-
-Submodules
-----------
-
-pathaia.ml.util module
-----------------------
-
-.. automodule:: pathaia.ml.util
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   pathaia.ml.util
 
 Module contents
 ---------------

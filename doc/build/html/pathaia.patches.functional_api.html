@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pathaia.patches.functional_api module &mdash; pathaia 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pathaia.patches.object_api module" href="pathaia.patches.object_api.html" />
+    <link rel="prev" title="pathaia.patches.filters module" href="pathaia.patches.filters.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> pathaia
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API References</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pathaia.html">pathaia package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pathaia.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pathaia.ml.html">pathaia.ml package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pathaia.patches.html">pathaia.patches package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.semantic.html">pathaia.semantic package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.util.html">pathaia.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pathaia.html#module-pathaia">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#indices-and-tables">Indices and tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pathaia</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api.html">API References</a> &raquo;</li>
+        
+          <li><a href="pathaia.html">pathaia package</a> &raquo;</li>
+        
+          <li><a href="pathaia.patches.html">pathaia.patches package</a> &raquo;</li>
+        
+      <li>pathaia.patches.functional_api module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pathaia.patches.functional_api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pathaia.patches.functional_api">
+<span id="pathaia-patches-functional-api-module"></span><h1>pathaia.patches.functional_api module<a class="headerlink" href="#module-pathaia.patches.functional_api" title="Permalink to this headline">¶</a></h1>
+<p>A module to extract patches in a slide.</p>
+<p>Enable filtering on tissue surface ratio.
+Draft for hierarchical patch extraction and representation is proposed.</p>
+<dl class="py exception">
+<dt id="pathaia.patches.functional_api.Error">
+<em class="property">exception </em><code class="sig-name descname">Error</code><a class="headerlink" href="#pathaia.patches.functional_api.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Base of custom errors.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="pathaia.patches.functional_api.UnknownMethodError">
+<em class="property">exception </em><code class="sig-name descname">UnknownMethodError</code><a class="headerlink" href="#pathaia.patches.functional_api.UnknownMethodError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pathaia.patches.functional_api.Error" title="pathaia.patches.functional_api.Error"><code class="xref py py-class docutils literal notranslate"><span class="pre">pathaia.patches.functional_api.Error</span></code></a></p>
+<p>Raise when no class is found in a datafolder.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.functional_api.filter_image">
+<code class="sig-name descname">filter_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">filters</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.functional_api.filter_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check multiple filters on an image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>-</em>) – numpy array, patch to filter.</p></li>
+<li><p><strong>filters</strong> (<em>-</em>) – list of functions, image to bool.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool, whether an image has passed every filters.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>acceptable</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.functional_api.slide_rois">
+<code class="sig-name descname">slide_rois</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slide</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">ancestors</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">{'x': 0, 'y': 0}</span></em>, <em class="sig-param"><span class="n">filters</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.functional_api.slide_rois" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the absolute coordinates of patches.</p>
+<p>Given a slide, a pyramid level, a patchsize in pixels, an interval in pixels
+and an offset in pixels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slide</strong> (<em>-</em>) – openslide object.</p></li>
+<li><p><strong>level</strong> (<em>-</em>) – int, pyramid level.</p></li>
+<li><p><strong>psize</strong> (<em>-</em>) – int</p></li>
+<li><p><strong>interval</strong> (<em>-</em>) – dictionary, {“x”, “y”} interval between 2 neighboring patches.</p></li>
+<li><p><strong>offset</strong> (<em>-</em>) – dictionary, {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
+<li><p><strong>coords</strong> (<em>-</em>) – bool, coordinates of patches will be yielded if set to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p><em>- image</em> – numpy array rgb image.
+- coords: tuple of numpy arrays, (icoords, jcoords).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.functional_api.patchify_slide">
+<code class="sig-name descname">patchify_slide</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slidefile</span></em>, <em class="sig-param"><span class="n">outdir</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">{'x': 0, 'y': 0}</span></em>, <em class="sig-param"><span class="n">filters</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.functional_api.patchify_slide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save patches of a given wsi.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slidefile</strong> (<em>-</em>) – str, abs path to slide file.</p></li>
+<li><p><strong>outdir</strong> (<em>-</em>) – str, abs path to an output folder.</p></li>
+<li><p><strong>level</strong> (<em>-</em>) – int, pyramid level.</p></li>
+<li><p><strong>psize</strong> (<em>-</em>) – int</p></li>
+<li><p><strong>interval</strong> (<em>-</em>) – dictionary, {“x”, “y”} interval between 2 neighboring patches.</p></li>
+<li><p><strong>offset</strong> (<em>-</em>) – dictionary, {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
+<li><p><strong>coords</strong> (<em>-</em>) – bool, coordinates of patches will be yielded if set to True.</p></li>
+<li><p><strong>tissue</strong> (<em>-</em>) – bool, whether to filter on tissue.</p></li>
+<li><p><strong>verbose</strong> (<em>-</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.functional_api.patchify_slide_hierarchically">
+<code class="sig-name descname">patchify_slide_hierarchically</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slidefile</span></em>, <em class="sig-param"><span class="n">outdir</span></em>, <em class="sig-param"><span class="n">top_level</span></em>, <em class="sig-param"><span class="n">low_level</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">{'x': 0, 'y': 0}</span></em>, <em class="sig-param"><span class="n">filters</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">silent</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.functional_api.patchify_slide_hierarchically" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save patches of a given wsi in a hierarchical way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slidefile</strong> (<em>-</em>) – str, abs path to slide file.</p></li>
+<li><p><strong>outdir</strong> (<em>-</em>) – str, abs path to an output folder.</p></li>
+<li><p><strong>level</strong> (<em>-</em>) – int, pyramid level.</p></li>
+<li><p><strong>psize</strong> (<em>-</em>) – int</p></li>
+<li><p><strong>interval</strong> (<em>-</em>) – dictionary, {“x”, “y”} interval between 2 neighboring patches.</p></li>
+<li><p><strong>offset</strong> (<em>-</em>) – dictionary, {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
+<li><p><strong>coords</strong> (<em>-</em>) – bool, coordinates of patches will be yielded if set to True.</p></li>
+<li><p><strong>tissue</strong> (<em>-</em>) – bool, whether to filter on tissue.</p></li>
+<li><p><strong>verbose</strong> (<em>-</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.functional_api.patchify_folder">
+<code class="sig-name descname">patchify_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">infolder</span></em>, <em class="sig-param"><span class="n">outfolder</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">{'x': 0, 'y': 0}</span></em>, <em class="sig-param"><span class="n">filters</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.functional_api.patchify_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save patches of all wsi inside a folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slidefile</strong> (<em>-</em>) – str, abs path to slide file.</p></li>
+<li><p><strong>outdir</strong> (<em>-</em>) – str, abs path to an output folder.</p></li>
+<li><p><strong>level</strong> (<em>-</em>) – int, pyramid level.</p></li>
+<li><p><strong>psize</strong> (<em>-</em>) – int</p></li>
+<li><p><strong>interval</strong> (<em>-</em>) – dictionary, {“x”, “y”} interval between 2 neighboring patches.</p></li>
+<li><p><strong>offset</strong> (<em>-</em>) – dictionary, {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
+<li><p><strong>coords</strong> (<em>-</em>) – bool, coordinates of patches will be yielded if set to True.</p></li>
+<li><p><strong>tissue</strong> (<em>-</em>) – bool, whether to filter on tissue.</p></li>
+<li><p><strong>verbose</strong> (<em>-</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.patches.functional_api.patchify_folder_hierarchically">
+<code class="sig-name descname">patchify_folder_hierarchically</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">infolder</span></em>, <em class="sig-param"><span class="n">outfolder</span></em>, <em class="sig-param"><span class="n">top_level</span></em>, <em class="sig-param"><span class="n">low_level</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">interval</span></em>, <em class="sig-param"><span class="n">offset</span><span class="o">=</span><span class="default_value">{'x': 0, 'y': 0}</span></em>, <em class="sig-param"><span class="n">filters</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">silent</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.patches.functional_api.patchify_folder_hierarchically" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save hierarchical patches of all wsi inside a folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slidefile</strong> (<em>-</em>) – str, abs path to slide file.</p></li>
+<li><p><strong>outdir</strong> (<em>-</em>) – str, abs path to an output folder.</p></li>
+<li><p><strong>level</strong> (<em>-</em>) – int, pyramid level.</p></li>
+<li><p><strong>psize</strong> (<em>-</em>) – int</p></li>
+<li><p><strong>interval</strong> (<em>-</em>) – dictionary, {“x”, “y”} interval between 2 neighboring patches.</p></li>
+<li><p><strong>offset</strong> (<em>-</em>) – dictionary, {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
+<li><p><strong>coords</strong> (<em>-</em>) – bool, coordinates of patches will be yielded if set to True.</p></li>
+<li><p><strong>tissue</strong> (<em>-</em>) – bool, whether to filter on tissue.</p></li>
+<li><p><strong>verbose</strong> (<em>-</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pathaia.patches.object_api.html" class="btn btn-neutral float-right" title="pathaia.patches.object_api module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pathaia.patches.filters.html" class="btn btn-neutral float-left" title="pathaia.patches.filters module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, arnaud abreu
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

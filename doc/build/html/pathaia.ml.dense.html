@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pathaia.ml.dense package &mdash; pathaia 0.1 documentation</title>
+  <title>pathaia.ml.dense module &mdash; pathaia 0.1 documentation</title>
   
 
   
@@ -35,7 +35,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pathaia.ml.util module" href="pathaia.ml.util.html" />
+    <link rel="prev" title="pathaia.ml package" href="pathaia.ml.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,8 +82,21 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API References</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API References</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pathaia.html">pathaia package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pathaia.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="pathaia.ml.html">pathaia.ml package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.patches.html">pathaia.patches package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.semantic.html">pathaia.semantic package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.util.html">pathaia.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pathaia.html#module-pathaia">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html#indices-and-tables">Indices and tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
@@ -131,7 +146,13 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>pathaia.ml.dense package</li>
+          <li><a href="api.html">API References</a> &raquo;</li>
+        
+          <li><a href="pathaia.html">pathaia package</a> &raquo;</li>
+        
+          <li><a href="pathaia.ml.html">pathaia.ml package</a> &raquo;</li>
+        
+      <li>pathaia.ml.dense module</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -150,149 +171,325 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pathaia-ml-dense-package">
-<h1>pathaia.ml.dense package<a class="headerlink" href="#pathaia-ml-dense-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-pathaia.ml.dense.functional_api">
-<span id="pathaia-ml-dense-functional-api-module"></span><h2>pathaia.ml.dense.functional_api module<a class="headerlink" href="#module-pathaia.ml.dense.functional_api" title="Permalink to this headline">¶</a></h2>
-<p>A module to learn and predict dense descriptors.</p>
-<p>Can be used to create ml-based filters for image analysis and patch extraction.</p>
-<dl class="py function">
-<dt id="pathaia.ml.dense.functional_api.create_bag_dataset">
-<code class="sig-name descname">create_bag_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">projfolder</span></em>, <em class="sig-param"><span class="n">outfolder</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.create_bag_dataset" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict bof on an entire slide dataset.</p>
+  <div class="section" id="module-pathaia.ml.dense">
+<span id="pathaia-ml-dense-module"></span><h1>pathaia.ml.dense module<a class="headerlink" href="#module-pathaia.ml.dense" title="Permalink to this headline">¶</a></h1>
+<p>Useful functions and classes to store vocabularies learned on images.</p>
+<p>This module gather functions and classes to handle vocabulary learning and
+inference on image datasets.</p>
+<dl class="py class">
+<dt id="pathaia.ml.dense.Vocabulary">
+<em class="property">class </em><code class="sig-name descname">Vocabulary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">context</span></em>, <em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">img_per_slide</span></em>, <em class="sig-param"><span class="n">ptc_per_img</span></em>, <em class="sig-param"><span class="n">dataset_len</span></em>, <em class="sig-param"><span class="n">n_channels</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.Vocabulary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An object to store an image vocabulary.</p>
+<p>This class defines parameters and learning/inference behaviour of an
+image vocabulary.</p>
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.training_slides">
+<em class="property">property </em><code class="sig-name descname">training_slides</code><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.training_slides" title="Permalink to this definition">¶</a></dt>
+<dd><p>IDs of the slides used for training.</p>
+<p>The set of slides used to obtain the centroids of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Set of str</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py function">
-<dt id="pathaia.ml.dense.functional_api.fit_on_image">
-<code class="sig-name descname">fit_on_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.fit_on_image" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit vocabulary on a single image.</p>
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.context">
+<em class="property">property </em><code class="sig-name descname">context</code><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Size of words in pixels.</p>
+<p>The side of a patch-word.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py function">
-<dt id="pathaia.ml.dense.functional_api.fit_on_imbatch">
-<code class="sig-name descname">fit_on_imbatch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">images</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.fit_on_imbatch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit vocabulary on a batch of images.</p>
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.level">
+<em class="property">property </em><code class="sig-name descname">level</code><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Level to extract patches.</p>
+<p>The pyramid level (magnification) at which extract patches in slide.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py function">
-<dt id="pathaia.ml.dense.functional_api.fit_on_slide">
-<code class="sig-name descname">fit_on_slide</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptc_folder</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">voclen</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.fit_on_slide" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a texture vocabulary.</p>
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.n_words">
+<em class="property">property </em><code class="sig-name descname">n_words</code><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.n_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Size of the Vocabulary.</p>
+<p>The number of words, i.e. centroids.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.img_per_slide">
+<em class="property">property </em><code class="sig-name descname">img_per_slide</code><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.img_per_slide" title="Permalink to this definition">¶</a></dt>
+<dd><p>images to take per slide.</p>
+<p>The number of ‘big’ images to take into account
+to fit on a single slide.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.ptc_per_img">
+<em class="property">property </em><code class="sig-name descname">ptc_per_img</code><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.ptc_per_img" title="Permalink to this definition">¶</a></dt>
+<dd><p>patches to take per image.</p>
+<p>The number of ‘small’ images to extract from a ‘big’
+image in a slide.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.n_channels">
+<em class="property">property </em><code class="sig-name descname">n_channels</code><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.n_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of channels in images.</p>
+<p>The number of channels in the images we fit on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.fit_on_imbatch">
+<code class="sig-name descname">fit_on_imbatch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.fit_on_imbatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partial fit of the k-means model used as Vocabulary.</p>
+<p>Fit the k-means clf on a new batch of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>batch</strong> (<em>ndarray</em>) – batch of big images to fit on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.fit_on_slide">
+<code class="sig-name descname">fit_on_slide</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slide_ptc_folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.fit_on_slide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit Vocabulary on a single slide batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>slide_ptc_folder</strong> (<em>str</em>) – path to an image folder.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.fit_on_dataset">
+<code class="sig-name descname">fit_on_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset_folder</span></em>, <em class="sig-param"><span class="n">verbose</span></em>, <em class="sig-param"><span class="n">outfolder</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.fit_on_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit vocabulary on several batches taken from several slides.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptc_folder</strong> – str, path to an image folder.</p></li>
-<li><p><strong>psize</strong> – int, size of window in pixels.</p></li>
-<li><p><strong>dictlen</strong> – int, number of words in vocabulary.</p></li>
-<li><p><strong>verbose</strong> – int, verbosity.</p></li>
+<li><p><strong>dataset_folder</strong> (<em>str</em>) – path to a pathaia dataset folder.</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – pyramid level at which extract patches.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em>) – degree of console output while fitting.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py function">
-<dt id="pathaia.ml.dense.functional_api.learn_bags">
-<code class="sig-name descname">learn_bags</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bagdataset</span></em>, <em class="sig-param"><span class="n">outfolder</span></em>, <em class="sig-param"><span class="n">bagvoclen</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.learn_bags" title="Permalink to this definition">¶</a></dt>
-<dd><p>Learn expressions from a dataset of bags.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="pathaia.ml.dense.functional_api.learn_vocabulary">
-<code class="sig-name descname">learn_vocabulary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">projfolder</span></em>, <em class="sig-param"><span class="n">outfolder</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">psize</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">voclen</span><span class="o">=</span><span class="default_value">256</span></em>, <em class="sig-param"><span class="n">spl_per_image</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">slide_data_lim</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">reassignment_ratio</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.learn_vocabulary" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit vocabulary on a single entire slide dataset.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="pathaia.ml.dense.functional_api.predict_image_bag">
-<code class="sig-name descname">predict_image_bag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">psize</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.predict_image_bag" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict vocabulary on a single image.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="pathaia.ml.dense.functional_api.predict_imfolder_bags">
-<code class="sig-name descname">predict_imfolder_bags</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imfolder</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">psize</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.predict_imfolder_bags" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict vocabulary on slide patches.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="pathaia.ml.dense.functional_api.shuffle">
-<code class="sig-name descname">shuffle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.shuffle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Modify a sequence in-place by shuffling its contents.</p>
-<p>This function only shuffles the array along the first axis of a
-multi-dimensional array. The order of sub-arrays is changed but
-their contents remains the same.</p>
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.to_json">
+<code class="sig-name descname">to_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save vocabulary parameters to a json file.</p>
+<p>Put parameters to a dictionary and save it into a json file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – The array or list to be shuffled.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>None</p>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>) – path to a json file to write.</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
-<span class="go">[1 7 5 2 9 4 3 6 0 8] # random</span>
-</pre></div>
-</div>
-<p>Multi-dimensional arrays are only shuffled along the first axis:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
-<span class="go">array([[3, 4, 5], # random</span>
-<span class="go">       [6, 7, 8],</span>
-<span class="go">       [0, 1, 2]])</span>
-</pre></div>
-</div>
 </dd></dl>
 
-</div>
-<div class="section" id="module-pathaia.ml.dense">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pathaia.ml.dense" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt id="pathaia.ml.dense.shuffle">
-<code class="sig-name descname">shuffle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.shuffle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Modify a sequence in-place by shuffling its contents.</p>
-<p>This function only shuffles the array along the first axis of a
-multi-dimensional array. The order of sub-arrays is changed but
-their contents remains the same.</p>
+<dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.from_json">
+<code class="sig-name descname">from_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load vocabulary from json.</p>
+<p>Read json as a dictionary and put params in object’s attributes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>x</strong> (<em>array_like</em>) – The array or list to be shuffled.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>None</p>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>) – path to a json file to read.</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
-<span class="go">[1 7 5 2 9 4 3 6 0 8] # random</span>
-</pre></div>
-</div>
-<p>Multi-dimensional arrays are only shuffled along the first axis:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span>
-<span class="go">array([[3, 4, 5], # random</span>
-<span class="go">       [6, 7, 8],</span>
-<span class="go">       [0, 1, 2]])</span>
-</pre></div>
-</div>
 </dd></dl>
 
-</div>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary">
+<em class="property">class </em><code class="sig-name descname">SepChannelsVocabulary</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">context</span></em>, <em class="sig-param"><span class="n">size</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">img_per_slide</span></em>, <em class="sig-param"><span class="n">ptc_per_img</span></em>, <em class="sig-param"><span class="n">dataset_len</span></em>, <em class="sig-param"><span class="n">n_channels</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An object to store an image vocabulary.</p>
+<p>This class defines parameters and learning/inference behaviour of an
+image vocabulary.</p>
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.training_slides">
+<em class="property">property </em><code class="sig-name descname">training_slides</code><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.training_slides" title="Permalink to this definition">¶</a></dt>
+<dd><p>IDs of the slides used for training.</p>
+<p>The set of slides used to obtain the centroids of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Set of str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.context">
+<em class="property">property </em><code class="sig-name descname">context</code><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Size of words in pixels.</p>
+<p>The side of a patch-word.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.level">
+<em class="property">property </em><code class="sig-name descname">level</code><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Level to extract patches.</p>
+<p>The pyramid level (magnification) at which extract patches in slide.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.n_words">
+<em class="property">property </em><code class="sig-name descname">n_words</code><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.n_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Size of the Vocabulary.</p>
+<p>The number of words, i.e. centroids.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.img_per_slide">
+<em class="property">property </em><code class="sig-name descname">img_per_slide</code><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.img_per_slide" title="Permalink to this definition">¶</a></dt>
+<dd><p>images to take per slide.</p>
+<p>The number of ‘big’ images to take into account
+to fit on a single slide.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.ptc_per_img">
+<em class="property">property </em><code class="sig-name descname">ptc_per_img</code><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.ptc_per_img" title="Permalink to this definition">¶</a></dt>
+<dd><p>patches to take per image.</p>
+<p>The number of ‘small’ images to extract from a ‘big’
+image in a slide.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.n_channels">
+<em class="property">property </em><code class="sig-name descname">n_channels</code><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.n_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of channels in images.</p>
+<p>The number of channels in the images we fit on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.fit_on_imbatch">
+<code class="sig-name descname">fit_on_imbatch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.fit_on_imbatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Partial fit of the k-means model used as Vocabulary.</p>
+<p>Fit the k-means clf on a new batch of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>batch</strong> (<em>ndarray</em>) – batch of big images to fit on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.fit_on_slide">
+<code class="sig-name descname">fit_on_slide</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slide_ptc_folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.fit_on_slide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit Vocabulary on a single slide batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>slide_ptc_folder</strong> (<em>str</em>) – path to an image folder.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.fit_on_dataset">
+<code class="sig-name descname">fit_on_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset_folder</span></em>, <em class="sig-param"><span class="n">verbose</span></em>, <em class="sig-param"><span class="n">outfolder</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.fit_on_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit vocabulary on several batches taken from several slides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset_folder</strong> (<em>str</em>) – path to a pathaia dataset folder.</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – pyramid level at which extract patches.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em>) – degree of console output while fitting.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.to_json">
+<code class="sig-name descname">to_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save vocabulary parameters to a json file.</p>
+<p>Put parameters to a dictionary and save it into a json file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>) – path to a json file to write.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.from_json">
+<code class="sig-name descname">from_json</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filepath</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load vocabulary from json.</p>
+<p>Read json as a dictionary and put params in object’s attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>) – path to a json file to read.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -300,6 +497,15 @@ their contents remains the same.</p>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pathaia.ml.util.html" class="btn btn-neutral float-right" title="pathaia.ml.util module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pathaia.ml.html" class="btn btn-neutral float-left" title="pathaia.ml package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

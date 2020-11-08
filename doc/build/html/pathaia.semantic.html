@@ -35,7 +35,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pathaia.semantic.segmentation module" href="pathaia.semantic.segmentation.html" />
+    <link rel="prev" title="pathaia.patches.visu module" href="pathaia.patches.visu.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,8 +82,21 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API References</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API References</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pathaia.html">pathaia package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pathaia.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pathaia.ml.html">pathaia.ml package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.patches.html">pathaia.patches package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pathaia.semantic package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.util.html">pathaia.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pathaia.html#module-pathaia">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html#indices-and-tables">Indices and tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
@@ -131,6 +146,10 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
+          <li><a href="api.html">API References</a> &raquo;</li>
+        
+          <li><a href="pathaia.html">pathaia package</a> &raquo;</li>
+        
       <li>pathaia.semantic package</li>
     
     
@@ -154,55 +173,12 @@
 <h1>pathaia.semantic package<a class="headerlink" href="#pathaia-semantic-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-pathaia.semantic.segmentation">
-<span id="pathaia-semantic-segmentation-module"></span><h2>pathaia.semantic.segmentation module<a class="headerlink" href="#module-pathaia.semantic.segmentation" title="Permalink to this headline">¶</a></h2>
-<p>A module to produce semantic segmentations.</p>
-<p>Can be used visualize model perception of an image.</p>
-<dl class="py function">
-<dt id="pathaia.semantic.segmentation.coarse">
-<code class="sig-name descname">coarse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">model</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.semantic.segmentation.coarse" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute a coarse semantic segmentation of an image.</p>
-<p>Place a window on every pixel, pixel value in segmentation
-is its prediction (by a model) made on the window.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em>) – an image.</p></li>
-<li><p><strong>model</strong> (<em>pathaia model</em>) – a ml model.</p></li>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pathaia.semantic.segmentation.html">pathaia.semantic.segmentation module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pathaia.semantic.util.html">pathaia.semantic.util module</a></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>segmentation of the given image.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
-<div class="section" id="module-pathaia.semantic.util">
-<span id="pathaia-semantic-util-module"></span><h2>pathaia.semantic.util module<a class="headerlink" href="#module-pathaia.semantic.util" title="Permalink to this headline">¶</a></h2>
-<p>Useful functions for semantic analysis.</p>
-<hr class="docutils" />
-<dl class="py function">
-<dt id="pathaia.semantic.util.unlabeled_regular_grid_list">
-<code class="sig-name descname">unlabeled_regular_grid_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span></em>, <em class="sig-param"><span class="n">step</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.semantic.util.unlabeled_regular_grid_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a regular grid of position on a slide given its dimensions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>shape</strong> (<em>-</em>) – tuple, (i, j) shape of the window to tile.</p></li>
-<li><p><strong>step</strong> (<em>-</em>) – int, steps between patch samples.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Yields</dt>
-<dd class="field-even"><p><em>- positions</em> – tuples, (i, j) positions on a regular grid.</p>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
 <div class="section" id="module-pathaia.semantic">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pathaia.semantic" title="Permalink to this headline">¶</a></h2>
@@ -214,6 +190,15 @@ is its prediction (by a model) made on the window.</p>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pathaia.semantic.segmentation.html" class="btn btn-neutral float-right" title="pathaia.semantic.segmentation module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pathaia.patches.visu.html" class="btn btn-neutral float-left" title="pathaia.patches.visu module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

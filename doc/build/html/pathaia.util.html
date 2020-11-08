@@ -35,7 +35,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pathaia.util.paths module" href="pathaia.util.paths.html" />
+    <link rel="prev" title="pathaia.semantic.util module" href="pathaia.semantic.util.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -80,8 +82,21 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API References</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API References</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pathaia.html">pathaia package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pathaia.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pathaia.ml.html">pathaia.ml package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.patches.html">pathaia.patches package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.semantic.html">pathaia.semantic package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pathaia.util package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pathaia.html#module-pathaia">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html#indices-and-tables">Indices and tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
@@ -131,6 +146,10 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
+          <li><a href="api.html">API References</a> &raquo;</li>
+        
+          <li><a href="pathaia.html">pathaia package</a> &raquo;</li>
+        
       <li>pathaia.util package</li>
     
     
@@ -154,53 +173,11 @@
 <h1>pathaia.util package<a class="headerlink" href="#pathaia-util-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pathaia.util.paths.html">pathaia.util.paths module</a></li>
+</ul>
 </div>
-<div class="section" id="module-pathaia.util.paths">
-<span id="pathaia-util-paths-module"></span><h2>pathaia.util.paths module<a class="headerlink" href="#module-pathaia.util.paths" title="Permalink to this headline">¶</a></h2>
-<p>Useful functions for handling patches in WSIs.</p>
-<dl class="py function">
-<dt id="pathaia.util.paths.slide_basename">
-<code class="sig-name descname">slide_basename</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slidepath</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.paths.slide_basename" title="Permalink to this definition">¶</a></dt>
-<dd><p>Give the basename of a slide from its absolutepath.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>slidepath</strong> (<em>-</em>) – str, absolute path to a slide.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>str, basename of the slide.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>basename</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="pathaia.util.paths.slides_in_folder">
-<code class="sig-name descname">slides_in_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em>, <em class="sig-param"><span class="n">extensions</span><span class="o">=</span><span class="default_value">['.mrxs']</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.paths.slides_in_folder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return slide files inside a folder for a given extension.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>folder</strong> (<em>-</em>) – absolute path to a directory containing slides.</p></li>
-<li><p><strong>extension</strong> (<em>-</em>) – list of str, file extensions of the slides.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of absolute path of slide files.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>abspathlist</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
 </div>
 <div class="section" id="module-pathaia.util">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pathaia.util" title="Permalink to this headline">¶</a></h2>
@@ -212,6 +189,15 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pathaia.util.paths.html" class="btn btn-neutral float-right" title="pathaia.util.paths module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pathaia.semantic.util.html" class="btn btn-neutral float-left" title="pathaia.semantic.util module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

@@ -1,9 +1,11 @@
 pathaia package
 ===============
 
+Subpackages
+-----------
+
 .. toctree::
    :maxdepth: 4
-   :caption:
 
    pathaia.ml
    pathaia.patches

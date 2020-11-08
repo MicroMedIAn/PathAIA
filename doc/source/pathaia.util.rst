@@ -4,13 +4,10 @@ pathaia.util package
 Submodules
 ----------
 
-pathaia.util.paths module
--------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: pathaia.util.paths
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   pathaia.util.paths
 
 Module contents
 ---------------

@@ -56,7 +56,7 @@ def sample_img_sep_channels(image, psize, spl_per_image):
     positions = positions[0:spl_per_image]
     patches = []
     for c in range(n_channels):
-        patches.append([img[i:i + psize, j:j + psize][c].reshape(-1) for i, j in positions])
+        patches.append([img[:, :, c][i:i + psize, j:j + psize].reshape(-1) for i, j in positions])
     return tuple(patches)
 
 

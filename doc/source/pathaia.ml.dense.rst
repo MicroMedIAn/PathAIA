@@ -1,19 +1,5 @@
-pathaia.ml.dense package
-========================
-
-Submodules
-----------
-
-pathaia.ml.dense.functional\_api module
----------------------------------------
-
-.. automodule:: pathaia.ml.dense.functional_api
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
+pathaia.ml.dense module
+=======================
 
 .. automodule:: pathaia.ml.dense
    :members:

@@ -336,7 +336,7 @@ class SepChannelsVocabulary(object):
             for idx, channel_patches in enumerate(sample_img_sep_channels(img, self._context, self._ptc_per_img)):
                 ch_ptcs[idx] += channel_patches
         for clf, ptcs in zip(self._clf, ch_ptcs):
-            clf.partial_fit(clf, ptcs)
+            clf.partial_fit(ptcs)
 
     def fit_on_slide(self, slide_ptc_folder):
         """Fit Vocabulary on a single slide batch.
@@ -373,14 +373,15 @@ class SepChannelsVocabulary(object):
                 print("fitting on level: {}".format(self._level))
             self.fit_on_slide(folder)
 
-        for idx, center in enumerate(self._clf.cluster_centers_):
-            self._centroids[idx] = center
+        for clf_idx, clf in enumerate(self._clf):
+            for idx, center in enumerate(clf.cluster_centers_):
+                self._centroids[clf_idx][idx] = center
 
         # affichage
         if verbose > 1 and outfolder is not None:
             for c in range(self._n_channels):
                 fig = plt.figure()
-                patch_shape = (self._context, self._context, 3)
+                patch_shape = (self._context, self._context)
                 for i in range(int(numpy.sqrt(self._n_words))):
                     for j in range(int(numpy.sqrt(self._n_words))):
                         image = self._clf[c].cluster_centers_[i * int(numpy.sqrt(self._n_words)) + j].reshape(patch_shape)
