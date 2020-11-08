@@ -5,7 +5,7 @@ This module gather functions and classes to handle vocabulary learning and
 inference on image datasets.
 """
 from sklearn.cluster import MiniBatchKMeans, KMeans
-from ..util import sample_img, images_in_folder, dataset2folders, sample_img_sep_channels
+from .util import sample_img, images_in_folder, dataset2folders, sample_img_sep_channels
 from matplotlib import pyplot as plt
 import numpy
 import os

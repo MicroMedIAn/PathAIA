@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dense &mdash; pathaia 0.1 documentation</title>
+  <title>pathaia.ml.dense package &mdash; pathaia 0.1 documentation</title>
   
 
   
@@ -35,9 +35,7 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="patches" href="pathaia.patches.html" />
-    <link rel="prev" title="ml" href="pathaia.ml.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,22 +80,8 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="api.html">API References</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pathaia.html">pathaia</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="pathaia.ml.html">ml</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">dense</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pathaia.ml.html#module-pathaia.ml.util">util</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pathaia.patches.html">patches</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pathaia.semantic.html">semantic</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pathaia.util.html">util</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pathaia.html#module-pathaia">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API References</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html#indices-and-tables">Indices and tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="support.html">Support</a></li>
@@ -147,13 +131,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="api.html">API References</a> &raquo;</li>
-        
-          <li><a href="pathaia.html">pathaia</a> &raquo;</li>
-        
-          <li><a href="pathaia.ml.html">ml</a> &raquo;</li>
-        
-      <li>dense</li>
+      <li>pathaia.ml.dense package</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -172,10 +150,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dense">
-<h1>dense<a class="headerlink" href="#dense" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pathaia-ml-dense-package">
+<h1>pathaia.ml.dense package<a class="headerlink" href="#pathaia-ml-dense-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
 <div class="section" id="module-pathaia.ml.dense.functional_api">
-<span id="functional-api"></span><h2>functional_api<a class="headerlink" href="#module-pathaia.ml.dense.functional_api" title="Permalink to this headline">¶</a></h2>
+<span id="pathaia-ml-dense-functional-api-module"></span><h2>pathaia.ml.dense.functional_api module<a class="headerlink" href="#module-pathaia.ml.dense.functional_api" title="Permalink to this headline">¶</a></h2>
 <p>A module to learn and predict dense descriptors.</p>
 <p>Can be used to create ml-based filters for image analysis and patch extraction.</p>
 <dl class="py function">
@@ -203,10 +184,10 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ptc_folder</strong> (<em>-</em>) – str, path to an image folder.</p></li>
-<li><p><strong>psize</strong> (<em>-</em>) – int, size of window in pixels.</p></li>
-<li><p><strong>dictlen</strong> (<em>-</em>) – int, number of words in vocabulary.</p></li>
-<li><p><strong>verbose</strong> (<em>-</em>) – int, verbosity.</p></li>
+<li><p><strong>ptc_folder</strong> – str, path to an image folder.</p></li>
+<li><p><strong>psize</strong> – int, size of window in pixels.</p></li>
+<li><p><strong>dictlen</strong> – int, number of words in vocabulary.</p></li>
+<li><p><strong>verbose</strong> – int, verbosity.</p></li>
 </ul>
 </dd>
 </dl>
@@ -234,12 +215,6 @@
 <dt id="pathaia.ml.dense.functional_api.predict_imfolder_bags">
 <code class="sig-name descname">predict_imfolder_bags</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">imfolder</span></em>, <em class="sig-param"><span class="n">vocabulary</span></em>, <em class="sig-param"><span class="n">psize</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.predict_imfolder_bags" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict vocabulary on slide patches.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="pathaia.ml.dense.functional_api.sample_img">
-<code class="sig-name descname">sample_img</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.functional_api.sample_img" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit vocabulary on a single image.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -325,15 +300,6 @@ their contents remains the same.</p>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="pathaia.patches.html" class="btn btn-neutral float-right" title="patches" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="pathaia.ml.html" class="btn btn-neutral float-left" title="ml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>

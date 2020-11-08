@@ -7,7 +7,7 @@ Welcome to pathaia's documentation!
 ===================================
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 4
 
    api
    install

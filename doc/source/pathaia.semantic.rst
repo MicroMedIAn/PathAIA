@@ -1,16 +1,19 @@
-semantic
-========
+pathaia.semantic package
+========================
 
-segmentation
-------------
+Submodules
+----------
+
+pathaia.semantic.segmentation module
+------------------------------------
 
 .. automodule:: pathaia.semantic.segmentation
    :members:
    :undoc-members:
    :show-inheritance:
 
-util
-----
+pathaia.semantic.util module
+----------------------------
 
 .. automodule:: pathaia.semantic.util
    :members:

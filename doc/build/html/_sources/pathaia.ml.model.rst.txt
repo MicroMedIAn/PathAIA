@@ -1,13 +1,13 @@
-pathaia.ml.dense package
+pathaia.ml.model package
 ========================
 
 Submodules
 ----------
 
-pathaia.ml.dense.functional\_api module
----------------------------------------
+pathaia.ml.model.vocabulary module
+----------------------------------
 
-.. automodule:: pathaia.ml.dense.functional_api
+.. automodule:: pathaia.ml.model.vocabulary
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ pathaia.ml.dense.functional\_api module
 Module contents
 ---------------
 
-.. automodule:: pathaia.ml.dense
+.. automodule:: pathaia.ml.model
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,14 +1,14 @@
-pathaia
-=======
+pathaia package
+===============
 
 .. toctree::
    :maxdepth: 4
+   :caption:
 
    pathaia.ml
    pathaia.patches
    pathaia.semantic
    pathaia.util
-
 
 Module contents
 ---------------

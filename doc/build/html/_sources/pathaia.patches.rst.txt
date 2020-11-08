@@ -1,40 +1,43 @@
-patches
-=======
+pathaia.patches package
+=======================
 
-filters
--------
+Submodules
+----------
+
+pathaia.patches.filters module
+------------------------------
 
 .. automodule:: pathaia.patches.filters
    :members:
    :undoc-members:
    :show-inheritance:
 
-functional\_api
----------------
+pathaia.patches.functional\_api module
+--------------------------------------
 
 .. automodule:: pathaia.patches.functional_api
    :members:
    :undoc-members:
    :show-inheritance:
 
-object\_api
------------
+pathaia.patches.object\_api module
+----------------------------------
 
 .. automodule:: pathaia.patches.object_api
    :members:
    :undoc-members:
    :show-inheritance:
 
-util
-----
+pathaia.patches.util module
+---------------------------
 
 .. automodule:: pathaia.patches.util
    :members:
    :undoc-members:
    :show-inheritance:
 
-visu
-----
+pathaia.patches.visu module
+---------------------------
 
 .. automodule:: pathaia.patches.visu
    :members:

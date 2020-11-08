@@ -1,8 +1,11 @@
-dense
-=====
+pathaia.ml.dense package
+========================
 
-functional\_api
----------------
+Submodules
+----------
+
+pathaia.ml.dense.functional\_api module
+---------------------------------------
 
 .. automodule:: pathaia.ml.dense.functional_api
    :members:

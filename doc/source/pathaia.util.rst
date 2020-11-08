@@ -1,8 +1,11 @@
-util
-====
+pathaia.util package
+====================
 
-paths
------
+Submodules
+----------
+
+pathaia.util.paths module
+-------------------------
 
 .. automodule:: pathaia.util.paths
    :members:
