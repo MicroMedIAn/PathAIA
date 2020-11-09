@@ -197,18 +197,15 @@ Draft for hierarchical patch extraction and representation is proposed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>-</em>) – numpy array, patch to filter.</p></li>
-<li><p><strong>filters</strong> (<em>-</em>) – list of functions, image to bool.</p></li>
+<li><p><strong>image</strong> (<em>ndarray</em>) – the patch to be filtered.</p></li>
+<li><p><strong>filters</strong> (<em>list of function</em>) – functions that turn images into booleans.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>bool, whether an image has passed every filters.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p>acceptable</p></li>
-</ul>
-</p>
+<dd class="field-odd"><p>acceptable</p>
 </dd>
 </dl>
 </dd></dl>
@@ -222,17 +219,17 @@ and an offset in pixels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>slide</strong> (<em>-</em>) – openslide object.</p></li>
-<li><p><strong>level</strong> (<em>-</em>) – int, pyramid level.</p></li>
-<li><p><strong>psize</strong> (<em>-</em>) – int</p></li>
-<li><p><strong>interval</strong> (<em>-</em>) – dictionary, {“x”, “y”} interval between 2 neighboring patches.</p></li>
-<li><p><strong>offset</strong> (<em>-</em>) – dictionary, {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
-<li><p><strong>coords</strong> (<em>-</em>) – bool, coordinates of patches will be yielded if set to True.</p></li>
+<li><p><strong>slide</strong> (<em>OpenSlide</em>) – the slide to patchify.</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – pyramid level.</p></li>
+<li><p><strong>psize</strong> (<em>int</em>) – size of the side of the patch (in pixels).</p></li>
+<li><p><strong>interval</strong> (<em>dictionary</em>) – {“x”, “y”} interval between 2 neighboring patches.</p></li>
+<li><p><strong>offset</strong> (<em>dictionary</em>) – {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
+<li><p><strong>coords</strong> (<em>bool</em>) – coordinates of patches will be yielded if set to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Yields</dt>
-<dd class="field-even"><p><em>- image</em> – numpy array rgb image.
-- coords: tuple of numpy arrays, (icoords, jcoords).</p>
+<dd class="field-even"><p><em>ndarray</em> – numpy array rgb image.
+tuple of ndarray: icoords, jcoords.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -244,15 +241,15 @@ and an offset in pixels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>slidefile</strong> (<em>-</em>) – str, abs path to slide file.</p></li>
-<li><p><strong>outdir</strong> (<em>-</em>) – str, abs path to an output folder.</p></li>
-<li><p><strong>level</strong> (<em>-</em>) – int, pyramid level.</p></li>
-<li><p><strong>psize</strong> (<em>-</em>) – int</p></li>
-<li><p><strong>interval</strong> (<em>-</em>) – dictionary, {“x”, “y”} interval between 2 neighboring patches.</p></li>
-<li><p><strong>offset</strong> (<em>-</em>) – dictionary, {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
-<li><p><strong>coords</strong> (<em>-</em>) – bool, coordinates of patches will be yielded if set to True.</p></li>
-<li><p><strong>tissue</strong> (<em>-</em>) – bool, whether to filter on tissue.</p></li>
-<li><p><strong>verbose</strong> (<em>-</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
+<li><p><strong>slidefile</strong> (<em>str</em>) – abs path to slide file.</p></li>
+<li><p><strong>outdir</strong> (<em>str</em>) – abs path to an output folder.</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – pyramid level.</p></li>
+<li><p><strong>psize</strong> (<em>int</em>) – size of the side of the patches (in pixels).</p></li>
+<li><p><strong>interval</strong> (<em>dictionary</em>) – {“x”, “y”} interval between 2 neighboring patches.</p></li>
+<li><p><strong>offset</strong> (<em>dictionary</em>) – {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
+<li><p><strong>coords</strong> (<em>bool</em>) – coordinates of patches will be yielded if set to True.</p></li>
+<li><p><strong>tissue</strong> (<em>bool</em>) – whether to filter on tissue.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
 </ul>
 </dd>
 </dl>
@@ -265,15 +262,15 @@ and an offset in pixels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>slidefile</strong> (<em>-</em>) – str, abs path to slide file.</p></li>
-<li><p><strong>outdir</strong> (<em>-</em>) – str, abs path to an output folder.</p></li>
-<li><p><strong>level</strong> (<em>-</em>) – int, pyramid level.</p></li>
-<li><p><strong>psize</strong> (<em>-</em>) – int</p></li>
-<li><p><strong>interval</strong> (<em>-</em>) – dictionary, {“x”, “y”} interval between 2 neighboring patches.</p></li>
-<li><p><strong>offset</strong> (<em>-</em>) – dictionary, {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
-<li><p><strong>coords</strong> (<em>-</em>) – bool, coordinates of patches will be yielded if set to True.</p></li>
-<li><p><strong>tissue</strong> (<em>-</em>) – bool, whether to filter on tissue.</p></li>
-<li><p><strong>verbose</strong> (<em>-</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
+<li><p><strong>slidefile</strong> (<em>str</em>) – abs path to slide file.</p></li>
+<li><p><strong>outdir</strong> (<em>str</em>) – abs path to an output folder.</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – pyramid level.</p></li>
+<li><p><strong>psize</strong> (<em>int</em>) – size of the side of the patches (in pixels).</p></li>
+<li><p><strong>interval</strong> (<em>dictionary</em>) – {“x”, “y”} interval between 2 neighboring patches.</p></li>
+<li><p><strong>offset</strong> (<em>dictionary</em>) – {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
+<li><p><strong>coords</strong> (<em>bool</em>) – coordinates of patches will be yielded if set to True.</p></li>
+<li><p><strong>tissue</strong> (<em>bool</em>) – whether to filter on tissue.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
 </ul>
 </dd>
 </dl>
@@ -286,15 +283,15 @@ and an offset in pixels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>slidefile</strong> (<em>-</em>) – str, abs path to slide file.</p></li>
-<li><p><strong>outdir</strong> (<em>-</em>) – str, abs path to an output folder.</p></li>
-<li><p><strong>level</strong> (<em>-</em>) – int, pyramid level.</p></li>
-<li><p><strong>psize</strong> (<em>-</em>) – int</p></li>
-<li><p><strong>interval</strong> (<em>-</em>) – dictionary, {“x”, “y”} interval between 2 neighboring patches.</p></li>
-<li><p><strong>offset</strong> (<em>-</em>) – dictionary, {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
-<li><p><strong>coords</strong> (<em>-</em>) – bool, coordinates of patches will be yielded if set to True.</p></li>
-<li><p><strong>tissue</strong> (<em>-</em>) – bool, whether to filter on tissue.</p></li>
-<li><p><strong>verbose</strong> (<em>-</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
+<li><p><strong>slidefile</strong> (<em>str</em>) – abs path to slide file.</p></li>
+<li><p><strong>outdir</strong> (<em>str</em>) – abs path to an output folder.</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – pyramid level.</p></li>
+<li><p><strong>psize</strong> (<em>int</em>) – size of the side of the patches (in pixels).</p></li>
+<li><p><strong>interval</strong> (<em>dictionary</em>) – {“x”, “y”} interval between 2 neighboring patches.</p></li>
+<li><p><strong>offset</strong> (<em>dictionary</em>) – {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
+<li><p><strong>coords</strong> (<em>bool</em>) – coordinates of patches will be yielded if set to True.</p></li>
+<li><p><strong>tissue</strong> (<em>bool</em>) – whether to filter on tissue.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
 </ul>
 </dd>
 </dl>
@@ -307,15 +304,15 @@ and an offset in pixels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>slidefile</strong> (<em>-</em>) – str, abs path to slide file.</p></li>
-<li><p><strong>outdir</strong> (<em>-</em>) – str, abs path to an output folder.</p></li>
-<li><p><strong>level</strong> (<em>-</em>) – int, pyramid level.</p></li>
-<li><p><strong>psize</strong> (<em>-</em>) – int</p></li>
-<li><p><strong>interval</strong> (<em>-</em>) – dictionary, {“x”, “y”} interval between 2 neighboring patches.</p></li>
-<li><p><strong>offset</strong> (<em>-</em>) – dictionary, {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
-<li><p><strong>coords</strong> (<em>-</em>) – bool, coordinates of patches will be yielded if set to True.</p></li>
-<li><p><strong>tissue</strong> (<em>-</em>) – bool, whether to filter on tissue.</p></li>
-<li><p><strong>verbose</strong> (<em>-</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
+<li><p><strong>slidefile</strong> (<em>str</em>) – abs path to slide file.</p></li>
+<li><p><strong>outdir</strong> (<em>str</em>) – abs path to an output folder.</p></li>
+<li><p><strong>level</strong> (<em>int</em>) – pyramid level.</p></li>
+<li><p><strong>psize</strong> (<em>int</em>) – size of the side of the patches (in pixels).</p></li>
+<li><p><strong>interval</strong> (<em>dictionary</em>) – {“x”, “y”} interval between 2 neighboring patches.</p></li>
+<li><p><strong>offset</strong> (<em>dictionary</em>) – {“x”, “y”} offset in px on x and y axis for patch start.</p></li>
+<li><p><strong>coords</strong> (<em>bool</em>) – coordinates of patches will be yielded if set to True.</p></li>
+<li><p><strong>tissue</strong> (<em>bool</em>) – whether to filter on tissue.</p></li>
+<li><p><strong>verbose</strong> (<em>int</em>) – 0 =&gt; nada, 1 =&gt; patchifying parameters, 2 =&gt; start-end of processes, thumbnail export.</p></li>
 </ul>
 </dd>
 </dl>

@@ -256,31 +256,6 @@ their contents remains the same.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pathaia.ml.util.imfiles_in_folder">
-<code class="sig-name descname">imfiles_in_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em>, <em class="sig-param"><span class="n">authorized</span><span class="o">=</span><span class="default_value">['.png', '.jpg', '.jpeg', '.tif', '.tiff']</span></em>, <em class="sig-param"><span class="n">forbiden</span><span class="o">=</span><span class="default_value">['thumbnail']</span></em>, <em class="sig-param"><span class="n">randomize</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">datalim</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.util.imfiles_in_folder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get image files in a given folder.</p>
-<p>Get all image files (selected by file extension). You can remove terms
-from the research.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>folder</strong> (<em>str</em>) – absolute path to an image directory.</p></li>
-<li><p><strong>authorized</strong> (<em>list</em>) – authorized image file extensions.</p></li>
-<li><p><strong>forbiden</strong> (<em>list</em>) – non-authorized words in file names.</p></li>
-<li><p><strong>randomize</strong> (<em>bool</em>) – whether to randomize output list of files.</p></li>
-<li><p><strong>datalim</strong> (<em>int</em><em> or </em><em>None</em>) – maximum number of file to extract in folder.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>absolute paths of image files in folder.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt id="pathaia.ml.util.images_in_folder">
 <code class="sig-name descname">images_in_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em>, <em class="sig-param"><span class="n">authorized</span><span class="o">=</span><span class="default_value">['.png', '.jpg', '.jpeg', '.tif', '.tiff']</span></em>, <em class="sig-param"><span class="n">forbiden</span><span class="o">=</span><span class="default_value">['thumbnail']</span></em>, <em class="sig-param"><span class="n">randomize</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">datalim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">paths</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.util.images_in_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get images in a given folder.</p>

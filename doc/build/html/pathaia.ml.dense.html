@@ -36,7 +36,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pathaia.ml.util module" href="pathaia.ml.util.html" />
+    <link rel="next" title="pathaia.patches package" href="pathaia.patches.html" />
     <link rel="prev" title="pathaia.ml package" href="pathaia.ml.html" /> 
 </head>
 
@@ -282,6 +282,24 @@ image in a slide.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pathaia.ml.dense.Vocabulary.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict with the k-means model.</p>
+<p>Predict with the k-means clf on a new batch of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>batch</strong> (<em>ndarray</em>) – batch of big images to fit on.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>predictions on batch of data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pathaia.ml.dense.Vocabulary.fit_on_slide">
 <code class="sig-name descname">fit_on_slide</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slide_ptc_folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.Vocabulary.fit_on_slide" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit Vocabulary on a single slide batch.</p>
@@ -439,6 +457,24 @@ image in a slide.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="pathaia.ml.dense.SepChannelsVocabulary.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict with the k-means model.</p>
+<p>Predict with the k-means clf on a new batch of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>batch</strong> (<em>ndarray</em>) – batch of big images to fit on.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>predictions on batch of data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="pathaia.ml.dense.SepChannelsVocabulary.fit_on_slide">
 <code class="sig-name descname">fit_on_slide</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slide_ptc_folder</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.ml.dense.SepChannelsVocabulary.fit_on_slide" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit Vocabulary on a single slide batch.</p>
@@ -500,7 +536,7 @@ image in a slide.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="pathaia.ml.util.html" class="btn btn-neutral float-right" title="pathaia.ml.util module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pathaia.patches.html" class="btn btn-neutral float-right" title="pathaia.patches package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="pathaia.ml.html" class="btn btn-neutral float-left" title="pathaia.ml package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

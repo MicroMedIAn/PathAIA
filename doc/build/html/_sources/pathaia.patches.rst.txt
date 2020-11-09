@@ -10,7 +10,6 @@ Submodules
    pathaia.patches.filters
    pathaia.patches.functional_api
    pathaia.patches.object_api
-   pathaia.patches.util
    pathaia.patches.visu
 
 Module contents

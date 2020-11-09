@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pathaia.patches package &mdash; pathaia 0.1 documentation</title>
+  <title>pathaia.semantic.functional_api module &mdash; pathaia 0.1 documentation</title>
   
 
   
@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pathaia.patches.filters module" href="pathaia.patches.filters.html" />
-    <link rel="prev" title="pathaia.ml.dense module" href="pathaia.ml.dense.html" /> 
+    <link rel="next" title="pathaia.util package" href="pathaia.util.html" />
+    <link rel="prev" title="pathaia.semantic package" href="pathaia.semantic.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -87,8 +87,8 @@
 <li class="toctree-l2 current"><a class="reference internal" href="pathaia.html">pathaia package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pathaia.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pathaia.ml.html">pathaia.ml package</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">pathaia.patches package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pathaia.semantic.html">pathaia.semantic package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pathaia.patches.html">pathaia.patches package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="pathaia.semantic.html">pathaia.semantic package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pathaia.util.html">pathaia.util package</a></li>
 </ul>
 </li>
@@ -150,13 +150,15 @@
         
           <li><a href="pathaia.html">pathaia package</a> &raquo;</li>
         
-      <li>pathaia.patches package</li>
+          <li><a href="pathaia.semantic.html">pathaia.semantic package</a> &raquo;</li>
+        
+      <li>pathaia.semantic.functional_api module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/pathaia.patches.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/pathaia.semantic.functional_api.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -169,22 +171,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pathaia-patches-package">
-<h1>pathaia.patches package<a class="headerlink" href="#pathaia-patches-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pathaia.patches.filters.html">pathaia.patches.filters module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pathaia.patches.functional_api.html">pathaia.patches.functional_api module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pathaia.patches.object_api.html">pathaia.patches.object_api module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pathaia.patches.visu.html">pathaia.patches.visu module</a></li>
+  <div class="section" id="module-pathaia.semantic.functional_api">
+<span id="pathaia-semantic-functional-api-module"></span><h1>pathaia.semantic.functional_api module<a class="headerlink" href="#module-pathaia.semantic.functional_api" title="Permalink to this headline">¶</a></h1>
+<p>A module to produce semantic segmentations.</p>
+<p>Can be used visualize model perception of an image.</p>
+<dl class="py function">
+<dt id="pathaia.semantic.functional_api.coarse">
+<code class="sig-name descname">coarse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">model</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.semantic.functional_api.coarse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a coarse semantic segmentation of an image.</p>
+<p>Place a window on every pixel, pixel value in segmentation
+is its prediction (by a model) made on the window.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em>) – an image.</p></li>
+<li><p><strong>model</strong> (<em>pathaia model</em>) – a ml model.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="module-pathaia.patches">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pathaia.patches" title="Permalink to this headline">¶</a></h2>
-</div>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>segmentation of the given image.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.semantic.functional_api.coarse_sep_channels">
+<code class="sig-name descname">coarse_sep_channels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">model</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.semantic.functional_api.coarse_sep_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a coarse semantic segmentation of an image.</p>
+<p>Place a window on every pixel, pixel value in segmentation
+is its prediction (by a model) made on the window.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em>) – an image.</p></li>
+<li><p><strong>model</strong> (<em>pathaia model</em>) – a ml model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>segmentation of the given image.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
@@ -195,10 +229,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="pathaia.patches.filters.html" class="btn btn-neutral float-right" title="pathaia.patches.filters module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pathaia.util.html" class="btn btn-neutral float-right" title="pathaia.util package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="pathaia.ml.dense.html" class="btn btn-neutral float-left" title="pathaia.ml.dense module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pathaia.semantic.html" class="btn btn-neutral float-left" title="pathaia.semantic package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

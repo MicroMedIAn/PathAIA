@@ -8,7 +8,6 @@ Submodules
    :maxdepth: 4
 
    pathaia.ml.dense
-   pathaia.ml.util
 
 Module contents
 ---------------

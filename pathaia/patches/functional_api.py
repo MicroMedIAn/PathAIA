@@ -7,7 +7,8 @@ Draft for hierarchical patch extraction and representation is proposed.
 """
 import numpy
 import openslide
-from .util import regular_grid, slides_in_folder, slide_basename
+from ..util.paths import slides_in_folder, slide_basename
+from ..util.images import regular_grid
 from .visu import preview_from_queries
 from .filters import filter_hasdapi, filter_has_significant_dapi, filter_has_tissue_he, standardize_filters
 import os
@@ -47,12 +48,12 @@ def filter_image(image, filters):
     """
     Check multiple filters on an image.
 
-    Arguments:
-        - image: numpy array, patch to filter.
-        - filters: list of functions, image to bool.
+    Args:
+        image (ndarray): the patch to be filtered.
+        filters (list of function): functions that turn images into booleans.
 
     Returns:
-        - acceptable: bool, whether an image has passed every filters.
+        acceptable: bool, whether an image has passed every filters.
 
     """
     for filt in filters:
@@ -74,17 +75,17 @@ def slide_rois(slide, level, psize, interval, ancestors=[], offset={"x": 0, "y":
     Given a slide, a pyramid level, a patchsize in pixels, an interval in pixels
     and an offset in pixels.
 
-    Arguments:
-        - slide: openslide object.
-        - level: int, pyramid level.
-        - psize: int
-        - interval: dictionary, {"x", "y"} interval between 2 neighboring patches.
-        - offset: dictionary, {"x", "y"} offset in px on x and y axis for patch start.
-        - coords: bool, coordinates of patches will be yielded if set to True.
+    Args:
+        slide (OpenSlide): the slide to patchify.
+        level (int): pyramid level.
+        psize (int): size of the side of the patch (in pixels).
+        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
+        offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
+        coords (bool): coordinates of patches will be yielded if set to True.
 
     Yields:
-        - image: numpy array rgb image.
-        - coords: tuple of numpy arrays, (icoords, jcoords).
+        ndarray: numpy array rgb image.
+        tuple of ndarray: icoords, jcoords.
 
     """
     if len(ancestors) > 0:
@@ -158,16 +159,16 @@ def patchify_slide(slidefile,
     """
     Save patches of a given wsi.
 
-    Arguments:
-        - slidefile: str, abs path to slide file.
-        - outdir: str, abs path to an output folder.
-        - level: int, pyramid level.
-        - psize: int
-        - interval: dictionary, {"x", "y"} interval between 2 neighboring patches.
-        - offset: dictionary, {"x", "y"} offset in px on x and y axis for patch start.
-        - coords: bool, coordinates of patches will be yielded if set to True.
-        - tissue: bool, whether to filter on tissue.
-        - verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
+    Args:
+        slidefile (str): abs path to slide file.
+        outdir (str): abs path to an output folder.
+        level (int): pyramid level.
+        psize (int): size of the side of the patches (in pixels).
+        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
+        offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
+        coords (bool): coordinates of patches will be yielded if set to True.
+        tissue (bool): whether to filter on tissue.
+        verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
     # Get name of the slide
@@ -236,16 +237,16 @@ def patchify_slide_hierarchically(slidefile,
     """
     Save patches of a given wsi in a hierarchical way.
 
-    Arguments:
-        - slidefile: str, abs path to slide file.
-        - outdir: str, abs path to an output folder.
-        - level: int, pyramid level.
-        - psize: int
-        - interval: dictionary, {"x", "y"} interval between 2 neighboring patches.
-        - offset: dictionary, {"x", "y"} offset in px on x and y axis for patch start.
-        - coords: bool, coordinates of patches will be yielded if set to True.
-        - tissue: bool, whether to filter on tissue.
-        - verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
+    Args:
+        slidefile (str): abs path to slide file.
+        outdir (str): abs path to an output folder.
+        level (int): pyramid level.
+        psize (int): size of the side of the patches (in pixels).
+        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
+        offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
+        coords (bool): coordinates of patches will be yielded if set to True.
+        tissue (bool): whether to filter on tissue.
+        verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
     level_filters = standardize_filters(filters, top_level, low_level)
@@ -319,16 +320,16 @@ def patchify_folder(infolder, outfolder, level, psize, interval, offset={"x": 0,
     """
     Save patches of all wsi inside a folder.
 
-    Arguments:
-        - slidefile: str, abs path to slide file.
-        - outdir: str, abs path to an output folder.
-        - level: int, pyramid level.
-        - psize: int
-        - interval: dictionary, {"x", "y"} interval between 2 neighboring patches.
-        - offset: dictionary, {"x", "y"} offset in px on x and y axis for patch start.
-        - coords: bool, coordinates of patches will be yielded if set to True.
-        - tissue: bool, whether to filter on tissue.
-        - verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
+    Args:
+        slidefile (str): abs path to slide file.
+        outdir (str): abs path to an output folder.
+        level (int): pyramid level.
+        psize (int): size of the side of the patches (in pixels).
+        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
+        offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
+        coords (bool): coordinates of patches will be yielded if set to True.
+        tissue (bool): whether to filter on tissue.
+        verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
     slidefiles = slides_in_folder(infolder)
@@ -350,16 +351,16 @@ def patchify_folder_hierarchically(infolder, outfolder, top_level, low_level, ps
     """
     Save hierarchical patches of all wsi inside a folder.
 
-    Arguments:
-        - slidefile: str, abs path to slide file.
-        - outdir: str, abs path to an output folder.
-        - level: int, pyramid level.
-        - psize: int
-        - interval: dictionary, {"x", "y"} interval between 2 neighboring patches.
-        - offset: dictionary, {"x", "y"} offset in px on x and y axis for patch start.
-        - coords: bool, coordinates of patches will be yielded if set to True.
-        - tissue: bool, whether to filter on tissue.
-        - verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
+    Args:
+        slidefile (str): abs path to slide file.
+        outdir (str): abs path to an output folder.
+        level (int): pyramid level.
+        psize (int): size of the side of the patches (in pixels).
+        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
+        offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
+        coords (bool): coordinates of patches will be yielded if set to True.
+        tissue (bool): whether to filter on tissue.
+        verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
     slidefiles = slides_in_folder(infolder)

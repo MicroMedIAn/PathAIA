@@ -7,8 +7,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   pathaia.semantic.segmentation
-   pathaia.semantic.util
+   pathaia.semantic.functional_api
 
 Module contents
 ---------------

@@ -5,7 +5,8 @@ This module gather functions and classes to handle vocabulary learning and
 inference on image datasets.
 """
 from sklearn.cluster import MiniBatchKMeans, KMeans
-from .util import sample_img, images_in_folder, dataset2folders, sample_img_sep_channels
+from ..util.images import images_in_folder, sample_img_sep_channels, sample_img
+from ..util.paths import dataset2folders
 from matplotlib import pyplot as plt
 import numpy
 import os
@@ -115,6 +116,23 @@ class Vocabulary(object):
         for img in batch:
             ptcs += sample_img(img, self._context, self._ptc_per_img)
         self._clf.partial_fit(ptcs)
+
+    def predict(self, batch):
+        """Predict with the k-means model.
+
+        Predict with the k-means clf on a new batch of data.
+
+        Args:
+            batch (ndarray): batch of big images to fit on.
+
+        Returns:
+            ndarray: predictions on batch of data.
+
+        """
+        ptcs = []
+        for img in batch:
+            ptcs += sample_img(img, self._context, self._ptc_per_img)
+        return self._clf.predict(ptcs)
 
     def fit_on_slide(self, slide_ptc_folder):
         """Fit Vocabulary on a single slide batch.
@@ -337,6 +355,27 @@ class SepChannelsVocabulary(object):
                 ch_ptcs[idx] += channel_patches
         for clf, ptcs in zip(self._clf, ch_ptcs):
             clf.partial_fit(ptcs)
+
+    def predict(self, batch):
+        """Predict with the k-means model.
+
+        Predict with the k-means clf on a new batch of data.
+
+        Args:
+            batch (ndarray): batch of big images to fit on.
+
+        Returns:
+            ndarray: predictions on batch of data.
+
+        """
+        preds = []
+        ch_ptcs = [[] for c in range(self._n_channels)]
+        for img in batch:
+            for idx, channel_patches in enumerate(sample_img_sep_channels(img, self._context, self._ptc_per_img)):
+                ch_ptcs[idx] += channel_patches
+        for clf, ptcs in zip(self._clf, ch_ptcs):
+            preds.append(clf.predict(ptcs))
+        return preds
 
     def fit_on_slide(self, slide_ptc_folder):
         """Fit Vocabulary on a single slide batch.

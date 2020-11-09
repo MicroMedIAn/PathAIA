@@ -7,6 +7,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   pathaia.util.images
    pathaia.util.paths
 
 Module contents

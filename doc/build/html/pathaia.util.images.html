@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pathaia.util.paths module &mdash; pathaia 0.1 documentation</title>
+  <title>pathaia.util.images module &mdash; pathaia 0.1 documentation</title>
   
 
   
@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="install.html" />
-    <link rel="prev" title="pathaia.util.images module" href="pathaia.util.images.html" /> 
+    <link rel="next" title="pathaia.util.paths module" href="pathaia.util.paths.html" />
+    <link rel="prev" title="pathaia.util package" href="pathaia.util.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -152,13 +152,13 @@
         
           <li><a href="pathaia.util.html">pathaia.util package</a> &raquo;</li>
         
-      <li>pathaia.util.paths module</li>
+      <li>pathaia.util.images module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/pathaia.util.paths.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/pathaia.util.images.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -171,52 +171,52 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-pathaia.util.paths">
-<span id="pathaia-util-paths-module"></span><h1>pathaia.util.paths module<a class="headerlink" href="#module-pathaia.util.paths" title="Permalink to this headline">¶</a></h1>
-<p>Useful functions for handling patches in WSIs.</p>
+  <div class="section" id="module-pathaia.util.images">
+<span id="pathaia-util-images-module"></span><h1>pathaia.util.images module<a class="headerlink" href="#module-pathaia.util.images" title="Permalink to this headline">¶</a></h1>
+<p>Useful functions for images.</p>
 <dl class="py function">
-<dt id="pathaia.util.paths.slides_in_folder">
-<code class="sig-name descname">slides_in_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em>, <em class="sig-param"><span class="n">extensions</span><span class="o">=</span><span class="default_value">['.mrxs']</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.paths.slides_in_folder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return slide files inside a folder for a given extension.</p>
+<dt id="pathaia.util.images.regular_grid">
+<code class="sig-name descname">regular_grid</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span></em>, <em class="sig-param"><span class="n">step</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.images.regular_grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a regular grid of position on a slide given its dimensions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>folder</strong> (<em>str</em>) – absolute path to a directory containing slides.</p></li>
-<li><p><strong>extension</strong> (<em>list of str</em>) – file extensions of the slides.</p></li>
+<li><p><strong>shape</strong> (<em>dictionary</em>) – {“x”, “y”} shape of the window to tile.</p></li>
+<li><p><strong>step</strong> (<em>dictionary</em>) – {“x”, “y”} steps between patch samples.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><p><em>dictionary</em> – {“x”, “y”} positions on a regular grid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.util.images.unlabeled_regular_grid_list">
+<code class="sig-name descname">unlabeled_regular_grid_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">shape</span></em>, <em class="sig-param"><span class="n">step</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.images.unlabeled_regular_grid_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a regular grid of position on a slide given its dimensions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> (<em>tuple</em>) – shape (i, j) of the window to tile.</p></li>
+<li><p><strong>step</strong> (<em>int</em>) – steps in pixels between patch samples.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>list of absolute path of slide files.</p>
+<dd class="field-even"><p>positions (i, j) on the regular grid.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list of str</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pathaia.util.paths.slide_basename">
-<code class="sig-name descname">slide_basename</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slidepath</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.paths.slide_basename" title="Permalink to this definition">¶</a></dt>
-<dd><p>Give the basename of a slide from its absolutepath.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>slidepath</strong> (<em>str</em>) – absolute path to a slide.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>basename of the slide.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>basename (str)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="pathaia.util.paths.imfiles_in_folder">
-<code class="sig-name descname">imfiles_in_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em>, <em class="sig-param"><span class="n">authorized</span><span class="o">=</span><span class="default_value">['.png', '.jpg', '.jpeg', '.tif', '.tiff']</span></em>, <em class="sig-param"><span class="n">forbiden</span><span class="o">=</span><span class="default_value">['thumbnail']</span></em>, <em class="sig-param"><span class="n">randomize</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">datalim</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.paths.imfiles_in_folder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get image files in a given folder.</p>
-<p>Get all image files (selected by file extension). You can remove terms
-from the research.</p>
+<dt id="pathaia.util.images.images_in_folder">
+<code class="sig-name descname">images_in_folder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">folder</span></em>, <em class="sig-param"><span class="n">authorized</span><span class="o">=</span><span class="default_value">['.png', '.jpg', '.jpeg', '.tif', '.tiff']</span></em>, <em class="sig-param"><span class="n">forbiden</span><span class="o">=</span><span class="default_value">['thumbnail']</span></em>, <em class="sig-param"><span class="n">randomize</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">datalim</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">paths</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.images.images_in_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get images in a given folder.</p>
+<p>Get all images as numpy arrays (selected by file extension).
+You can remove terms from the research.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -225,37 +225,58 @@ from the research.</p>
 <li><p><strong>forbiden</strong> (<em>list</em>) – non-authorized words in file names.</p></li>
 <li><p><strong>randomize</strong> (<em>bool</em>) – whether to randomize output list of files.</p></li>
 <li><p><strong>datalim</strong> (<em>int</em><em> or </em><em>None</em>) – maximum number of file to extract in folder.</p></li>
+<li><p><strong>paths</strong> (<em>bool</em>) – whether to return absolute path with image data.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>absolute paths of image files in folder.</p>
+<dd class="field-even"><p>yield images as numpy arrays.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list of str</p>
+<dd class="field-odd"><p>iterator</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt id="pathaia.util.paths.dataset2folders">
-<code class="sig-name descname">dataset2folders</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">projfolder</span></em>, <em class="sig-param"><span class="n">level</span></em>, <em class="sig-param"><span class="n">randomize</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">slide_data_lim</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.paths.dataset2folders" title="Permalink to this definition">¶</a></dt>
-<dd><p>Link slidenames to their pathaia patch folder.</p>
-<p>A pathaia patch folder is named with an int corresponding
-to the level of patch extraction.</p>
+<dt id="pathaia.util.images.sample_img">
+<code class="sig-name descname">sample_img</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.images.sample_img" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit vocabulary on a single image.</p>
+<p>Split image in patches and fit on them.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>projfolder</strong> (<em>str</em>) – absolute path to a pathaia project folder.</p></li>
-<li><p><strong>level</strong> (<em>int</em>) – pyramid level of patch extraction to consider.</p></li>
-<li><p><strong>randomize</strong> (<em>bool</em>) – whether to randomize output list of slides.</p></li>
-<li><p><strong>slide_data_lim</strong> (<em>int</em><em> or </em><em>None</em>) – number of slides to consider in project.</p></li>
+<li><p><strong>image</strong> (<em>ndarray</em>) – numpy image to fit on.</p></li>
+<li><p><strong>psize</strong> (<em>int</em>) – size in pixels of the side of a patch.</p></li>
+<li><p><strong>spl_per_image</strong> (<em>int</em>) – maximum number of patches to extract in image.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>slidenames are keys, absolute path to patch dir are values.</p>
+<dd class="field-even"><p>patches in the image.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p>list of ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pathaia.util.images.sample_img_sep_channels">
+<code class="sig-name descname">sample_img_sep_channels</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image</span></em>, <em class="sig-param"><span class="n">psize</span></em>, <em class="sig-param"><span class="n">spl_per_image</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pathaia.util.images.sample_img_sep_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit vocabulary on a single image.</p>
+<p>Split image in patches and fit on them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> (<em>ndarray</em>) – numpy image to fit on.</p></li>
+<li><p><strong>psize</strong> (<em>int</em>) – size in pixels of the side of a patch.</p></li>
+<li><p><strong>spl_per_image</strong> (<em>int</em>) – maximum number of patches to extract in image.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>patches in the image in separated channels.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple of list of ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -270,10 +291,10 @@ to the level of patch extraction.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="pathaia.util.paths.html" class="btn btn-neutral float-right" title="pathaia.util.paths module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="pathaia.util.images.html" class="btn btn-neutral float-left" title="pathaia.util.images module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pathaia.util.html" class="btn btn-neutral float-left" title="pathaia.util package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
