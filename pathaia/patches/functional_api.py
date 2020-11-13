@@ -80,8 +80,9 @@ def slide_rois(slide, level, psize, interval, ancestors=[], offset={"x": 0, "y":
         level (int): pyramid level.
         psize (int): size of the side of the patch (in pixels).
         interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
+        ancestors (list of patch dict): patches that contain upcoming patches.
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-        coords (bool): coordinates of patches will be yielded if set to True.
+        filters (list of func): filters to accept patches.
 
     Yields:
         ndarray: numpy array rgb image.
@@ -166,8 +167,7 @@ def patchify_slide(slidefile,
         psize (int): size of the side of the patches (in pixels).
         interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-        coords (bool): coordinates of patches will be yielded if set to True.
-        tissue (bool): whether to filter on tissue.
+        filters (list of func): filters to accept patches.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
@@ -238,14 +238,15 @@ def patchify_slide_hierarchically(slidefile,
     Save patches of a given wsi in a hierarchical way.
 
     Args:
-        slidefile (str): abs path to slide file.
+        slidefile (str): abs path to a slide file.
         outdir (str): abs path to an output folder.
-        level (int): pyramid level.
+        top_level (int): top pyramid level to consider.
+        low_level (int): lowest pyramid level to consider.
         psize (int): size of the side of the patches (in pixels).
         interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-        coords (bool): coordinates of patches will be yielded if set to True.
-        tissue (bool): whether to filter on tissue.
+        filters (dict of list of func): filters to accept patches.
+        silent (list of int): pyramid level not to output.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
@@ -321,14 +322,13 @@ def patchify_folder(infolder, outfolder, level, psize, interval, offset={"x": 0,
     Save patches of all wsi inside a folder.
 
     Args:
-        slidefile (str): abs path to slide file.
-        outdir (str): abs path to an output folder.
+        infolder (str): abs path to a folder of slides.
+        outfolder (str): abs path to an output folder.
         level (int): pyramid level.
         psize (int): size of the side of the patches (in pixels).
         interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-        coords (bool): coordinates of patches will be yielded if set to True.
-        tissue (bool): whether to filter on tissue.
+        filters (list of func): filters to accept patches.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
@@ -352,14 +352,15 @@ def patchify_folder_hierarchically(infolder, outfolder, top_level, low_level, ps
     Save hierarchical patches of all wsi inside a folder.
 
     Args:
-        slidefile (str): abs path to slide file.
-        outdir (str): abs path to an output folder.
-        level (int): pyramid level.
+        infolder (str): abs path to a folder of slides.
+        outfolder (str): abs path to an output folder.
+        top_level (int): top pyramid level to consider.
+        low_level (int): lowest pyramid level to consider.
         psize (int): size of the side of the patches (in pixels).
         interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-        coords (bool): coordinates of patches will be yielded if set to True.
-        tissue (bool): whether to filter on tissue.
+        filters (dict of list of func): filters to accept patches.
+        silent (list of int): pyramid level not to output.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """

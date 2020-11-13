@@ -37,6 +37,7 @@ class Vocabulary(object):
                                     reassignment_ratio=0.)
         self._training_slides = set()
         self._centroids = dict()
+        self._annotations = dict()
 
     @property
     def training_slides(self):
@@ -117,22 +118,21 @@ class Vocabulary(object):
             ptcs += sample_img(img, self._context, self._ptc_per_img)
         self._clf.partial_fit(ptcs)
 
-    def predict(self, batch):
+    def predict(self, batch, fuzzy=False):
         """Predict with the k-means model.
 
         Predict with the k-means clf on a new batch of data.
 
         Args:
-            batch (ndarray): batch of big images to fit on.
+            batch (ndarray): batch of flattened patches to predict.
 
         Returns:
             ndarray: predictions on batch of data.
 
         """
-        ptcs = []
-        for img in batch:
-            ptcs += sample_img(img, self._context, self._ptc_per_img)
-        return self._clf.predict(ptcs)
+        if fuzzy:
+            return self._clf.transform(batch)
+        return self._clf.predict(batch)
 
     def fit_on_slide(self, slide_ptc_folder):
         """Fit Vocabulary on a single slide batch.
@@ -242,8 +242,8 @@ class Vocabulary(object):
         self._clf = KMeans()
         centroid_idx_list = sorted(self._centroids.keys())
         centroids = []
-        for c in centroid_idx_list:
-            centroids.append(c)
+        for k in centroid_idx_list:
+            centroids.append(self._centroids[k])
         self._clf.cluster_centers_ = numpy.array(centroids)
 
 
@@ -356,25 +356,25 @@ class SepChannelsVocabulary(object):
         for clf, ptcs in zip(self._clf, ch_ptcs):
             clf.partial_fit(ptcs)
 
-    def predict(self, batch):
+    def predict(self, batch, fuzzy=False):
         """Predict with the k-means model.
 
         Predict with the k-means clf on a new batch of data.
 
         Args:
-            batch (ndarray): batch of big images to fit on.
+            batch (list of ndarray): flattened patches to predict, one list per channel.
 
         Returns:
             ndarray: predictions on batch of data.
 
         """
         preds = []
-        ch_ptcs = [[] for c in range(self._n_channels)]
-        for img in batch:
-            for idx, channel_patches in enumerate(sample_img_sep_channels(img, self._context, self._ptc_per_img)):
-                ch_ptcs[idx] += channel_patches
-        for clf, ptcs in zip(self._clf, ch_ptcs):
-            preds.append(clf.predict(ptcs))
+        if fuzzy:
+            for clf, ptcs in zip(self._clf, batch):
+                preds.append(clf.transform(ptcs))
+        else:
+            for clf, ptcs in zip(self._clf, batch):
+                preds.append(clf.predict(ptcs))
         return preds
 
     def fit_on_slide(self, slide_ptc_folder):
@@ -492,7 +492,7 @@ class SepChannelsVocabulary(object):
             km = KMeans()
             centroid_idx_list = sorted(self._centroids[c].keys())
             centroids = []
-            for c in centroid_idx_list:
-                centroids.append(c)
+            for k in centroid_idx_list:
+                centroids.append(self._centroids[c][k])
             km.cluster_centers_ = numpy.array(centroids)
             self._clf.append(km)
