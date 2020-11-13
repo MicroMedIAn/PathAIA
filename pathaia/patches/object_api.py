@@ -29,8 +29,14 @@ class Patchifier(object):
         """
         Create the patchifier.
 
-        Arguments:
-            - outdir: str, path to an output directory.
+        Args:
+            outdir (str): path to an output directory.
+            level (int): pyramid level to extract.
+            psize (int): size of the side of the patches (in pixels).
+            interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
+            offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
+            filters (list of func): filters to accept patches.
+            verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
         """
         self.outdir = outdir
@@ -45,8 +51,8 @@ class Patchifier(object):
         """
         Patchify a slide or an entire folder.
 
-        Arguments:
-            - path: str, absolute path to a slide or a folder of slides.
+        Args:
+            path (str): absolute path to a slide or a folder of slides.
 
         """
         if os.path.isdir(path):
@@ -58,8 +64,8 @@ class Patchifier(object):
         """
         Add a filter function to this patch extractor.
 
-        Arguments:
-            - filter_func: callable, a function that take an image as argument and output a bool.
+        Args:
+            filter_func (callable): a function that take an image as argument and output a bool.
 
         """
         self.filters.append(filter_func)
@@ -81,8 +87,16 @@ class HierarchicalPatchifier(object):
         """
         Create the hierarchical patchifier.
 
-        Arguments:
-            - outdir: str, path to an output directory.
+        Args:
+            outdir (str): path to an output directory.
+            top_level (int): top pyramid level to consider.
+            low_level (int): lowest pyramid level to consider.
+            psize (int): size of the side of the patches (in pixels).
+            interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
+            offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
+            filters (dict of list of func): filters to accept patches.
+            silent (list of int): pyramid level not to output.
+            verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
         """
         self.outdir = outdir
@@ -99,8 +113,8 @@ class HierarchicalPatchifier(object):
         """
         Patchify hierarchically a slide or an entire folder.
 
-        Arguments:
-            - path: str, absolute path to a slide or a folder of slides.
+        Args:
+            path (str): absolute path to a slide or a folder of slides.
 
         """
         if os.path.isdir(path):
@@ -130,8 +144,8 @@ class HierarchicalPatchifier(object):
         """
         Add a filter function to the hierarchical patch extractor.
 
-        Arguments:
-            - filter_func: callable, a function that take an image as argument and output a bool.
+        Args:
+            filter_func (callable): a function that take an image as argument and output a bool.
 
         """
         # if level is None, append filter func to all levels

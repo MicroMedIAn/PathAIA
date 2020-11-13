@@ -49,7 +49,13 @@ def filter_image(image, filters):
     return True
 
 
-def slide_rois(slide, level, psize, interval, ancestors=[], offset={"x": 0, "y": 0}, filters=[]):
+def slide_rois(slide,
+               level,
+               psize,
+               interval,
+               ancestors=[],
+               offset={"x": 0, "y": 0},
+               filters=[]):
     """
     Return the absolute coordinates of patches.
 
@@ -97,7 +103,9 @@ def slide_rois(slide, level, psize, interval, ancestors=[], offset={"x": 0, "y":
                                 "parent": prefix})
         for patch in tqdm(patches):
             try:
-                image = slide.read_region((patch["x"], patch["y"]), patch["level"], (psize, psize))
+                image = slide.read_region((patch["x"], patch["y"]),
+                                          patch["level"],
+                                          (psize, psize))
                 image = numpy.array(image)[:, :, 0:3]
                 if filter_image(image, filters):
                     yield patch, image
@@ -298,7 +306,14 @@ def patchify_slide_hierarchically(slidefile,
                 print("ending thumbnail export.")
 
 
-def patchify_folder(infolder, outfolder, level, psize, interval, offset={"x": 0, "y": 0}, filters=[], verbose=2):
+def patchify_folder(infolder,
+                    outfolder,
+                    level,
+                    psize,
+                    interval,
+                    offset={"x": 0, "y": 0},
+                    filters=[],
+                    verbose=2):
     """
     Save patches of all wsi inside a folder.
 
@@ -328,7 +343,16 @@ def patchify_folder(infolder, outfolder, level, psize, interval, offset={"x": 0,
         patchify_slide(slidefile, outdir, level, psize, interval, offset=offset, filters=filters, verbose=verbose)
 
 
-def patchify_folder_hierarchically(infolder, outfolder, top_level, low_level, psize, interval, offset={"x": 0, "y": 0}, filters={}, silent=[], verbose=2):
+def patchify_folder_hierarchically(infolder,
+                                   outfolder,
+                                   top_level,
+                                   low_level,
+                                   psize,
+                                   interval,
+                                   offset={"x": 0, "y": 0},
+                                   filters={},
+                                   silent=[],
+                                   verbose=2):
     """
     Save hierarchical patches of all wsi inside a folder.
 
@@ -357,4 +381,13 @@ def patchify_folder_hierarchically(infolder, outfolder, top_level, low_level, ps
         if os.path.isdir(outdir):
             shutil.rmtree(outdir, ignore_errors=True)
         os.makedirs(outdir)
-        patchify_slide_hierarchically(slidefile, outdir, top_level, low_level, psize, interval, offset=offset, filters=filters, silent=silent, verbose=verbose)
+        patchify_slide_hierarchically(slidefile,
+                                      outdir,
+                                      top_level,
+                                      low_level,
+                                      psize,
+                                      interval,
+                                      offset=offset,
+                                      filters=filters,
+                                      silent=silent,
+                                      verbose=verbose)
