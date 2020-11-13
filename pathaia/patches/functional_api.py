@@ -17,31 +17,12 @@ from skimage.io import imsave
 import shutil
 import warnings
 from tqdm import tqdm
+from .errors import UnknownFilterError
 
 
 izi_filters = {"has-dapi": filter_hasdapi,
                "has-significant-dapi": filter_has_significant_dapi,
                "has-tissue-he": filter_has_tissue_he}
-
-
-class Error(Exception):
-    """
-    Base of custom errors.
-
-    **********************
-    """
-
-    pass
-
-
-class UnknownMethodError(Error):
-    """
-    Raise when no class is found in a datafolder.
-
-    *********************************************
-    """
-
-    pass
 
 
 def filter_image(image, filters):
@@ -64,7 +45,7 @@ def filter_image(image, filters):
             if not izi_filters[filt](image):
                 return False
         else:
-            raise UnknownMethodError("{} is not a valid filter !!!".format(filt))
+            raise UnknownFilterError("{} is not a valid filter !!!".format(filt))
     return True
 
 

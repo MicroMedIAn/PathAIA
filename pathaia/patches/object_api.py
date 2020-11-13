@@ -12,26 +12,7 @@ from .functional_api import patchify_folder
 from .functional_api import patchify_slide_hierarchically
 from .functional_api import patchify_folder_hierarchically
 from .filters import standardize_filters
-
-
-class Error(Exception):
-    """
-    Base of custom errors.
-
-    **********************
-    """
-
-    pass
-
-
-class UnknownLevelError(Error):
-    """
-    Raise when no class is found in a datafolder.
-
-    *********************************************
-    """
-
-    pass
+from .errors import UnknownLevelError
 
 
 class Patchifier(object):
