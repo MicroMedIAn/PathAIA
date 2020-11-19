@@ -104,7 +104,7 @@ class Vocabulary(object):
         """
         return self._n_channels
 
-    def fit_on_imbatch(self, batch):
+    def fit_on_imbatch(self, batch, mask_batch=None):
         """Partial fit of the k-means model used as Vocabulary.
 
         Fit the k-means clf on a new batch of data.
@@ -114,8 +114,12 @@ class Vocabulary(object):
 
         """
         ptcs = []
-        for img in batch:
-            ptcs += sample_img(img, self._context, self._ptc_per_img)
+        if mask_batch is None:
+            for img in batch:
+                ptcs += sample_img(img, self._context, self._ptc_per_img)
+        else:
+            for img, msk in zip(batch, mask_batch):
+                ptcs += sample_img(img, self._context, self._ptc_per_img, msk)
         self._clf.partial_fit(ptcs)
 
     def predict(self, batch, fuzzy=False):
@@ -340,7 +344,7 @@ class SepChannelsVocabulary(object):
         """
         return self._n_channels
 
-    def fit_on_imbatch(self, batch):
+    def fit_on_imbatch(self, batch, mask_batch=None):
         """Partial fit of the k-means model used as Vocabulary.
 
         Fit the k-means clf on a new batch of data.
@@ -350,9 +354,14 @@ class SepChannelsVocabulary(object):
 
         """
         ch_ptcs = [[] for c in range(self._n_channels)]
-        for img in batch:
-            for idx, channel_patches in enumerate(sample_img_sep_channels(img, self._context, self._ptc_per_img)):
-                ch_ptcs[idx] += channel_patches
+        if mask_batch is None:
+            for img in batch:
+                for idx, channel_patches in enumerate(sample_img_sep_channels(img, self._context, self._ptc_per_img)):
+                    ch_ptcs[idx] += channel_patches
+        else:
+            for img, msk in batch:
+                for idx, channel_patches in enumerate(sample_img_sep_channels(img, self._context, self._ptc_per_img, msk)):
+                    ch_ptcs[idx] += channel_patches
         for clf, ptcs in zip(self._clf, ch_ptcs):
             clf.partial_fit(ptcs)
 

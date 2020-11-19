@@ -76,7 +76,7 @@ def images_in_folder(folder,
             yield imread(imfile)
 
 
-def sample_img(image, psize, spl_per_image):
+def sample_img(image, psize, spl_per_image, mask=None):
     """Fit vocabulary on a single image.
 
     Split image in patches and fit on them.
@@ -85,6 +85,7 @@ def sample_img(image, psize, spl_per_image):
         image (ndarray): numpy image to fit on.
         psize (int): size in pixels of the side of a patch.
         spl_per_image (int): maximum number of patches to extract in image.
+        mask (ndarray): optional boolean array, we sample in true pixels if provided.
 
     Returns:
         list of ndarray: patches in the image.
@@ -92,14 +93,30 @@ def sample_img(image, psize, spl_per_image):
     """
     img = image.astype(float)
     spaceshape = (image.shape[0], image.shape[1])
-    positions = unlabeled_regular_grid_list(spaceshape, psize)
+    di, dj = spaceshape
+    if mask is None:
+        positions = unlabeled_regular_grid_list(spaceshape, psize)
+    else:
+        half_size = int(0.5 * psize)
+        croped_mask = numpy.zeros_like(mask)
+        croped_mask[mask > 0] = 1
+        croped_mask[0:half_size + 1, :] = 0
+        croped_mask[di - half_size - 1::, :] = 0
+        croped_mask[:, 0:half_size + 1] = 0
+        croped_mask[:, dj - half_size - 1::] = 0
+        y, x = numpy.where(croped_mask > 0)
+        y -= half_size
+        x -= half_size
+        positions = [(i, j) for i, j in zip(y, x)]
+
     numpy.random.shuffle(positions)
-    positions = positions[0:spl_per_image]
+    if len(positions) > spl_per_image:
+        positions = positions[0:spl_per_image]
     patches = [img[i:i + psize, j:j + psize].reshape(-1) for i, j in positions]
     return patches
 
 
-def sample_img_sep_channels(image, psize, spl_per_image):
+def sample_img_sep_channels(image, psize, spl_per_image, mask=None):
     """Fit vocabulary on a single image.
 
     Split image in patches and fit on them.
@@ -108,6 +125,7 @@ def sample_img_sep_channels(image, psize, spl_per_image):
         image (ndarray): numpy image to fit on.
         psize (int): size in pixels of the side of a patch.
         spl_per_image (int): maximum number of patches to extract in image.
+        mask (ndarray): optional boolean array, we sample in true pixels if provided.
 
     Returns:
         tuple of list of ndarray: patches in the image in separated channels.
@@ -116,9 +134,25 @@ def sample_img_sep_channels(image, psize, spl_per_image):
     img = image.astype(float)
     n_channels = image.shape[-1]
     spaceshape = (image.shape[0], image.shape[1])
-    positions = unlabeled_regular_grid_list(spaceshape, psize)
+    di, dj = spaceshape
+    if mask is None:
+        positions = unlabeled_regular_grid_list(spaceshape, psize)
+    else:
+        half_size = int(0.5 * psize)
+        croped_mask = numpy.zeros_like(mask)
+        croped_mask[mask > 0] = 1
+        croped_mask[0:half_size + 1, :] = 0
+        croped_mask[di - half_size - 1::, :] = 0
+        croped_mask[:, 0:half_size + 1] = 0
+        croped_mask[:, dj - half_size - 1::] = 0
+        y, x = numpy.where(croped_mask > 0)
+        y -= half_size
+        x -= half_size
+        positions = [(i, j) for i, j in zip(y, x)]
     numpy.random.shuffle(positions)
-    positions = positions[0:spl_per_image]
+    if len(positions) > spl_per_image:
+        positions = positions[0:spl_per_image]
+
     patches = []
     for c in range(n_channels):
         patches.append([img[:, :, c][i:i + psize, j:j + psize].reshape(-1) for i, j in positions])

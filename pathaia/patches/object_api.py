@@ -49,7 +49,7 @@ class Patchifier(object):
 
     def patchify(self, path):
         """
-        Patchify a slide or an entire folder.
+        Patchify a slide or an entire folder of slides.
 
         Args:
             path (str): absolute path to a slide or a folder of slides.
@@ -111,7 +111,7 @@ class HierarchicalPatchifier(object):
 
     def patchify(self, path):
         """
-        Patchify hierarchically a slide or an entire folder.
+        Patchify hierarchically a slide or an entire folder of slides.
 
         Args:
             path (str): absolute path to a slide or a folder of slides.

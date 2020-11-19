@@ -18,6 +18,7 @@ import shutil
 import warnings
 from tqdm import tqdm
 from .errors import UnknownFilterError
+import pandas as pd
 
 
 izi_filters = {"has-dapi": filter_hasdapi,
