@@ -3,6 +3,8 @@
 
 import os
 import numpy
+from pathlib import Path
+from fastcore.foundation import L, setify
 
 
 def slides_in_folder(folder, extensions=(".mrxs",)):
@@ -114,3 +116,50 @@ def dataset2folders(projfolder, level, randomize=False, slide_data_lim=None):
     if slide_data_lim is not None:
         keep = keep[0:slide_data_lim]
     return {k: slide2folder[k] for k in keep}
+
+
+def _get_files(p, fs, extensions=None):
+    p = Path(p)
+    res = [
+        p / f
+        for f in fs
+        if not f.startswith(".")
+        and ((not extensions) or f'.{f.split(".")[-1].lower()}' in extensions)
+    ]
+    return res
+
+
+def get_files(path, extensions=None, recurse=True, folders=None, followlinks=True):
+    """
+    Find all files in a folder recursively.
+
+    Arguments:
+        path (str): Path to input folder.
+        extensions (list of str): list of acceptable file extensions.
+        recurse (bool): whether to perform a recursive search or not.
+        folders (list of str): direct subfolders to explore (if None explore all).
+        followlinks (bool): whether to follow symlinks or not.
+
+    Returns:
+        list: list of all absolute paths to found files.
+    """
+    path = Path(path)
+    folders = L(folders)
+    extensions = setify(extensions)
+    extensions = {e.lower() for e in extensions}
+    if recurse:
+        res = []
+        for i, (p, d, f) in enumerate(
+            os.walk(path, followlinks=followlinks)
+        ):  # returns (dirpath, dirnames, filenames)
+            if len(folders) != 0 and i == 0:
+                d[:] = [o for o in d if o in folders]
+            else:
+                d[:] = [o for o in d if not o.startswith(".")]
+            if len(folders) != 0 and i == 0 and "." not in folders:
+                continue
+            res += _get_files(p, f, extensions)
+    else:
+        f = [o.name for o in os.scandir(path) if o.is_file()]
+        res = _get_files(path, f, extensions)
+    return L(res)
