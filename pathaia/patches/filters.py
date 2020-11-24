@@ -114,9 +114,9 @@ def get_tissue_from_lab(image, blacktol=5, whitetol=90):
         2D-array: true pixels are tissue, false are background.
 
     """
-    binarymask = numpy.ones_like(image[..., 0], bool)
-    image = rgb2lab(image)
-    binarymask = binarymask & (image[..., 0] < whitetol) & (image[..., 0] > blacktol)
+    image = rgb2lab(image)[..., 0]
+    binarymask = numpy.ones_like(image, bool)    
+    binarymask = binarymask & (image < whitetol) & (image > blacktol)
     return binarymask
 
 
