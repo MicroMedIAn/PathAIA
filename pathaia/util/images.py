@@ -45,12 +45,14 @@ def unlabeled_regular_grid_list(shape, step):
     return list(itertools.product(line, col))
 
 
-def images_in_folder(folder,
-                     authorized=[".png", ".jpg", ".jpeg", ".tif", ".tiff"],
-                     forbiden=["thumbnail"],
-                     randomize=False,
-                     datalim=None,
-                     paths=False):
+def images_in_folder(
+    folder,
+    authorized=(".png", ".jpg", ".jpeg", ".tif", ".tiff"),
+    forbiden=("thumbnail",),
+    randomize=False,
+    datalim=None,
+    paths=False,
+):
     """
     Get images in a given folder.
 
@@ -59,8 +61,8 @@ def images_in_folder(folder,
 
     Args:
         folder (str): absolute path to an image directory.
-        authorized (list): authorized image file extensions.
-        forbiden (list): non-authorized words in file names.
+        authorized (list or tuple): authorized image file extensions.
+        forbiden (list or tuple): non-authorized words in file names.
         randomize (bool): whether to randomize output list of files.
         datalim (int or None): maximum number of file to extract in folder.
         paths (bool): whether to return absolute path with image data.
@@ -110,9 +112,8 @@ def sample_img(image, psize, spl_per_image, mask=None):
         positions = [(i, j) for i, j in zip(y, x)]
 
     numpy.random.shuffle(positions)
-    if len(positions) > spl_per_image:
-        positions = positions[0:spl_per_image]
-    patches = [img[i:i + psize, j:j + psize].reshape(-1) for i, j in positions]
+    positions = positions[0:spl_per_image]
+    patches = [img[i : i + psize, j : j + psize].reshape(-1) for i, j in positions]
     return patches
 
 
@@ -155,5 +156,10 @@ def sample_img_sep_channels(image, psize, spl_per_image, mask=None):
 
     patches = []
     for c in range(n_channels):
-        patches.append([img[:, :, c][i:i + psize, j:j + psize].reshape(-1) for i, j in positions])
+        patches.append(
+            [
+                img[:, :, c][i : i + psize, j : j + psize].reshape(-1)
+                for i, j in positions
+            ]
+        )
     return tuple(patches)

@@ -7,6 +7,7 @@ Draft for hierarchical patch extraction and representation is proposed.
 """
 
 import os
+from ..util.basic import ifnone
 from .functional_api import patchify_slide
 from .functional_api import patchify_folder
 from .functional_api import patchify_slide_hierarchically
@@ -18,14 +19,9 @@ from .errors import UnknownLevelError
 class Patchifier(object):
     """A class to handle patchification tasks."""
 
-    def __init__(self,
-                 outdir,
-                 level,
-                 psize,
-                 interval,
-                 offset={"x": 0, "y": 0},
-                 filters=[],
-                 verbose=2):
+    def __init__(
+        self, outdir, level, psize, interval, offset=None, filters=None, verbose=2
+    ):
         """
         Create the patchifier.
 
@@ -43,8 +39,8 @@ class Patchifier(object):
         self.level = level
         self.psize = psize
         self.interval = interval
-        self.offset = offset
-        self.filters = filters
+        self.offset = ifnone(offset, {"x": 0, "y": 0})
+        self.filters = ifnone(filters, [])
         self.verbose = verbose
 
     def patchify(self, path):
@@ -56,9 +52,27 @@ class Patchifier(object):
 
         """
         if os.path.isdir(path):
-            patchify_folder(path, self.outdir, self.level, self.psize, self.interval, offset=self.offset, filters=self.filters, verbose=self.verbose)
+            patchify_folder(
+                path,
+                self.outdir,
+                self.level,
+                self.psize,
+                self.interval,
+                offset=self.offset,
+                filters=self.filters,
+                verbose=self.verbose,
+            )
         else:
-            patchify_slide(path, self.outdir, self.level, self.psize, self.interval, offset=self.offset, filters=self.filters, verbose=self.verbose)
+            patchify_slide(
+                path,
+                self.outdir,
+                self.level,
+                self.psize,
+                self.interval,
+                offset=self.offset,
+                filters=self.filters,
+                verbose=self.verbose,
+            )
 
     def add_filter(self, filter_func):
         """
@@ -74,16 +88,18 @@ class Patchifier(object):
 class HierarchicalPatchifier(object):
     """A class to handle patchification tasks."""
 
-    def __init__(self,
-                 outdir,
-                 top_level,
-                 low_level,
-                 psize,
-                 interval,
-                 offset={"x": 0, "y": 0},
-                 filters={},
-                 silent=[],
-                 verbose=2):
+    def __init__(
+        self,
+        outdir,
+        top_level,
+        low_level,
+        psize,
+        interval,
+        offset=None,
+        filters=None,
+        silent=None,
+        verbose=2,
+    ):
         """
         Create the hierarchical patchifier.
 
@@ -104,10 +120,10 @@ class HierarchicalPatchifier(object):
         self.low_level = low_level
         self.psize = psize
         self.interval = interval
-        self.offset = offset
-        self.filters = standardize_filters(filters, top_level, low_level)
+        self.offset = ifnone(offset, {"x": 0, "y": 0})
+        self.filters = standardize_filters(ifnone(filters, {}), top_level, low_level)
         self.verbose = verbose
-        self.silent = silent
+        self.silent = ifnone(silent, [])
 
     def patchify(self, path):
         """
@@ -118,27 +134,31 @@ class HierarchicalPatchifier(object):
 
         """
         if os.path.isdir(path):
-            patchify_folder_hierarchically(path,
-                                           self.outdir,
-                                           self.top_level,
-                                           self.low_level,
-                                           self.psize,
-                                           self.interval,
-                                           offset=self.offset,
-                                           filters=self.filters,
-                                           silent=self.silent,
-                                           verbose=self.verbose)
+            patchify_folder_hierarchically(
+                path,
+                self.outdir,
+                self.top_level,
+                self.low_level,
+                self.psize,
+                self.interval,
+                offset=self.offset,
+                filters=self.filters,
+                silent=self.silent,
+                verbose=self.verbose,
+            )
         else:
-            patchify_slide_hierarchically(path,
-                                          self.outdir,
-                                          self.top_level,
-                                          self.low_level,
-                                          self.psize,
-                                          self.interval,
-                                          offset=self.offset,
-                                          filters=self.filters,
-                                          silent=self.silent,
-                                          verbose=self.verbose)
+            patchify_slide_hierarchically(
+                path,
+                self.outdir,
+                self.top_level,
+                self.low_level,
+                self.psize,
+                self.interval,
+                offset=self.offset,
+                filters=self.filters,
+                silent=self.silent,
+                verbose=self.verbose,
+            )
 
     def add_filter(self, filter_func, level=None):
         """
@@ -150,15 +170,17 @@ class HierarchicalPatchifier(object):
         """
         # if level is None, append filter func to all levels
         if level is None:
-            for l in self.filters:
-                self.filters[l].append(filter_func)
+            for lev in self.filters:
+                self.filters[lev].append(filter_func)
         # if level is int, append filter func to this level
         elif type(level) == int:
             if level not in self.filters:
-                raise UnknownLevelError("Level {} is not in {} !!!".format(level, list(self.filters.keys())))
+                raise UnknownLevelError(
+                    "Level {} is not in {} !!!".format(level, list(self.filters.keys()))
+                )
             self.filters[level].append(filter_func)
         elif type(level) == list:
-            for l in level:
-                self.add_filter(filter_func, l)
+            for lev in level:
+                self.add_filter(filter_func, lev)
         else:
             raise UnknownLevelError("{} is not a valid type of level !!!".format(level))
