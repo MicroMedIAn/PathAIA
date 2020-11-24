@@ -31,12 +31,12 @@ def coarse(image, model):
     spaceshape = (image.shape[0], image.shape[1])
     segmentation = numpy.zeros(spaceshape, int)
     positions = unlabeled_regular_grid_list(spaceshape, psize)
-    patches = [img[i:i + psize, j:j + psize].reshape(-1) for i, j in positions]
+    patches = [img[i : i + psize, j : j + psize].reshape(-1) for i, j in positions]
     preds = model.predict(numpy.array(patches))
     for idx, pos in enumerate(positions):
         pred = preds[idx]
         i, j = pos
-        segmentation[i:i + psize, j:j + psize] = pred
+        segmentation[i : i + psize, j : j + psize] = pred
     return segmentation
 
 
@@ -62,12 +62,19 @@ def coarse_sep_channels_classif(image, model):
     positions = unlabeled_regular_grid_list(spaceshape, psize)
     patchlists = []
     for c in range(channels):
-        patchlists.append(numpy.array([img[:, :, c][i:i + psize, j:j + psize].reshape(-1) for i, j in positions]))
+        patchlists.append(
+            numpy.array(
+                [
+                    img[:, :, c][i : i + psize, j : j + psize].reshape(-1)
+                    for i, j in positions
+                ]
+            )
+        )
     preds = model.predict(patchlists)
     for idx, pos in enumerate(positions):
         for c in range(channels):
             i, j = pos
-            segmentations[i:i + psize, j:j + psize, c] = preds[c][idx]
+            segmentations[i : i + psize, j : j + psize, c] = preds[c][idx]
     return segmentations
 
 
@@ -94,13 +101,20 @@ def coarse_sep_channels_desc(image, model, outrag=False):
     positions = unlabeled_regular_grid_list(spaceshape, psize)
     patchlists = []
     for c in range(channels):
-        patchlists.append(numpy.array([img[:, :, c][i:i + psize, j:j + psize].reshape(-1) for i, j in positions]))
+        patchlists.append(
+            numpy.array(
+                [
+                    img[:, :, c][i : i + psize, j : j + psize].reshape(-1)
+                    for i, j in positions
+                ]
+            )
+        )
     preds = model.predict(patchlists, fuzzy=True)
     for idx, pos in enumerate(positions):
         for c in range(channels):
             i, j = pos
-            segmentations[i:i + psize, j:j + psize, c] = preds[c][idx]
-            rag[i:i + psize, j:j + psize] = idx
+            segmentations[i : i + psize, j : j + psize, c] = preds[c][idx]
+            rag[i : i + psize, j : j + psize] = idx
     if outrag:
         return segmentations, rag
     return segmentations

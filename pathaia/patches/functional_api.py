@@ -9,8 +9,14 @@ import numpy
 import openslide
 from ..util.paths import slides_in_folder, slide_basename
 from ..util.images import regular_grid
+from ..utils.basic import ifnone
 from .visu import preview_from_queries
-from .filters import filter_hasdapi, filter_has_significant_dapi, filter_has_tissue_he, standardize_filters
+from .filters import (
+    filter_hasdapi,
+    filter_has_significant_dapi,
+    filter_has_tissue_he,
+    standardize_filters,
+)
 import os
 import csv
 from skimage.io import imsave
@@ -20,9 +26,11 @@ from tqdm import tqdm
 from .errors import UnknownFilterError
 
 
-izi_filters = {"has-dapi": filter_hasdapi,
-               "has-significant-dapi": filter_has_significant_dapi,
-               "has-tissue-he": filter_has_tissue_he}
+izi_filters = {
+    "has-dapi": filter_hasdapi,
+    "has-significant-dapi": filter_has_significant_dapi,
+    "has-tissue-he": filter_has_tissue_he,
+}
 
 
 def filter_image(image, filters):
@@ -49,13 +57,9 @@ def filter_image(image, filters):
     return True
 
 
-def slide_rois(slide,
-               level,
-               psize,
-               interval,
-               ancestors=[],
-               offset={"x": 0, "y": 0},
-               filters=[]):
+def slide_rois(
+    slide, level, psize, interval, ancestors=None, offset=None, filters=None
+):
     """
     Return the absolute coordinates of patches.
 
@@ -76,6 +80,9 @@ def slide_rois(slide,
         tuple of ndarray: icoords, jcoords.
 
     """
+    ancestors = ifnone(ancestors, [])
+    offset = ifnone(offset, {"x": 0, "y": 0})
+    filters = ifnone(filters, [])
     if len(ancestors) > 0:
         mag = slide.level_downsamples[level]
         shape = dict()
@@ -94,23 +101,31 @@ def slide_rois(slide,
                 idx = "{}#{}".format(prefix, k)
                 y = int(patch["y"] * mag + ry)
                 x = int(patch["x"] * mag + rx)
-                patches.append({"id": idx,
-                                "x": x,
-                                "y": y,
-                                "level": level,
-                                "dx": dx,
-                                "dy": dy,
-                                "parent": prefix})
+                patches.append(
+                    {
+                        "id": idx,
+                        "x": x,
+                        "y": y,
+                        "level": level,
+                        "dx": dx,
+                        "dy": dy,
+                        "parent": prefix,
+                    }
+                )
         for patch in tqdm(patches):
             try:
-                image = slide.read_region((patch["x"], patch["y"]),
-                                          patch["level"],
-                                          (psize, psize))
+                image = slide.read_region(
+                    (patch["x"], patch["y"]), patch["level"], (psize, psize)
+                )
                 image = numpy.array(image)[:, :, 0:3]
                 if filter_image(image, filters):
                     yield patch, image
             except openslide.lowlevel.OpenSlideError:
-                print("small failure while reading tile x={}, y={} in {}".format(patch["x"], patch["y"], slide._filename))
+                print(
+                    "small failure while reading tile x={}, y={} in {}".format(
+                        patch["x"], patch["y"], slide._filename
+                    )
+                )
     else:
         shape = dict()
         shape["x"], shape["y"] = slide.level_dimensions[level]
@@ -127,25 +142,26 @@ def slide_rois(slide,
                 image = slide.read_region((x, y), level, (psize, psize))
                 image = numpy.array(image)[:, :, 0:3]
                 if filter_image(image, filters):
-                    yield {"id": idx,
-                           "x": x,
-                           "y": y,
-                           "level": level,
-                           "dx": dx,
-                           "dy": dy,
-                           "parent": "None"}, image
+                    yield {
+                        "id": idx,
+                        "x": x,
+                        "y": y,
+                        "level": level,
+                        "dx": dx,
+                        "dy": dy,
+                        "parent": "None",
+                    }, image
             except openslide.lowlevel.OpenSlideError:
-                print("small failure while reading tile x={}, y={} in {}".format(x, y, slide._filename))
+                print(
+                    "small failure while reading tile x={}, y={} in {}".format(
+                        x, y, slide._filename
+                    )
+                )
 
 
-def patchify_slide(slidefile,
-                   outdir,
-                   level,
-                   psize,
-                   interval,
-                   offset={"x": 0, "y": 0},
-                   filters=[],
-                   verbose=2):
+def patchify_slide(
+    slidefile, outdir, level, psize, interval, offset=None, filters=None, verbose=2
+):
     """
     Save patches of a given wsi.
 
@@ -160,6 +176,8 @@ def patchify_slide(slidefile,
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
+    offset = ifnone(offset, {"x": 0, "y": 0})
+    filters = ifnone(filters, [])
     # Get name of the slide
     slide_id = slide_basename(slidefile)
     # if output directory has the same name, it's ok
@@ -191,8 +209,12 @@ def patchify_slide(slidefile,
     ########################
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        for data, img in slide_rois(slide, level, psize, interval, offset=offset, filters=filters):
-            outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
+        for data, img in slide_rois(
+            slide, level, psize, interval, offset=offset, filters=filters
+        ):
+            outfile = os.path.join(
+                outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"])
+            )
             imsave(outfile, img)
             plist.append(data)
     if verbose > 1:
@@ -213,16 +235,18 @@ def patchify_slide(slidefile,
         print("ending thumbnail export.")
 
 
-def patchify_slide_hierarchically(slidefile,
-                                  outdir,
-                                  top_level,
-                                  low_level,
-                                  psize,
-                                  interval,
-                                  offset={"x": 0, "y": 0},
-                                  filters={},
-                                  silent=[],
-                                  verbose=2):
+def patchify_slide_hierarchically(
+    slidefile,
+    outdir,
+    top_level,
+    low_level,
+    psize,
+    interval,
+    offset=None,
+    filters=None,
+    silent=None,
+    verbose=2,
+):
     """
     Save patches of a given wsi in a hierarchical way.
 
@@ -239,6 +263,9 @@ def patchify_slide_hierarchically(slidefile,
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
+    offset = ifnone(offset, {"x": 0, "y": 0})
+    filters = ifnone(filters, {})
+    silent = ifnone(silent, [])
     level_filters = standardize_filters(filters, top_level, low_level)
     # Get name of the slide
     slide_id = slide_basename(slidefile)
@@ -281,14 +308,33 @@ def patchify_slide_hierarchically(slidefile,
             if level not in silent:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
-                    for data, img in slide_rois(slide, level, psize, interval, ancestors=plist, offset=offset, filters=level_filters[level]):
-                        outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
+                    for data, img in slide_rois(
+                        slide,
+                        level,
+                        psize,
+                        interval,
+                        ancestors=plist,
+                        offset=offset,
+                        filters=level_filters[level],
+                    ):
+                        outfile = os.path.join(
+                            outleveldir,
+                            "{}_{}_{}.png".format(data["x"], data["y"], data["level"]),
+                        )
                         imsave(outfile, img)
                         current_plist.append(data)
             else:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
-                    for data, img in slide_rois(slide, level, psize, interval, ancestors=plist, offset=offset, filters=level_filters[level]):
+                    for data, img in slide_rois(
+                        slide,
+                        level,
+                        psize,
+                        interval,
+                        ancestors=plist,
+                        offset=offset,
+                        filters=level_filters[level],
+                    ):
                         # outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
                         # imsave(outfile, img)
                         current_plist.append(data)
@@ -306,14 +352,9 @@ def patchify_slide_hierarchically(slidefile,
                 print("ending thumbnail export.")
 
 
-def patchify_folder(infolder,
-                    outfolder,
-                    level,
-                    psize,
-                    interval,
-                    offset={"x": 0, "y": 0},
-                    filters=[],
-                    verbose=2):
+def patchify_folder(
+    infolder, outfolder, level, psize, interval, offset=None, filters=None, verbose=2
+):
     """
     Save patches of all wsi inside a folder.
 
@@ -328,6 +369,8 @@ def patchify_folder(infolder,
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
+    offset = ifnone(offset, {"x": 0, "y": 0})
+    filters = ifnone(filters, [])
     slidefiles = slides_in_folder(infolder)
     total = len(slidefiles)
     k = 0
@@ -340,19 +383,30 @@ def patchify_folder(infolder,
         if os.path.isdir(outdir):
             shutil.rmtree(outdir, ignore_errors=True)
         os.makedirs(outdir)
-        patchify_slide(slidefile, outdir, level, psize, interval, offset=offset, filters=filters, verbose=verbose)
+        patchify_slide(
+            slidefile,
+            outdir,
+            level,
+            psize,
+            interval,
+            offset=offset,
+            filters=filters,
+            verbose=verbose,
+        )
 
 
-def patchify_folder_hierarchically(infolder,
-                                   outfolder,
-                                   top_level,
-                                   low_level,
-                                   psize,
-                                   interval,
-                                   offset={"x": 0, "y": 0},
-                                   filters={},
-                                   silent=[],
-                                   verbose=2):
+def patchify_folder_hierarchically(
+    infolder,
+    outfolder,
+    top_level,
+    low_level,
+    psize,
+    interval,
+    offset=None,
+    filters=None,
+    silent=None,
+    verbose=2,
+):
     """
     Save hierarchical patches of all wsi inside a folder.
 
@@ -369,6 +423,9 @@ def patchify_folder_hierarchically(infolder,
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
+    offset = ifnone(offset, {"x": 0, "y": 0})
+    filters = ifnone(filters, {})
+    silent = ifnone(silent, [])
     slidefiles = slides_in_folder(infolder)
     total = len(slidefiles)
     k = 0
@@ -381,13 +438,15 @@ def patchify_folder_hierarchically(infolder,
         if os.path.isdir(outdir):
             shutil.rmtree(outdir, ignore_errors=True)
         os.makedirs(outdir)
-        patchify_slide_hierarchically(slidefile,
-                                      outdir,
-                                      top_level,
-                                      low_level,
-                                      psize,
-                                      interval,
-                                      offset=offset,
-                                      filters=filters,
-                                      silent=silent,
-                                      verbose=verbose)
+        patchify_slide_hierarchically(
+            slidefile,
+            outdir,
+            top_level,
+            low_level,
+            psize,
+            interval,
+            offset=offset,
+            filters=filters,
+            silent=silent,
+            verbose=verbose,
+        )
