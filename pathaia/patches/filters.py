@@ -71,7 +71,9 @@ def filter_has_significant_dapi(image, dapi_channel=0, tolerance=0.5, dapi_toler
         bool: whether dapi is visible in slide.
 
     """
-    return (image[:, :, dapi_channel] > dapi_tolerance).sum() > tolerance * (image.shape[0] * image.shape[1])
+    return (image[:, :, dapi_channel] > dapi_tolerance).sum() > tolerance * (
+        image.shape[0] * image.shape[1]
+    )
 
 
 def get_tissue_from_rgb(image, blacktol=0, whitetol=230):
@@ -93,7 +95,9 @@ def get_tissue_from_rgb(image, blacktol=0, whitetol=230):
 
     for color in range(3):
         # for all color channel, find extreme values corresponding to black or white pixels
-        binarymask = binarymask | ((image[..., color] < whitetol) & (image[..., color] > blacktol))
+        binarymask = binarymask | (
+            (image[..., color] < whitetol) & (image[..., color] > blacktol)
+        )
 
     return binarymask
 
@@ -115,7 +119,7 @@ def get_tissue_from_lab(image, blacktol=5, whitetol=90):
 
     """
     image = rgb2lab(image)[..., 0]
-    binarymask = numpy.ones_like(image, bool)    
+    binarymask = numpy.ones_like(image, bool)
     binarymask = binarymask & (image < whitetol) & (image > blacktol)
     return binarymask
 

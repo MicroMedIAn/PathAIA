@@ -21,7 +21,9 @@ class Vocabulary(object):
 
     """
 
-    def __init__(self, context, size, level, img_per_slide, ptc_per_img, dataset_len, n_channels):
+    def __init__(
+        self, context, size, level, img_per_slide, ptc_per_img, dataset_len, n_channels
+    ):
         """Initialize the Vocabulary object.
 
         Set the context and the n_words attributes.
@@ -33,8 +35,7 @@ class Vocabulary(object):
         self._ptc_per_img = ptc_per_img
         self._dataset_len = dataset_len
         self._n_channels = n_channels
-        self._clf = MiniBatchKMeans(n_clusters=size,
-                                    reassignment_ratio=0.)
+        self._clf = MiniBatchKMeans(n_clusters=size, reassignment_ratio=0.0)
         self._training_slides = set()
         self._centroids = dict()
         self._annotations = dict()
@@ -142,9 +143,9 @@ class Vocabulary(object):
 
         """
         batch = []
-        for img in images_in_folder(slide_ptc_folder,
-                                    randomize=True,
-                                    datalim=self._img_per_slide):
+        for img in images_in_folder(
+            slide_ptc_folder, randomize=True, datalim=self._img_per_slide
+        ):
             batch.append(img)
         self.fit_on_imbatch(batch)
 
@@ -157,8 +158,12 @@ class Vocabulary(object):
             verbose (int): degree of console output while fitting.
 
         """
-        slide2folder = dataset2folders(dataset_folder, self._level, randomize=True,
-                                       slide_data_lim=self._dataset_len)
+        slide2folder = dataset2folders(
+            dataset_folder,
+            self._level,
+            randomize=True,
+            slide_data_lim=self._dataset_len,
+        )
         k = 0
         for slidename, folder in slide2folder.items():
             self._training_slides.add(slidename)
@@ -178,13 +183,23 @@ class Vocabulary(object):
             patch_shape = (self._context, self._context, 3)
             for i in range(int(numpy.sqrt(self._n_words))):
                 for j in range(int(numpy.sqrt(self._n_words))):
-                    image = self._clf.cluster_centers_[i * int(numpy.sqrt(self._n_words)) + j].reshape(patch_shape)
-                    print("stats of filter {}:\nmin={}, max={}, mean={}, dynamic={}".format(i * int(numpy.sqrt(self._n_words)) + j,
-                                                                                            image.min(),
-                                                                                            image.max(),
-                                                                                            image.mean(),
-                                                                                            len(numpy.unique(image))))
-                    ax = fig.add_subplot(int(numpy.sqrt(self._n_words)), int(numpy.sqrt(self._n_words)), i * int(numpy.sqrt(self._n_words)) + j + 1)
+                    image = self._clf.cluster_centers_[
+                        i * int(numpy.sqrt(self._n_words)) + j
+                    ].reshape(patch_shape)
+                    print(
+                        "stats of filter {}:\nmin={}, max={}, mean={}, dynamic={}".format(
+                            i * int(numpy.sqrt(self._n_words)) + j,
+                            image.min(),
+                            image.max(),
+                            image.mean(),
+                            len(numpy.unique(image)),
+                        )
+                    )
+                    ax = fig.add_subplot(
+                        int(numpy.sqrt(self._n_words)),
+                        int(numpy.sqrt(self._n_words)),
+                        i * int(numpy.sqrt(self._n_words)) + j + 1,
+                    )
                     # Turn off tick labels
                     ax.set_yticklabels([])
                     ax.set_xticklabels([])
@@ -192,7 +207,11 @@ class Vocabulary(object):
                     image = image.astype(numpy.uint8)
                     ax.imshow(image)
 
-            plt.savefig(os.path.join(outfolder, "vocabulary_{}_{}.png".format(self._context, self._level)))
+            plt.savefig(
+                os.path.join(
+                    outfolder, "vocabulary_{}_{}.png".format(self._context, self._level)
+                )
+            )
 
     def to_json(self, filepath):
         """Save vocabulary parameters to a json file.
@@ -238,7 +257,9 @@ class Vocabulary(object):
         self._dataset_len = input_dict["dataset_len"]
         self._training_slides = input_dict["training_slides"]
         self._n_channels = input_dict["n_channels"]
-        self._centroids = {k: numpy.array(v) for k, v in input_dict["centroids"].items()}
+        self._centroids = {
+            k: numpy.array(v) for k, v in input_dict["centroids"].items()
+        }
         self._clf = KMeans()
         centroid_idx_list = sorted(self._centroids.keys())
         centroids = []
@@ -255,7 +276,9 @@ class SepChannelsVocabulary(object):
 
     """
 
-    def __init__(self, context, size, level, img_per_slide, ptc_per_img, dataset_len, n_channels):
+    def __init__(
+        self, context, size, level, img_per_slide, ptc_per_img, dataset_len, n_channels
+    ):
         """Initialize the Vocabulary object.
 
         Set the context and the n_words attributes.
@@ -270,8 +293,7 @@ class SepChannelsVocabulary(object):
         self._clf = []
         self._centroids = []
         for c in range(self._n_channels):
-            self._clf.append(MiniBatchKMeans(n_clusters=size,
-                                             reassignment_ratio=0.))
+            self._clf.append(MiniBatchKMeans(n_clusters=size, reassignment_ratio=0.0))
             self._centroids.append(dict())
         self._training_slides = set()
 
@@ -351,7 +373,9 @@ class SepChannelsVocabulary(object):
         """
         ch_ptcs = [[] for c in range(self._n_channels)]
         for img in batch:
-            for idx, channel_patches in enumerate(sample_img_sep_channels(img, self._context, self._ptc_per_img)):
+            for idx, channel_patches in enumerate(
+                sample_img_sep_channels(img, self._context, self._ptc_per_img)
+            ):
                 ch_ptcs[idx] += channel_patches
         for clf, ptcs in zip(self._clf, ch_ptcs):
             clf.partial_fit(ptcs)
@@ -385,9 +409,9 @@ class SepChannelsVocabulary(object):
 
         """
         batch = []
-        for img in images_in_folder(slide_ptc_folder,
-                                    randomize=True,
-                                    datalim=self._img_per_slide):
+        for img in images_in_folder(
+            slide_ptc_folder, randomize=True, datalim=self._img_per_slide
+        ):
             batch.append(img)
         self.fit_on_imbatch(batch)
 
@@ -400,8 +424,12 @@ class SepChannelsVocabulary(object):
             verbose (int): degree of console output while fitting.
 
         """
-        slide2folder = dataset2folders(dataset_folder, self._level, randomize=True,
-                                       slide_data_lim=self._dataset_len)
+        slide2folder = dataset2folders(
+            dataset_folder,
+            self._level,
+            randomize=True,
+            slide_data_lim=self._dataset_len,
+        )
         k = 0
         for slidename, folder in slide2folder.items():
             self._training_slides.add(slidename)
@@ -423,13 +451,25 @@ class SepChannelsVocabulary(object):
                 patch_shape = (self._context, self._context)
                 for i in range(int(numpy.sqrt(self._n_words))):
                     for j in range(int(numpy.sqrt(self._n_words))):
-                        image = self._clf[c].cluster_centers_[i * int(numpy.sqrt(self._n_words)) + j].reshape(patch_shape)
-                        print("stats of filter {}:\nmin={}, max={}, mean={}, dynamic={}".format(i * int(numpy.sqrt(self._n_words)) + j,
-                                                                                                image.min(),
-                                                                                                image.max(),
-                                                                                                image.mean(),
-                                                                                                len(numpy.unique(image))))
-                        ax = fig.add_subplot(int(numpy.sqrt(self._n_words)), int(numpy.sqrt(self._n_words)), i * int(numpy.sqrt(self._n_words)) + j + 1)
+                        image = (
+                            self._clf[c]
+                            .cluster_centers_[i * int(numpy.sqrt(self._n_words)) + j]
+                            .reshape(patch_shape)
+                        )
+                        print(
+                            "stats of filter {}:\nmin={}, max={}, mean={}, dynamic={}".format(
+                                i * int(numpy.sqrt(self._n_words)) + j,
+                                image.min(),
+                                image.max(),
+                                image.mean(),
+                                len(numpy.unique(image)),
+                            )
+                        )
+                        ax = fig.add_subplot(
+                            int(numpy.sqrt(self._n_words)),
+                            int(numpy.sqrt(self._n_words)),
+                            i * int(numpy.sqrt(self._n_words)) + j + 1,
+                        )
                         # Turn off tick labels
                         ax.set_yticklabels([])
                         ax.set_xticklabels([])
@@ -437,7 +477,14 @@ class SepChannelsVocabulary(object):
                         image = image.astype(numpy.uint8)
                         ax.imshow(image)
 
-                plt.savefig(os.path.join(outfolder, "vocabulary_{}_{}_channel_{}.png".format(self._context, self._level, c)))
+                plt.savefig(
+                    os.path.join(
+                        outfolder,
+                        "vocabulary_{}_{}_channel_{}.png".format(
+                            self._context, self._level, c
+                        ),
+                    )
+                )
 
     def to_json(self, filepath):
         """Save vocabulary parameters to a json file.
@@ -459,7 +506,9 @@ class SepChannelsVocabulary(object):
         output_dict["n_channels"] = self._n_channels
         output_dict["centroids"] = []
         for c in range(self._n_channels):
-            output_dict["centroids"].append({k: list(v) for k, v in self._centroids[c].items()})
+            output_dict["centroids"].append(
+                {k: list(v) for k, v in self._centroids[c].items()}
+            )
 
         json_txt = json.dumps(output_dict)
         with open(filepath, "w") as outputjson:
@@ -488,7 +537,9 @@ class SepChannelsVocabulary(object):
         self._centroids = []
         self._clf = []
         for c in range(self._n_channels):
-            self._centroids.append({k: numpy.array(v) for k, v in input_dict["centroids"][c].items()})
+            self._centroids.append(
+                {k: numpy.array(v) for k, v in input_dict["centroids"][c].items()}
+            )
             km = KMeans()
             centroid_idx_list = sorted(self._centroids[c].keys())
             centroids = []

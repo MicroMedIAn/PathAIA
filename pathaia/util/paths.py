@@ -5,13 +5,13 @@ import os
 import numpy
 
 
-def slides_in_folder(folder, extensions=[".mrxs"]):
+def slides_in_folder(folder, extensions=(".mrxs",)):
     """
     Return slide files inside a folder for a given extension.
 
     Args:
         folder (str): absolute path to a directory containing slides.
-        extension (list of str): file extensions of the slides.
+        extension (list or tuple of str): file extensions of the slides.
     Returns:
         list of str: list of absolute path of slide files.
 
@@ -43,8 +43,8 @@ def slide_basename(slidepath):
 
 
 def imfiles_in_folder(folder,
-                      authorized=[".png", ".jpg", ".jpeg", ".tif", ".tiff"],
-                      forbiden=["thumbnail"],
+                      authorized=(".png", ".jpg", ".jpeg", ".tif", ".tiff"),
+                      forbiden=("thumbnail",),
                       randomize=False,
                       datalim=None):
     """
@@ -55,8 +55,8 @@ def imfiles_in_folder(folder,
 
     Args:
         folder (str): absolute path to an image directory.
-        authorized (list): authorized image file extensions.
-        forbiden (list): non-authorized words in file names.
+        authorized (list or tuple): authorized image file extensions.
+        forbiden (list or tuple): non-authorized words in file names.
         randomize (bool): whether to randomize output list of files.
         datalim (int or None): maximum number of file to extract in folder.
 
