@@ -77,9 +77,9 @@ def images_in_folder(folder,
 
 
 def sample_img(image, psize, spl_per_image, mask=None):
-    """Fit vocabulary on a single image.
+    """Get patches in an image.
 
-    Split image in patches and fit on them.
+    Split image in patches.
 
     Args:
         image (ndarray): numpy image to fit on.
