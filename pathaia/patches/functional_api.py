@@ -24,6 +24,7 @@ from skimage.filters import threshold_otsu
 import warnings
 from tqdm import tqdm
 from .errors import UnknownFilterError
+from pathlib import Path
 
 
 izi_filters = {
@@ -456,7 +457,7 @@ def patchify_folder_hierarchically(
 
 def extract_tissue_patch_coords(
     infolder,
-    outfile,
+    outfolder,
     level,
     psize,
     interval,
@@ -466,11 +467,11 @@ def extract_tissue_patch_coords(
 ):
     """
     Extracts all patch coordinates that contain tissue at aspecific level from WSI files
-    in a folder and stores them in a csv. Foreground is evaluated using otsu thresholding.
+    in a folder and stores them in csvs. Foreground is evaluated using otsu thresholding.
 
     Args:
         infolder (str): abs path to a folder of slides.
-        outfile (str): abs path to an output csv file.
+        outfolder (str): abs path to a folder to stroe output csv files.
         level (int): pyramid level to consider.
         psize (int): size of the side of the patches (in pixels).
         interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
@@ -478,25 +479,39 @@ def extract_tissue_patch_coords(
         recurse (bool): whether to look for files recursively.
         folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
     """
-
+    outfolder = Path(outfolder)
     extensions = ifnone(extensions, [".mrxs"])
     overlap_size = psize - interval
     files = get_files(infolder, extensions=extensions, recurse=recurse, folder=folders)
 
-    with open(outfile, "w") as f:
-        writer = csv.DictWriter(f, ["Slidename", "X", "Y"])
-        writer.writeheader()
-        for file in files:
-            print(file.stem)
-            slide = openslide.OpenSlide(str(file))
-            dsr = int(slide.level_downsamples[level])
-            w, h = slide.dimensions
-            thumb_w = int((w / dsr - overlap_size) / interval)
-            thumb_h = int((h / dsr - overlap_size) / interval)
-            thumb = slide.get_thumbnail((thumb_w, thumb_h))
-            thumb = numpy.array(thumb.convert("L"))
-            thr = threshold_otsu(thumb[thumb > 0])
-            for y, x in numpy.argwhere((thumb > 0) & (thumb < thr)):
+    for file in files:
+        print(file.stem)
+        slide = openslide.OpenSlide(str(file))
+        dsr = int(slide.level_downsamples[level])
+        psize_0 = dsr * psize
+        w, h = slide.dimensions
+
+        thumb_w = int((w / dsr - overlap_size) / interval)
+        thumb_h = int((h / dsr - overlap_size) / interval)
+        thumb = slide.get_thumbnail((thumb_w, thumb_h))
+        thumb = numpy.array(thumb.convert("L"))
+        thr = threshold_otsu(thumb[thumb > 0])
+
+        outfile = outfolder / (file.stem + ".csv")
+        with open(outfile, "w") as f:
+            writer = csv.DictWriter(f, ["id", "parent", "level", "x", "y", "dx", "dy"])
+            writer.writeheader()
+            for k, (y, x) in enumerate(numpy.argwhere((thumb > 0) & (thumb < thr))):
                 x = x * interval * dsr
                 y = y * interval * dsr
-                writer.writerow({"Slidename": file.stem, "X": x, "Y": y})
+                writer.writerow(
+                    {
+                        "id": f"#{k}",
+                        "level": level,
+                        "x": x,
+                        "y": y,
+                        "dx": psize_0,
+                        "dy": psize_0,
+                        "parent": "None",
+                    }
+                )
