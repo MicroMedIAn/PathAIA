@@ -366,6 +366,8 @@ def patchify_folder(
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
+    if os.path.isdir(outfolder):
+        safe_rmtree(outfolder, ignore_errors=True)
     offset = ifnone(offset, {"x": 0, "y": 0})
     filters = ifnone(filters, [])
     slidefiles = slides_in_folder(infolder)
@@ -420,6 +422,8 @@ def patchify_folder_hierarchically(
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
+    if os.path.isdir(outfolder):
+        safe_rmtree(outfolder, ignore_errors=True)
     offset = ifnone(offset, {"x": 0, "y": 0})
     filters = ifnone(filters, {})
     silent = ifnone(silent, [])
