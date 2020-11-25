@@ -7,7 +7,7 @@ Draft for hierarchical patch extraction and representation is proposed.
 """
 import numpy
 import openslide
-from ..util.paths import slides_in_folder, slide_basename
+from ..util.paths import slides_in_folder, slide_basename, safe_rmtree
 from ..util.images import regular_grid
 from ..utils.basic import ifnone
 from .visu import preview_from_queries
@@ -20,11 +20,9 @@ from .filters import (
 import os
 import csv
 from skimage.io import imsave
-import shutil
 import warnings
 from tqdm import tqdm
 from .errors import UnknownFilterError
-import pandas as pd
 
 
 izi_filters = {
@@ -188,7 +186,7 @@ def patchify_slide(
     else:
         slide_folder_output = os.path.join(outdir, slide_id)
         if os.path.isdir(slide_folder_output):
-            shutil.rmtree(slide_folder_output, ignore_errors=True)
+            safe_rmtree(slide_folder_output, ignore_errors=True)
         os.makedirs(slide_folder_output)
 
     if verbose > 0:
@@ -205,7 +203,7 @@ def patchify_slide(
     # level directory
     outleveldir = os.path.join(slide_folder_output, "level_{}".format(level))
     if os.path.isdir(outleveldir):
-        shutil.rmtree(outleveldir, ignore_errors=True)
+        safe_rmtree(outleveldir, ignore_errors=True)
     os.makedirs(outleveldir)
     ########################
     with warnings.catch_warnings():
@@ -277,7 +275,7 @@ def patchify_slide_hierarchically(
     else:
         slide_folder_output = os.path.join(outdir, slide_id)
         if os.path.isdir(slide_folder_output):
-            shutil.rmtree(slide_folder_output, ignore_errors=True)
+            safe_rmtree(slide_folder_output, ignore_errors=True)
         os.makedirs(slide_folder_output)
 
     csv_columns = ["id", "parent", "level", "x", "y", "dx", "dy"]
@@ -303,7 +301,7 @@ def patchify_slide_hierarchically(
             # level directory
             outleveldir = os.path.join(slide_folder_output, "level_{}".format(level))
             if os.path.isdir(outleveldir):
-                shutil.rmtree(outleveldir, ignore_errors=True)
+                safe_rmtree(outleveldir, ignore_errors=True)
             os.makedirs(outleveldir)
             ########################
             if level not in silent:
@@ -336,8 +334,6 @@ def patchify_slide_hierarchically(
                         offset=offset,
                         filters=level_filters[level],
                     ):
-                        # outfile = os.path.join(outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"]))
-                        # imsave(outfile, img)
                         current_plist.append(data)
             plist = [p for p in current_plist]
             if verbose > 1:
@@ -382,7 +378,7 @@ def patchify_folder(
         slidename = slide_basename(slidefile)
         outdir = os.path.join(outfolder, slidename)
         if os.path.isdir(outdir):
-            shutil.rmtree(outdir, ignore_errors=True)
+            safe_rmtree(outdir, ignore_errors=True)
         os.makedirs(outdir)
         patchify_slide(
             slidefile,
@@ -437,7 +433,7 @@ def patchify_folder_hierarchically(
         slidename = slide_basename(slidefile)
         outdir = os.path.join(outfolder, slidename)
         if os.path.isdir(outdir):
-            shutil.rmtree(outdir, ignore_errors=True)
+            safe_rmtree(outdir, ignore_errors=True)
         os.makedirs(outdir)
         patchify_slide_hierarchically(
             slidefile,
