@@ -352,7 +352,17 @@ def patchify_slide_hierarchically(
 
 
 def patchify_folder(
-    infolder, outfolder, level, psize, interval, offset=None, filters=None, verbose=2
+    infolder,
+    outfolder,
+    level,
+    psize,
+    interval,
+    offset=None,
+    filters=None,
+    extensions=(".mrxs",),
+    recurse=False,
+    folders=None,
+    verbose=2,
 ):
     """
     Save patches of all wsi inside a folder.
@@ -365,6 +375,9 @@ def patchify_folder(
         interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
         filters (list of func): filters to accept patches.
+        extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
+        recurse (bool): whether to look for files recursively.
+        folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
@@ -372,6 +385,9 @@ def patchify_folder(
         safe_rmtree(outfolder, ignore_errors=True)
     offset = ifnone(offset, {"x": 0, "y": 0})
     filters = ifnone(filters, [])
+    slidefiles = get_files(
+        infolder, extensions=extensions, recurse=recurse, folder=folders
+    ).map(str)
     slidefiles = slides_in_folder(infolder)
     total = len(slidefiles)
     k = 0
@@ -406,6 +422,9 @@ def patchify_folder_hierarchically(
     offset=None,
     filters=None,
     silent=None,
+    extensions=(".mrxs",),
+    recurse=False,
+    folders=None,
     verbose=2,
 ):
     """
@@ -421,6 +440,9 @@ def patchify_folder_hierarchically(
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
         filters (dict of list of func): filters to accept patches.
         silent (list of int): pyramid level not to output.
+        extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
+        recurse (bool): whether to look for files recursively.
+        folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
@@ -429,7 +451,9 @@ def patchify_folder_hierarchically(
     offset = ifnone(offset, {"x": 0, "y": 0})
     filters = ifnone(filters, {})
     silent = ifnone(silent, [])
-    slidefiles = slides_in_folder(infolder)
+    slidefiles = get_files(
+        infolder, extensions=extensions, recurse=recurse, folder=folders
+    ).map(str)
     total = len(slidefiles)
     k = 0
     for slidefile in slidefiles:
@@ -461,7 +485,7 @@ def extract_tissue_patch_coords(
     level,
     psize,
     interval,
-    extensions=None,
+    extensions=(".mrxs",),
     recurse=True,
     folders=None,
 ):
@@ -480,7 +504,6 @@ def extract_tissue_patch_coords(
         folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
     """
     outfolder = Path(outfolder)
-    extensions = ifnone(extensions, [".mrxs"])
     overlap_size = psize - interval
     files = get_files(infolder, extensions=extensions, recurse=recurse, folder=folders)
 
