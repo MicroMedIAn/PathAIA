@@ -7,7 +7,7 @@ Draft for hierarchical patch extraction and representation is proposed.
 """
 import numpy
 import openslide
-from ..util.paths import slides_in_folder, slide_basename, safe_rmtree
+from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid
 from ..utils.basic import ifnone
 from .visu import preview_from_queries
@@ -20,6 +20,7 @@ from .filters import (
 import os
 import csv
 from skimage.io import imsave
+from skimage.filters import threshold_otsu
 import warnings
 from tqdm import tqdm
 from .errors import UnknownFilterError
@@ -198,7 +199,7 @@ def patchify_slide(
             print("offset: {}".format(offset))
             print("filtering: {}".format(filters))
             print("starting patchification...")
-    slide = openslide.OpenSlide(slidefile)
+    slide = openslide.OpenSlide(str(slidefile))
     plist = []
     # level directory
     outleveldir = os.path.join(slide_folder_output, "level_{}".format(level))
@@ -280,7 +281,7 @@ def patchify_slide_hierarchically(
 
     csv_columns = ["id", "parent", "level", "x", "y", "dx", "dy"]
     csv_path = os.path.join(slide_folder_output, "patches.csv")
-    slide = openslide.OpenSlide(slidefile)
+    slide = openslide.OpenSlide(str(slidefile))
     with open(csv_path, "w") as csvfile:
         writer = csv.DictWriter(csvfile, csv_columns)
         writer.writeheader()
@@ -451,3 +452,51 @@ def patchify_folder_hierarchically(
             silent=silent,
             verbose=verbose,
         )
+
+
+def extract_tissue_patch_coords(
+    infolder,
+    outfile,
+    level,
+    psize,
+    interval,
+    extensions=None,
+    recurse=True,
+    folders=None,
+):
+    """
+    Extracts all patch coordinates that contain tissue at aspecific level from WSI files
+    in a folder and stores them in a csv. Foreground is evaluated using otsu thresholding.
+
+    Args:
+        infolder (str): abs path to a folder of slides.
+        outfile (str): abs path to an output csv file.
+        level (int): pyramid level to consider.
+        psize (int): size of the side of the patches (in pixels).
+        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
+        extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
+        recurse (bool): whether to look for files recursively.
+        folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
+    """
+
+    extensions = ifnone(extensions, [".mrxs"])
+    overlap_size = psize - interval
+    files = get_files(infolder, extensions=extensions, recurse=recurse, folder=folders)
+
+    with open(outfile, 'w') as f:
+        writer = csv.DictWriter(f, ["Slidename", "X", "Y"])
+        writer.writeheader()
+        for file in files:
+            print(file.stem)
+            slide = openslide.OpenSlide(str(file))
+            dsr = int(slide.level_downsamples[level])
+            w, h = slide.dimensions
+            thumb_w = int((w / dsr - overlap_size) / interval)
+            thumb_h = int((h / dsr - overlap_size) / interval)
+            thumb = slide.get_thumbnail((thumb_w, thumb_h))
+            thumb = numpy.array(thumb.convert("L"))
+            thr = threshold_otsu(thumb[thumb > 0])
+            for y, x in numpy.argwhere((thumb > 0) & (thumb < thr)):
+                x = x * interval * dsr
+                y = y * interval * dsr
+                writer.writerow({"Slidename": file.stem, "X": x, "Y": y})
