@@ -483,7 +483,7 @@ def extract_tissue_patch_coords(
     overlap_size = psize - interval
     files = get_files(infolder, extensions=extensions, recurse=recurse, folder=folders)
 
-    with open(outfile, 'w') as f:
+    with open(outfile, "w") as f:
         writer = csv.DictWriter(f, ["Slidename", "X", "Y"])
         writer.writeheader()
         for file in files:
