@@ -5,6 +5,7 @@ import os
 import numpy
 from pathlib import Path
 from fastcore.foundation import L, setify
+import shutil
 
 
 def slides_in_folder(folder, extensions=(".mrxs",)):
@@ -44,11 +45,13 @@ def slide_basename(slidepath):
     return basename
 
 
-def imfiles_in_folder(folder,
-                      authorized=(".png", ".jpg", ".jpeg", ".tif", ".tiff"),
-                      forbiden=("thumbnail",),
-                      randomize=False,
-                      datalim=None):
+def imfiles_in_folder(
+    folder,
+    authorized=(".png", ".jpg", ".jpeg", ".tif", ".tiff"),
+    forbiden=("thumbnail",),
+    randomize=False,
+    datalim=None,
+):
     """
     Get image files in a given folder.
 
@@ -163,3 +166,29 @@ def get_files(path, extensions=None, recurse=True, folders=None, followlinks=Tru
         f = [o.name for o in os.scandir(path) if o.is_file()]
         res = _get_files(path, f, extensions)
     return L(res)
+
+
+def safe_rmtree(path, ignore_errors=True, erase_tree=None):
+    """
+    Safe version of rmtree that asks for permission before deleting.
+
+    Arguments:
+        path (bytes): path to folder to be deleted.
+        ignore_error (bool): whether to ignore errors or not.
+
+    Returns:
+        bool: True if erase_tree==True or if user gave permission.
+    """
+    response = ""
+    if erase_tree is None:
+        while response not in ["y", "n"]:
+            response = input(
+                "Are you sure you want to delete " f"{path} and all subfolders ? y/n"
+            )
+            response = response.lower()
+
+    if response == "y" or erase_tree:
+        shutil.rmtree(path, ignore_errors=ignore_errors)
+        return True
+    else:
+        return False
