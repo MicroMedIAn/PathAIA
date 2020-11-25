@@ -168,7 +168,7 @@ def get_files(path, extensions=None, recurse=True, folders=None, followlinks=Tru
     return L(res)
 
 
-def safe_rmtree(path, ignore_errors=True):
+def safe_rmtree(path, ignore_errors=True, erase_tree=None):
     """
     Safe version of rmtree that asks for permission before deleting.
 
@@ -177,22 +177,18 @@ def safe_rmtree(path, ignore_errors=True):
         ignore_error (bool): whether to ignore errors or not.
 
     Returns:
-        bool: whether the folder was succesfully deleted or not
+        bool: True if erase_tree==True or if user gave permission.
     """
     response = ""
-    while response not in ["y", "n"]:
-        response = input(
-            "Are you sure you want to delete " f"{path} and all subfolders ? y/n"
-        )
-        response = response.lower()
-    if response == "y":
-        try:
-            shutil.rmtree(path, ignore_errors=False)
-            return True
-        except Exception as e:
-            if ignore_errors:
-                return False
-            else:
-                raise e
+    if erase_tree is None:
+        while response not in ["y", "n"]:
+            response = input(
+                "Are you sure you want to delete " f"{path} and all subfolders ? y/n"
+            )
+            response = response.lower()
+
+    if response == "y" or erase_tree:
+        shutil.rmtree(path, ignore_errors=ignore_errors)
+        return True
     else:
         return False

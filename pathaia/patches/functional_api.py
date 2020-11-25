@@ -161,7 +161,15 @@ def slide_rois(
 
 
 def patchify_slide(
-    slidefile, outdir, level, psize, interval, offset=None, filters=None, verbose=2
+    slidefile,
+    outdir,
+    level,
+    psize,
+    interval,
+    offset=None,
+    filters=None,
+    erase_tree=None,
+    verbose=2,
 ):
     """
     Save patches of a given wsi.
@@ -174,6 +182,7 @@ def patchify_slide(
         interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
         filters (list of func): filters to accept patches.
+        erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
@@ -188,8 +197,10 @@ def patchify_slide(
     else:
         slide_folder_output = os.path.join(outdir, slide_id)
         if os.path.isdir(slide_folder_output):
-            safe_rmtree(slide_folder_output, ignore_errors=True)
-        os.makedirs(slide_folder_output)
+            erase_tree = safe_rmtree(
+                slide_folder_output, ignore_errors=True, erase_tree=erase_tree
+            )
+        os.makedirs(slide_folder_output, exist_ok=True)
 
     if verbose > 0:
         print("patchifying: {}".format(slidefile))
@@ -205,8 +216,8 @@ def patchify_slide(
     # level directory
     outleveldir = os.path.join(slide_folder_output, "level_{}".format(level))
     if os.path.isdir(outleveldir):
-        safe_rmtree(outleveldir, ignore_errors=True)
-    os.makedirs(outleveldir)
+        safe_rmtree(outleveldir, ignore_errors=True, erase_tree=erase_tree)
+    os.makedirs(outleveldir, exist_ok=True)
     ########################
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -246,6 +257,7 @@ def patchify_slide_hierarchically(
     offset=None,
     filters=None,
     silent=None,
+    erase_tree=None,
     verbose=2,
 ):
     """
@@ -261,6 +273,7 @@ def patchify_slide_hierarchically(
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
         filters (dict of list of func): filters to accept patches.
         silent (list of int): pyramid level not to output.
+        erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
@@ -277,8 +290,10 @@ def patchify_slide_hierarchically(
     else:
         slide_folder_output = os.path.join(outdir, slide_id)
         if os.path.isdir(slide_folder_output):
-            safe_rmtree(slide_folder_output, ignore_errors=True)
-        os.makedirs(slide_folder_output)
+            erase_tree = safe_rmtree(
+                slide_folder_output, ignore_errors=True, erase_tree=erase_tree
+            )
+        os.makedirs(slide_folder_output, exist_ok=True)
 
     csv_columns = ["id", "parent", "level", "x", "y", "dx", "dy"]
     csv_path = os.path.join(slide_folder_output, "patches.csv")
@@ -303,8 +318,8 @@ def patchify_slide_hierarchically(
             # level directory
             outleveldir = os.path.join(slide_folder_output, "level_{}".format(level))
             if os.path.isdir(outleveldir):
-                safe_rmtree(outleveldir, ignore_errors=True)
-            os.makedirs(outleveldir)
+                safe_rmtree(outleveldir, ignore_errors=True, erase_tree=erase_tree)
+            os.makedirs(outleveldir, exist_ok=True)
             ########################
             if level not in silent:
                 with warnings.catch_warnings():
@@ -362,6 +377,7 @@ def patchify_folder(
     extensions=(".mrxs",),
     recurse=False,
     folders=None,
+    erase_tree=None,
     verbose=2,
 ):
     """
@@ -378,11 +394,12 @@ def patchify_folder(
         extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
         recurse (bool): whether to look for files recursively.
         folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
+        erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
     if os.path.isdir(outfolder):
-        safe_rmtree(outfolder, ignore_errors=True)
+        erase_tree = safe_rmtree(outfolder, ignore_errors=True, erase_tree=erase_tree)
     offset = ifnone(offset, {"x": 0, "y": 0})
     filters = ifnone(filters, [])
     slidefiles = get_files(
@@ -398,8 +415,8 @@ def patchify_folder(
         slidename = slide_basename(slidefile)
         outdir = os.path.join(outfolder, slidename)
         if os.path.isdir(outdir):
-            safe_rmtree(outdir, ignore_errors=True)
-        os.makedirs(outdir)
+            safe_rmtree(outdir, ignore_errors=True, erase_tree=erase_tree)
+        os.makedirs(outdir, exist_ok=True)
         patchify_slide(
             slidefile,
             outdir,
@@ -408,6 +425,7 @@ def patchify_folder(
             interval,
             offset=offset,
             filters=filters,
+            erase_tree=erase_tree,
             verbose=verbose,
         )
 
@@ -425,6 +443,7 @@ def patchify_folder_hierarchically(
     extensions=(".mrxs",),
     recurse=False,
     folders=None,
+    erase_tree=None,
     verbose=2,
 ):
     """
@@ -443,11 +462,12 @@ def patchify_folder_hierarchically(
         extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
         recurse (bool): whether to look for files recursively.
         folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
+        erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
     if os.path.isdir(outfolder):
-        safe_rmtree(outfolder, ignore_errors=True)
+        erase_tree = safe_rmtree(outfolder, ignore_errors=True, erase_tree=erase_tree)
     offset = ifnone(offset, {"x": 0, "y": 0})
     filters = ifnone(filters, {})
     silent = ifnone(silent, [])
@@ -463,8 +483,8 @@ def patchify_folder_hierarchically(
         slidename = slide_basename(slidefile)
         outdir = os.path.join(outfolder, slidename)
         if os.path.isdir(outdir):
-            safe_rmtree(outdir, ignore_errors=True)
-        os.makedirs(outdir)
+            safe_rmtree(outdir, ignore_errors=True, erase_tree=erase_tree)
+        os.makedirs(outdir, exist_ok=True)
         patchify_slide_hierarchically(
             slidefile,
             outdir,
@@ -475,6 +495,7 @@ def patchify_folder_hierarchically(
             offset=offset,
             filters=filters,
             silent=silent,
+            erase_tree=erase_tree,
             verbose=verbose,
         )
 
@@ -488,6 +509,7 @@ def extract_tissue_patch_coords(
     extensions=(".mrxs",),
     recurse=True,
     folders=None,
+    erase_tree=None,
 ):
     """
     Extracts all patch coordinates that contain tissue at aspecific level from WSI files
@@ -502,8 +524,12 @@ def extract_tissue_patch_coords(
         extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
         recurse (bool): whether to look for files recursively.
         folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
+        erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
     """
     outfolder = Path(outfolder)
+    if outfolder.is_dir():
+        erase_tree = safe_rmtree(outfolder, ignore_errors=True, erase_tree=erase_tree)
+    outfolder.mkdir(parents=True, exist_ok=True)
     overlap_size = psize - interval
     files = get_files(infolder, extensions=extensions, recurse=recurse, folder=folders)
 
