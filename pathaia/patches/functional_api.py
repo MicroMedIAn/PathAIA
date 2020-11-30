@@ -9,7 +9,7 @@ import numpy
 import openslide
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid
-from ..utils.basic import ifnone
+from ..util.basic import ifnone
 from .visu import preview_from_queries
 from .filters import (
     filter_hasdapi,

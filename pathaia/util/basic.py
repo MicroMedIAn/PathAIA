@@ -13,4 +13,4 @@ def ifnone(x, default):
     Returns:
         any: x if x is not None else default
     """
-    
+    return x if x is not None else default    
