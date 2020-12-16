@@ -403,7 +403,7 @@ def patchify_folder(
     offset = ifnone(offset, {"x": 0, "y": 0})
     filters = ifnone(filters, [])
     slidefiles = get_files(
-        infolder, extensions=extensions, recurse=recurse, folder=folders
+        infolder, extensions=extensions, recurse=recurse, folders=folders
     ).map(str)
     slidefiles = slides_in_folder(infolder)
     total = len(slidefiles)
@@ -472,7 +472,7 @@ def patchify_folder_hierarchically(
     filters = ifnone(filters, {})
     silent = ifnone(silent, [])
     slidefiles = get_files(
-        infolder, extensions=extensions, recurse=recurse, folder=folders
+        infolder, extensions=extensions, recurse=recurse, folders=folders
     ).map(str)
     total = len(slidefiles)
     k = 0
@@ -531,7 +531,7 @@ def extract_tissue_patch_coords(
         erase_tree = safe_rmtree(outfolder, ignore_errors=True, erase_tree=erase_tree)
     outfolder.mkdir(parents=True, exist_ok=True)
     overlap_size = psize - interval
-    files = get_files(infolder, extensions=extensions, recurse=recurse, folder=folders)
+    files = get_files(infolder, extensions=extensions, recurse=recurse, folders=folders)
 
     for file in files:
         print(file.stem)
