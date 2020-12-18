@@ -34,3 +34,22 @@ class UnknownFilterError(Error):
     """
 
     pass
+
+
+class PathaiaWarning(Warning):
+    """
+    Base of custom warnings.
+
+    ************************
+    """
+    pass
+
+
+class HasNoDataFolder(PathaiaWarning):
+    """
+    Raise when trying to read mrxs with no data folder.
+
+    ***************************************************
+    """
+
+    pass

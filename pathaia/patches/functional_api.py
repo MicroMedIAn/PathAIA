@@ -5,6 +5,7 @@ A module to extract patches in a slide.
 Enable filtering on tissue surface ratio.
 Draft for hierarchical patch extraction and representation is proposed.
 """
+import warnings
 import numpy
 import openslide
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
@@ -23,7 +24,7 @@ from skimage.io import imsave
 from skimage.filters import threshold_otsu
 import warnings
 from tqdm import tqdm
-from .errors import UnknownFilterError
+from .errors import UnknownFilterError, HasNoDataFolder
 from pathlib import Path
 
 
@@ -417,17 +418,21 @@ def patchify_folder(
         if os.path.isdir(outdir):
             safe_rmtree(outdir, ignore_errors=True, erase_tree=erase_tree)
         os.makedirs(outdir, exist_ok=True)
-        patchify_slide(
-            slidefile,
-            outdir,
-            level,
-            psize,
-            interval,
-            offset=offset,
-            filters=filters,
-            erase_tree=erase_tree,
-            verbose=verbose,
-        )
+        # patchify folder must be robust to 'missing image data' rare cases...
+        try:
+            patchify_slide(
+                slidefile,
+                outdir,
+                level,
+                psize,
+                interval,
+                offset=offset,
+                filters=filters,
+                erase_tree=erase_tree,
+                verbose=verbose,
+            )
+        except openslide.OpenSlideUnsupportedFormatError:
+            warnings.warn("{} has no image data!!!".format(slidefile), HasNoDataFolder)
 
 
 def patchify_folder_hierarchically(
@@ -485,19 +490,22 @@ def patchify_folder_hierarchically(
         if os.path.isdir(outdir):
             safe_rmtree(outdir, ignore_errors=True, erase_tree=erase_tree)
         os.makedirs(outdir, exist_ok=True)
-        patchify_slide_hierarchically(
-            slidefile,
-            outdir,
-            top_level,
-            low_level,
-            psize,
-            interval,
-            offset=offset,
-            filters=filters,
-            silent=silent,
-            erase_tree=erase_tree,
-            verbose=verbose,
-        )
+        try:
+            patchify_slide_hierarchically(
+                slidefile,
+                outdir,
+                top_level,
+                low_level,
+                psize,
+                interval,
+                offset=offset,
+                filters=filters,
+                silent=silent,
+                erase_tree=erase_tree,
+                verbose=verbose,
+            )
+        except openslide.OpenSlideUnsupportedFormatError:
+            warnings.warn("{} has no image data!!!".format(slidefile), HasNoDataFolder)
 
 
 def extract_tissue_patch_coords(
