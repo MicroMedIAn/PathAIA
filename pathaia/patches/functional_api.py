@@ -114,7 +114,7 @@ def slide_rois(
                         "parent": prefix,
                     }
                 )
-        for patch in tqdm(patches):
+        for patch in tqdm(patches, ascii=True):
             try:
                 image = slide.read_region(
                     (patch["x"], patch["y"]), patch["level"], (psize, psize)
