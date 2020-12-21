@@ -35,6 +35,8 @@ def preview_from_queries(
         y = int(query["y"] / 2 ** level_preview)
         dx = int(query["dx"] / 2 ** level_preview)
         dy = int(query["dy"] / 2 ** level_preview)
+        endx = min(x + dx, image.shape[1] - 1)
+        endy = min(y + dy, image.shape[0] - 1)
         # horizontal segments
         grid[y, x : x + dx] = 0
         grid[y + dy, x : x + dx] = 0
