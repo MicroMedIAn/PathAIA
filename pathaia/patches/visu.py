@@ -35,14 +35,16 @@ def preview_from_queries(
         y = int(query["y"] / 2 ** level_preview)
         dx = int(query["dx"] / 2 ** level_preview)
         dy = int(query["dy"] / 2 ** level_preview)
+        startx = min(x, image.shape[1] - 1)
+        starty = min(y, image.shape[0] - 1)
         endx = min(x + dx, image.shape[1] - 1)
         endy = min(y + dy, image.shape[0] - 1)
         # horizontal segments
-        grid[y, x : endx] = 0
-        grid[endy, x : endx] = 0
+        grid[starty, startx : endx] = 0
+        grid[endy, startx : endx] = 0
         # vertical segments
-        grid[y : endy, x] = 0
-        grid[y : endy, endx] = 0
+        grid[starty : endy, startx] = 0
+        grid[starty : endy, endx] = 0
     grid = grid < 255
     d = disk(thickness)
     grid = binary_dilation(grid, d)
