@@ -431,8 +431,10 @@ def patchify_folder(
                 erase_tree=erase_tree,
                 verbose=verbose,
             )
-        except openslide.OpenSlideUnsupportedFormatError:
-            warnings.warn("{} has no image data!!!".format(slidefile), HasNoDataFolder)
+        # todo: add other openslide errors
+    except (openslide.OpenSlideUnsupportedFormatError,
+            openslide.lowlevel.OpenSlideError) as e:
+        warnings.warn(str(e))
 
 
 def patchify_folder_hierarchically(
@@ -504,8 +506,9 @@ def patchify_folder_hierarchically(
                 erase_tree=erase_tree,
                 verbose=verbose,
             )
-        except openslide.OpenSlideUnsupportedFormatError:
-            warnings.warn("{} has no image data!!!".format(slidefile), HasNoDataFolder)
+        except (openslide.OpenSlideUnsupportedFormatError,
+                openslide.lowlevel.OpenSlideError) as e:
+            warnings.warn(str(e))
 
 
 def extract_tissue_patch_coords(
