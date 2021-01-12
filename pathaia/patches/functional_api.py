@@ -44,7 +44,7 @@ def filter_image(image, filters):
         filters (list of function): functions that turn images into booleans.
 
     Returns:
-        acceptable: bool, whether an image has passed every filters.
+        bool: whether an image has passed every filters.
 
     """
     for filt in filters:
