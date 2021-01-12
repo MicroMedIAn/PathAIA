@@ -18,8 +18,8 @@ def regular_grid(shape, step):
         dictionary: {"x", "y"} positions on a regular grid.
 
     """
-    maxi = step["y"] * int(shape["y"] / step["y"])
-    maxj = step["x"] * int(shape["x"] / step["y"])
+    maxi = step["y"] * int(numpy.ceil(shape["y"] / step["y"]))
+    maxj = step["x"] * int(numpy.ceil(shape["x"] / step["y"]))
     col = numpy.arange(start=0, stop=maxj, step=step["x"], dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=step["y"], dtype=int)
     for i, j in itertools.product(line, col):
@@ -38,8 +38,8 @@ def unlabeled_regular_grid_list(shape, step):
         list: positions (i, j) on the regular grid.
 
     """
-    maxi = step * int(shape[0] / step)
-    maxj = step * int(shape[1] / step)
+    maxi = step * int(numpy.ceil(shape[0] / step))
+    maxj = step * int(numpy.ceil(shape[1] / step))
     col = numpy.arange(start=0, stop=maxj, step=step, dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=step, dtype=int)
     return list(itertools.product(line, col))
