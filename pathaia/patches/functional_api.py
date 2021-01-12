@@ -483,7 +483,6 @@ def patchify_folder_hierarchically(
         slidename = slide_basename(slidefile)
         outdir = os.path.join(outfolder, slidename)
         if os.path.isdir(outdir):
-            continue
             safe_rmtree(outdir, ignore_errors=True, erase_tree=erase_tree)
         os.makedirs(outdir, exist_ok=True)
         patchify_slide_hierarchically(
