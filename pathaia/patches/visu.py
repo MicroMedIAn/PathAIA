@@ -38,10 +38,10 @@ def preview_from_queries(
         dy = int(query["dy"] / dsr)
         # horizontal segments
         grid[y, x : x + dx] = 0
-        grid[y + dy, x : x + dx] = 0
+        grid[y + dy - 1, x : x + dx] = 0
         # vertical segments
         grid[y : y + dy, x] = 0
-        grid[y : y + dy, x + dx] = 0
+        grid[y : y + dy, x + dx - 1] = 0
     grid = grid < 255
     d = disk(thickness)
     grid = binary_dilation(grid, d)

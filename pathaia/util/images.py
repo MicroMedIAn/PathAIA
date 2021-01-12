@@ -19,8 +19,8 @@ def regular_grid(shape, step, psize):
         dictionary: {"x", "y"} positions on a regular grid.
 
     """
-    maxi = step["y"] * (int((shape["y"] - (psize - step["y"]))/ step["y"]) + 1) - psize
-    maxj = step["x"] * (int((shape["x"] - (psize - step["x"]))/ step["x"]) + 1) - psize
+    maxi = step["y"] * int((shape["y"] - (psize - step["y"])) / step["y"])
+    maxj = step["x"] * int((shape["x"] - (psize - step["x"])) / step["x"])
     col = numpy.arange(start=0, stop=maxj, step=step["x"], dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=step["y"], dtype=int)
     for i, j in itertools.product(line, col):
@@ -40,8 +40,8 @@ def unlabeled_regular_grid_list(shape, step, psize):
         list: positions (i, j) on the regular grid.
 
     """
-    maxi = step * (int((shape[0] - (psize - step)) / step) + 1) - psize
-    maxj = step * (int((shape[1] - (psize - step)) / step) + 1) - psize
+    maxi = step * (int((shape[0] - 1 - (psize - step)) / step) + 1) - psize
+    maxj = step * (int((shape[1] - 1 - (psize - step)) / step) + 1) - psize
     col = numpy.arange(start=0, stop=maxj, step=step, dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=step, dtype=int)
     return list(itertools.product(line, col))
@@ -104,10 +104,10 @@ def sample_img(image, psize, spl_per_image, mask=None):
         half_size = int(0.5 * psize)
         croped_mask = numpy.zeros_like(mask)
         croped_mask[mask > 0] = 1
-        croped_mask[0:half_size + 1, :] = 0
-        croped_mask[di - half_size - 1::, :] = 0
-        croped_mask[:, 0:half_size + 1] = 0
-        croped_mask[:, dj - half_size - 1::] = 0
+        croped_mask[0 : half_size + 1, :] = 0
+        croped_mask[di - half_size - 1 : :, :] = 0
+        croped_mask[:, 0 : half_size + 1] = 0
+        croped_mask[:, dj - half_size - 1 : :] = 0
         y, x = numpy.where(croped_mask > 0)
         y -= half_size
         x -= half_size
@@ -144,10 +144,10 @@ def sample_img_sep_channels(image, psize, spl_per_image, mask=None):
         half_size = int(0.5 * psize)
         croped_mask = numpy.zeros_like(mask)
         croped_mask[mask > 0] = 1
-        croped_mask[0:half_size + 1, :] = 0
-        croped_mask[di - half_size - 1::, :] = 0
-        croped_mask[:, 0:half_size + 1] = 0
-        croped_mask[:, dj - half_size - 1::] = 0
+        croped_mask[0 : half_size + 1, :] = 0
+        croped_mask[di - half_size - 1 : :, :] = 0
+        croped_mask[:, 0 : half_size + 1] = 0
+        croped_mask[:, dj - half_size - 1 : :] = 0
         y, x = numpy.where(croped_mask > 0)
         y -= half_size
         x -= half_size
