@@ -98,7 +98,7 @@ def slide_rois(
             rx, ry = ancestor["x"], ancestor["y"]
             prefix = ancestor["id"]
             k = 0
-            for patch in regular_grid(shape, interval):
+            for patch in regular_grid(shape, interval, psize):
                 k += 1
                 idx = "{}#{}".format(prefix, k)
                 y = int(patch["y"] * mag + ry)
@@ -133,7 +133,7 @@ def slide_rois(
         shape["x"], shape["y"] = slide.level_dimensions[level]
         mag = slide.level_downsamples[level]
         k = 0
-        for patch in regular_grid(shape, interval):
+        for patch in regular_grid(shape, interval, psize):
             k += 1
             idx = "#{}".format(k)
             y = int(patch["y"] * mag + offset["y"])
