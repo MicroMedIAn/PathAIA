@@ -88,8 +88,8 @@ def slide_rois(
     if len(ancestors) > 0:
         mag = slide.level_downsamples[level]
         shape = dict()
-        shape["x"] = int(ancestors[0]["dx"] / mag)
-        shape["y"] = int(ancestors[0]["dy"] / mag)
+        shape["x"] = round(ancestors[0]["dx"] / mag)
+        shape["y"] = round(ancestors[0]["dy"] / mag)
         dx = int(psize * mag)
         dy = int(psize * mag)
         patches = []
@@ -101,8 +101,8 @@ def slide_rois(
             for patch in regular_grid(shape, interval, psize):
                 k += 1
                 idx = "{}#{}".format(prefix, k)
-                y = int(patch["y"] * mag + ry)
-                x = int(patch["x"] * mag + rx)
+                y = round(patch["y"] * mag + ry)
+                x = round(patch["x"] * mag + rx)
                 patches.append(
                     {
                         "id": idx,
@@ -136,10 +136,10 @@ def slide_rois(
         for patch in regular_grid(shape, interval, psize):
             k += 1
             idx = "#{}".format(k)
-            y = int(patch["y"] * mag + offset["y"])
-            x = int(patch["x"] * mag + offset["x"])
-            dx = int(psize * mag)
-            dy = int(psize * mag)
+            y = round(patch["y"] * mag + offset["y"])
+            x = round(patch["x"] * mag + offset["x"])
+            dx = round(psize * mag)
+            dy = round(psize * mag)
             try:
                 image = slide.read_region((x, y), level, (psize, psize))
                 image = numpy.array(image)[:, :, 0:3]
