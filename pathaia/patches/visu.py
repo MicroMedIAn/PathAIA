@@ -23,6 +23,8 @@ def preview_from_queries(
 
     """
     # get thumbnail first
+    if level_preview == -1:
+        level_preview = slide.level_count - 1
     dsr = slide.level_downsamples[level_preview]
     image = slide.read_region(
         (0, 0), level_preview, (slide.level_dimensions[level_preview])
