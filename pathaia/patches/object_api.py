@@ -42,7 +42,7 @@ class Patchifier(object):
         self.offset = ifnone(offset, {"x": 0, "y": 0})
         self.filters = ifnone(filters, [])
         self.verbose = verbose
-        self.extensions = ifnone(silent, ('.mrxs',)
+        self.extensions = ifnone(extensions, ('.mrxs',))
 
     def patchify(self, path):
         """
@@ -127,7 +127,7 @@ class HierarchicalPatchifier(object):
         self.filters = standardize_filters(ifnone(filters, {}), top_level, low_level)
         self.verbose = verbose
         self.silent = ifnone(silent, [])
-        self.extensions = ifnone(silent, ('.mrxs',)
+        self.extensions = ifnone(extensions, ('.mrxs',))
 
     def patchify(self, path):
         """
