@@ -32,6 +32,7 @@ class Patchifier(object):
             interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
             offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
             filters (list of func): filters to accept patches.
+            extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
             verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
         """
@@ -115,6 +116,7 @@ class HierarchicalPatchifier(object):
             offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
             filters (dict of list of func): filters to accept patches.
             silent (list of int): pyramid level not to output.
+            extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
             verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
         """
@@ -148,6 +150,7 @@ class HierarchicalPatchifier(object):
                 offset=self.offset,
                 filters=self.filters,
                 silent=self.silent,
+                extensions=self.extensions,
                 verbose=self.verbose,
             )
         else:
@@ -161,7 +164,6 @@ class HierarchicalPatchifier(object):
                 offset=self.offset,
                 filters=self.filters,
                 silent=self.silent,
-                extensions=self.extensions,
                 verbose=self.verbose,
             )
 
