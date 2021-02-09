@@ -47,7 +47,7 @@ def generator_fn(patch_list, label_list, preproc):
     return generator
 
 
-def get_tf_dataset(patch_list, label_list, preproc, batch_size, patch_size):
+def get_tf_dataset(patch_list, label_list, preproc, batch_size, patch_size, prefetch=None):
     """
     Create tensorflow dataset.
 
@@ -73,5 +73,8 @@ def get_tf_dataset(patch_list, label_list, preproc, batch_size, patch_size):
     dataset = dataset.batch(batch_size, drop_remainder=True)
     # prefetch
     # <=> while fitting batch b, prepare b+k in parallel
-    dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+    if prefetch is None:
+        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+    else:
+        dataset = dataset.prefetch(prefetch)
     return dataset
