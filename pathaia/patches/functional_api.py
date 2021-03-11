@@ -430,8 +430,10 @@ def patchify_folder(
                 erase_tree=erase_tree,
                 verbose=verbose,
             )
-        except (openslide.OpenSlideUnsupportedFormatError,
-                openslide.lowlevel.OpenSlideError) as e:
+        except (
+            openslide.OpenSlideUnsupportedFormatError,
+            openslide.lowlevel.OpenSlideError,
+        ) as e:
             warnings.warn(str(e))
 
 
@@ -504,8 +506,10 @@ def patchify_folder_hierarchically(
                 erase_tree=erase_tree,
                 verbose=verbose,
             )
-        except (openslide.OpenSlideUnsupportedFormatError,
-                openslide.lowlevel.OpenSlideError) as e:
+        except (
+            openslide.OpenSlideUnsupportedFormatError,
+            openslide.lowlevel.OpenSlideError,
+        ) as e:
             warnings.warn(str(e))
 
 
