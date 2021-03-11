@@ -4,6 +4,7 @@ import numpy
 from skimage.io import imread
 from .paths import imfiles_in_folder
 import itertools
+from math import ceil
 
 
 def regular_grid(shape, step, psize):
@@ -19,8 +20,12 @@ def regular_grid(shape, step, psize):
         dictionary: {"x", "y"} positions on a regular grid.
 
     """
-    maxi = step["y"] * int((shape["y"] - (psize - step["y"])) / step["y"])
-    maxj = step["x"] * int((shape["x"] - (psize - step["x"])) / step["x"])
+    maxi = (
+        step["y"] * (ceil((shape["y"] - (psize - step["y"])) / step["y"]) - 1) + psize
+    )
+    maxj = (
+        step["x"] * (ceil((shape["x"] - (psize - step["x"])) / step["x"]) - 1) + psize
+    )
     col = numpy.arange(start=0, stop=maxj, step=step["x"], dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=step["y"], dtype=int)
     for i, j in itertools.product(line, col):
