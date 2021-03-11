@@ -22,9 +22,8 @@ import os
 import csv
 from skimage.io import imsave
 from skimage.filters import threshold_otsu
-import warnings
 from tqdm import tqdm
-from .errors import UnknownFilterError, HasNoDataFolder
+from .errors import UnknownFilterError
 from pathlib import Path
 
 
