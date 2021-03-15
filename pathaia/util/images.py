@@ -30,7 +30,7 @@ def regular_grid(shape, step, psize):
 
 def get_coords_from_mask(mask, shape, step, psize):
     """
-    Get a regular grid of position on a slide given its dimensions.
+    Get tissue coordinates given a tissue binary mask and slide dimensions.
 
     Arguments:
         mask (ndarray): binary mask where tissue is marked as True.
