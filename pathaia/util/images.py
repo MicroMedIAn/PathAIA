@@ -62,8 +62,8 @@ def unlabeled_regular_grid_list(shape, step, psize):
         list: positions (i, j) on the regular grid.
 
     """
-    maxi = step * (int((shape[0] - 1 - (psize - step)) / step) + 1) - psize
-    maxj = step * (int((shape[1] - 1 - (psize - step)) / step) + 1) - psize
+    maxi = step * int((shape[0] - (psize - step)) / step) + 1
+    maxj = step * int((shape[1] - (psize - step)) / step) + 1
     col = numpy.arange(start=0, stop=maxj, step=step, dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=step, dtype=int)
     return list(itertools.product(line, col))
