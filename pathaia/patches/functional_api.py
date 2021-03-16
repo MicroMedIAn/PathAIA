@@ -9,7 +9,7 @@ import warnings
 import numpy
 import openslide
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
-from ..util.images import regular_grid
+from ..util.images import regular_grid, get_coords_from_mask
 from ..util.basic import ifnone
 from .visu import preview_from_queries
 from .filters import (
@@ -18,13 +18,13 @@ from .filters import (
     filter_has_tissue_he,
     standardize_filters,
 )
+from .slide_filters import filter_thumbnail
 import os
 import csv
 from skimage.io import imsave
-from skimage.filters import threshold_otsu
-import warnings
+from skimage.transform import resize
 from tqdm import tqdm
-from .errors import UnknownFilterError, HasNoDataFolder
+from .errors import UnknownFilterError
 from pathlib import Path
 
 
@@ -33,6 +33,8 @@ izi_filters = {
     "has-significant-dapi": filter_has_significant_dapi,
     "has-tissue-he": filter_has_tissue_he,
 }
+
+slide_filters = {"full": filter_thumbnail}
 
 
 def filter_image(image, filters):
@@ -59,8 +61,36 @@ def filter_image(image, filters):
     return True
 
 
+def apply_slide_filters(thumb, filters):
+    """
+    Apply all filters to input thumbnail. Performs logical and between output masks.
+
+    Args:
+        thumb (ndarray): thumbnail to compute mask from.
+        filters (list of str or functions): list of filters to apply to thumb. Each
+            filter should output a boolean mask with same dimensions as thumb.
+
+    Returns:
+        ndarray: Boolean mask where tissue pixels are True.
+    """
+    mask = numpy.ones(thumb.shape[:2], dtype=bool)
+    for filt in filters:
+        if isinstance(filt, str):
+            filt = slide_filters[filt]
+        mask = mask & filt(thumb)
+    return mask
+
+
 def slide_rois(
-    slide, level, psize, interval, ancestors=None, offset=None, filters=None
+    slide,
+    level,
+    psize,
+    interval,
+    ancestors=None,
+    offset=None,
+    filters=None,
+    thumb_size=512,
+    slide_filters=None,
 ):
     """
     Return the absolute coordinates of patches.
@@ -76,6 +106,8 @@ def slide_rois(
         ancestors (list of patch dict): patches that contain upcoming patches.
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
         filters (list of func): filters to accept patches.
+        thumb_size (int): size of thumbnail's longest side. Always preserves aspect ratio.
+        slide_filters (list of str or func): list of filters to apply to thumbnail. Should output boolean mask.
 
     Yields:
         ndarray: numpy array rgb image.
@@ -85,6 +117,7 @@ def slide_rois(
     ancestors = ifnone(ancestors, [])
     offset = ifnone(offset, {"x": 0, "y": 0})
     filters = ifnone(filters, [])
+    slide_filters = ifnone(slide_filters, [])
     if len(ancestors) > 0:
         mag = slide.level_downsamples[level]
         shape = dict()
@@ -132,8 +165,10 @@ def slide_rois(
         shape = dict()
         shape["x"], shape["y"] = slide.level_dimensions[level]
         mag = slide.level_downsamples[level]
+        thumb = numpy.array(slide.get_thumbnail((thumb_size, thumb_size)))
+        mask = apply_slide_filters(thumb, slide_filters)
         k = 0
-        for patch in regular_grid(shape, interval, psize):
+        for patch in get_coords_from_mask(mask, shape, interval, psize):
             k += 1
             idx = "#{}".format(k)
             y = round(patch["y"] * mag + offset["y"])
@@ -170,6 +205,8 @@ def patchify_slide(
     offset=None,
     filters=None,
     erase_tree=None,
+    thumb_size=512,
+    slide_filters=None,
     verbose=2,
 ):
     """
@@ -184,6 +221,8 @@ def patchify_slide(
         offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
         filters (list of func): filters to accept patches.
         erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
+        thumb_size (int): size of thumbnail's longest side. Always preserves aspect ratio.
+        slide_filters (list of str or func): list of filters to apply to thumbnail. Should output boolean mask.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
@@ -223,7 +262,14 @@ def patchify_slide(
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         for data, img in slide_rois(
-            slide, level, psize, interval, offset=offset, filters=filters
+            slide,
+            level,
+            psize,
+            interval,
+            offset=offset,
+            filters=filters,
+            thumb_size=thumb_size,
+            slide_filters=slide_filters,
         ):
             outfile = os.path.join(
                 outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"])
@@ -259,6 +305,8 @@ def patchify_slide_hierarchically(
     filters=None,
     silent=None,
     erase_tree=None,
+    thumb_size=512,
+    slide_filters=None,
     verbose=2,
 ):
     """
@@ -275,6 +323,8 @@ def patchify_slide_hierarchically(
         filters (dict of list of func): filters to accept patches.
         silent (list of int): pyramid level not to output.
         erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
+        thumb_size (int): size of thumbnail's longest side. Always preserves aspect ratio.
+        slide_filters (list of str or func): list of filters to apply to thumbnail. Should output boolean mask.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
@@ -322,37 +372,26 @@ def patchify_slide_hierarchically(
                 safe_rmtree(outleveldir, ignore_errors=True, erase_tree=erase_tree)
             os.makedirs(outleveldir, exist_ok=True)
             ########################
-            if level not in silent:
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    for data, img in slide_rois(
-                        slide,
-                        level,
-                        psize,
-                        interval,
-                        ancestors=plist,
-                        offset=offset,
-                        filters=level_filters[level],
-                    ):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                for data, img in slide_rois(
+                    slide,
+                    level,
+                    psize,
+                    interval,
+                    ancestors=plist,
+                    offset=offset,
+                    filters=level_filters[level],
+                    thumb_size=thumb_size,
+                    slide_filters=slide_filters
+                ):
+                    if level not in silent:
                         outfile = os.path.join(
                             outleveldir,
                             "{}_{}_{}.png".format(data["x"], data["y"], data["level"]),
                         )
                         imsave(outfile, img)
-                        current_plist.append(data)
-            else:
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    for data, img in slide_rois(
-                        slide,
-                        level,
-                        psize,
-                        interval,
-                        ancestors=plist,
-                        offset=offset,
-                        filters=level_filters[level],
-                    ):
-                        current_plist.append(data)
+                    current_plist.append(data)
             plist = [p for p in current_plist]
             if verbose > 1:
                 print("end of patchification.")
@@ -379,6 +418,8 @@ def patchify_folder(
     recurse=False,
     folders=None,
     erase_tree=None,
+    thumb_size=512,
+    slide_filters=None,
     verbose=2,
 ):
     """
@@ -396,6 +437,8 @@ def patchify_folder(
         recurse (bool): whether to look for files recursively.
         folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
         erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
+        thumb_size (int): size of thumbnail's longest side. Always preserves aspect ratio.
+        slide_filters (list of str or func): list of filters to apply to thumbnail. Should output boolean mask.
         verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
 
     """
@@ -429,10 +472,14 @@ def patchify_folder(
                 offset=offset,
                 filters=filters,
                 erase_tree=erase_tree,
+                thumb_size=thumb_size,
+                slide_filters=slide_filters,
                 verbose=verbose,
             )
-        except (openslide.OpenSlideUnsupportedFormatError,
-                openslide.lowlevel.OpenSlideError) as e:
+        except (
+            openslide.OpenSlideUnsupportedFormatError,
+            openslide.lowlevel.OpenSlideError,
+        ) as e:
             warnings.warn(str(e))
 
 
@@ -450,6 +497,8 @@ def patchify_folder_hierarchically(
     recurse=False,
     folders=None,
     erase_tree=None,
+    thumb_size=512,
+    slide_filters=None,
     verbose=2,
 ):
     """
@@ -503,10 +552,14 @@ def patchify_folder_hierarchically(
                 filters=filters,
                 silent=silent,
                 erase_tree=erase_tree,
+                thumb_size=thumb_size,
+                slide_filters=slide_filters,
                 verbose=verbose,
             )
-        except (openslide.OpenSlideUnsupportedFormatError,
-                openslide.lowlevel.OpenSlideError) as e:
+        except (
+            openslide.OpenSlideUnsupportedFormatError,
+            openslide.lowlevel.OpenSlideError,
+        ) as e:
             warnings.warn(str(e))
 
 
@@ -516,10 +569,13 @@ def extract_tissue_patch_coords(
     level,
     psize,
     interval,
+    thumb_size=512,
     extensions=(".mrxs",),
     recurse=True,
     folders=None,
     erase_tree=None,
+    filters=None,
+    save_thumbs=False,
 ):
     """
     Extracts all patch coordinates that contain tissue at aspecific level from WSI files
@@ -531,17 +587,24 @@ def extract_tissue_patch_coords(
         level (int): pyramid level to consider.
         psize (int): size of the side of the patches (in pixels).
         interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
+        thumb_size (int): size of thumbnail's longest side. Always preserves aspect ratio.
         extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
         recurse (bool): whether to look for files recursively.
         folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
         erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
+        filters (list of str or func): list of filters to apply to thumbnail. Should output boolean mask.
+        save_thumbs (bool): save masked thumbnails of extracted zones.
     """
     outfolder = Path(outfolder)
     if outfolder.is_dir():
         erase_tree = safe_rmtree(outfolder, ignore_errors=True, erase_tree=erase_tree)
     outfolder.mkdir(parents=True, exist_ok=True)
+    if save_thumbs:
+        thumbfolder = outfolder / "thumbnails"
+        thumbfolder.mkdir()
     overlap_size = psize - interval
     files = get_files(infolder, extensions=extensions, recurse=recurse, folders=folders)
+    filters = ifnone(filters, [])
 
     for file in files:
         print(file.stem)
@@ -550,17 +613,22 @@ def extract_tissue_patch_coords(
         psize_0 = dsr * psize
         w, h = slide.dimensions
 
-        thumb_w = int((w / dsr - overlap_size) / interval)
-        thumb_h = int((h / dsr - overlap_size) / interval)
-        thumb = slide.get_thumbnail((thumb_w, thumb_h))
-        thumb = numpy.array(thumb.convert("L"))
-        thr = threshold_otsu(thumb[thumb > 0])
+        thumb = numpy.array(slide.get_thumbnail((thumb_size, thumb_size)))
+        mask = apply_slide_filters(thumb, filters)
+        if save_thumbs:
+            imsave(thumbfolder / f"{file.stem}.png", mask[..., None] * thumb)
+        mask_w = int((w / dsr - overlap_size) / interval)
+        mask_h = int((h / dsr - overlap_size) / interval)
+        mask = resize(mask, (mask_h, mask_w))
 
-        outfile = outfolder / (file.stem + ".csv")
+        outfile = (outfolder / file.relative_to(infolder)).with_suffix(".csv")
+        if not outfile.parent.exists():
+            outfile.parent.mkdir(parents=True)
+
         with open(outfile, "w") as f:
             writer = csv.DictWriter(f, ["id", "parent", "level", "x", "y", "dx", "dy"])
             writer.writeheader()
-            for k, (y, x) in enumerate(numpy.argwhere((thumb > 0) & (thumb < thr))):
+            for k, (y, x) in enumerate(numpy.argwhere(mask)):
                 x = x * interval * dsr
                 y = y * interval * dsr
                 writer.writerow(

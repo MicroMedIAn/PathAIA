@@ -2,6 +2,7 @@
 """Useful functions for images."""
 import numpy
 from skimage.io import imread
+from skimage.transform import resize
 from .paths import imfiles_in_folder
 import itertools
 
@@ -19,12 +20,33 @@ def regular_grid(shape, step, psize):
         dictionary: {"x", "y"} positions on a regular grid.
 
     """
-    maxi = step["y"] * int((shape["y"] - (psize - step["y"])) / step["y"])
-    maxj = step["x"] * int((shape["x"] - (psize - step["x"])) / step["x"])
+    maxi = step["y"] * int((shape["y"] - (psize - step["y"])) / step["y"]) + 1
+    maxj = step["x"] * int((shape["x"] - (psize - step["x"])) / step["x"]) + 1
     col = numpy.arange(start=0, stop=maxj, step=step["x"], dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=step["y"], dtype=int)
     for i, j in itertools.product(line, col):
         yield {"x": j, "y": i}
+
+
+def get_coords_from_mask(mask, shape, step, psize):
+    """
+    Get tissue coordinates given a tissue binary mask and slide dimensions.
+
+    Arguments:
+        mask (ndarray): binary mask where tissue is marked as True.
+        shape (dictionary): {"x", "y"} shape of the window to tile.
+        step (dictionary): {"x", "y"} steps between patch samples.
+        psize (int): size of the side of the patch (in pixels).
+
+    Yields:
+        dictionary: {"x", "y"} positions on a regular grid.
+    """
+
+    mask_h = int((shape["y"] - psize) / step["y"]) + 1
+    mask_w = int((shape["x"] - psize) / step["x"]) + 1
+    mask = resize(mask, (mask_h, mask_w))
+    for i, j in numpy.argwhere(mask):
+        yield {"x": j * step["x"], "y": i * step["y"]}
 
 
 def unlabeled_regular_grid_list(shape, step, psize):
@@ -40,8 +62,8 @@ def unlabeled_regular_grid_list(shape, step, psize):
         list: positions (i, j) on the regular grid.
 
     """
-    maxi = step * (int((shape[0] - 1 - (psize - step)) / step) + 1) - psize
-    maxj = step * (int((shape[1] - 1 - (psize - step)) / step) + 1) - psize
+    maxi = step * int((shape[0] - (psize - step)) / step) + 1
+    maxj = step * int((shape[1] - (psize - step)) / step) + 1
     col = numpy.arange(start=0, stop=maxj, step=step, dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=step, dtype=int)
     return list(itertools.product(line, col))
@@ -165,3 +187,17 @@ def sample_img_sep_channels(image, psize, spl_per_image, mask=None):
             ]
         )
     return tuple(patches)
+
+
+if __name__ == "__main__":
+    shape = {"x": 50000, "y": 10000}
+    step = {"x": 768, "y": 768}
+    psize = 1024
+    mask = numpy.ones((1024, 512), dtype=bool)
+    old_coords = list(regular_grid(shape, step, psize))
+    old_coords.sort(key=lambda x: (x["x"], x["y"]))
+    new_coords = list(get_coords_from_mask(mask, shape, step, psize))
+    new_coords.sort(key=lambda x: (x["x"], x["y"]))
+    assert all(
+        [x0 == x1 and y0 == y1 for (x0, y0), (x1, y1) in zip(old_coords, new_coords)]
+    )

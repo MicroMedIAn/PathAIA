@@ -20,7 +20,15 @@ class Patchifier(object):
     """A class to handle patchification tasks."""
 
     def __init__(
-        self, outdir, level, psize, interval, offset=None, filters=None, extensions=None, verbose=2
+        self,
+        outdir,
+        level,
+        psize,
+        interval,
+        offset=None,
+        filters=None,
+        extensions=None,
+        verbose=2,
     ):
         """
         Create the patchifier.
@@ -43,7 +51,7 @@ class Patchifier(object):
         self.offset = ifnone(offset, {"x": 0, "y": 0})
         self.filters = ifnone(filters, [])
         self.verbose = verbose
-        self.extensions = ifnone(extensions, ('.mrxs',))
+        self.extensions = ifnone(extensions, (".mrxs",))
 
     def patchify(self, path):
         """
@@ -129,7 +137,7 @@ class HierarchicalPatchifier(object):
         self.filters = standardize_filters(ifnone(filters, {}), top_level, low_level)
         self.verbose = verbose
         self.silent = ifnone(silent, [])
-        self.extensions = ifnone(extensions, ('.mrxs',))
+        self.extensions = ifnone(extensions, (".mrxs",))
 
     def patchify(self, path):
         """
