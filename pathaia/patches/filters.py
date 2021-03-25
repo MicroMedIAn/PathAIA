@@ -2,13 +2,8 @@
 """A module to filter patches in a slide."""
 from skimage.color import rgb2lab
 import numpy
-from typing import Any, Callable, Dict, Sequence, Union
-from nptyping import NDArray
-
-Filter = Sequence[Union[str, Callable]]
-Patch = Dict[str, Union[str, int]]
-NDImage = NDArray[(Any, Any, 3), numpy.uint8]
-NDMask = NDArray[(Any, Any), bool]
+from typing import Dict, Sequence, Union
+from ..util.types import Filter, FilterList, NDImage, NDMask
 
 
 class Error(Exception):
@@ -32,7 +27,7 @@ class UnknownMethodError(Error):
 
 
 def standardize_filters(
-    filters: Union[str, Sequence[Filter], Dict[int, Sequence[Filter]]],
+    filters: FilterList,
     top_level: int,
     low_level: int,
 ) -> Dict[int, Sequence[Filter]]:

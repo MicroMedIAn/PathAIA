@@ -11,6 +11,7 @@ import openslide
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid, get_coords_from_mask
 from ..util.basic import ifnone
+from ..utils.types import Filter, FilterList, PathLike, Slide, Patch, NDImage, NDMask
 from .visu import preview_from_queries
 from .filters import (
     filter_hasdapi,
@@ -26,15 +27,8 @@ from skimage.transform import resize
 from tqdm import tqdm
 from .errors import UnknownFilterError
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union, Iterable
-from nptyping import NDArray
+from typing import Dict, Optional, Sequence, Tuple, Iterable
 
-Filter = Sequence[Union[str, Callable]]
-PathLike = Union[str, os.PathLike]
-Slide = openslide.OpenSlide
-Patch = Dict[str, Union[str, int]]
-NDImage = NDArray[(Any, Any, 3), numpy.uint8]
-NDMask = NDArray[(Any, Any), bool]
 
 izi_filters = {
     "has-dapi": filter_hasdapi,
@@ -325,7 +319,7 @@ def patchify_slide_hierarchically(
     psize: int,
     interval: Dict[str, int],
     offset: Optional[Dict[str, int]] = None,
-    filters: Optional[Sequence[Filter]] = None,
+    filters: Optional[FilterList] = None,
     silent: Optional[Sequence[int]] = None,
     erase_tree: Optional[bool] = None,
     thumb_size: int = 512,
@@ -520,7 +514,7 @@ def patchify_folder_hierarchically(
     psize: int,
     interval: Dict[str, int],
     offset: Optional[Dict[str, int]] = None,
-    filters: Optional[Sequence[Filter]] = None,
+    filters: Optional[FilterList] = None,
     silent: Optional[Sequence[int]] = None,
     extensions: Sequence[str] = (".mrxs",),
     recurse: bool = False,
