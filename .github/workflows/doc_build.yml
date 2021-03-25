@@ -11,8 +11,9 @@ jobs:
 
     - uses: ammaraskar/sphinx-action@0.4
       with:
-        docs-folder: "doc/"
         pre-build-command: python -m pip install sphinx_rtd_theme
+        build-command: "sphinx-build -b html . _build"
+        docs-folder: "doc/"
 
     - uses: actions/upload-artifact@v1
       with:
