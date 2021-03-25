@@ -9,11 +9,11 @@
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
-  <a href="#how-to-use">How To Use</a> •
-  <a href="https://pytorch-lightning.readthedocs.io/en/stable/">Docs</a> •
-  <a href="#examples">Examples</a> •
+  <a href="#basic-usage">Basic Usage</a> •
+  <a href="#advanced-features">Advanced features</a> •
+  <a href="https://linktothedoc.com">Docs</a> •
   <a href="#community">Community</a> •
-  <a href="#license">License</a>
+  <a href="#licence">License</a>
 </p>
 
 <!-- DO NOT ADD CONDA DOWNLOADS... README CHANGES MUST BE APPROVED BY EDEN OR WILL -->
@@ -29,13 +29,12 @@
 
 ---
 
-## PyTorch Lightning is just organized PyTorch
-Lightning disentangles PyTorch code to decouple the science from the engineering.
-![PT to PL](docs/source/_static/images/general/pl_quick_start_full_compressed.gif)
+## PathAIA aims to standardize and automate most of WSI analysis in digital pathology
+If you feel like you keep rewriting the same code over and over again when working on Whole Slide Images and you wish there where a nicely integrated library to automate all this, you came to the right place. With PathAIA we aim to create a fast, high level and modular library to work on WSI at scale in order to perform image analysis or to create a well rounded dataset for your machine learning project.
 
 ---
 
-## How To Use
+## Basic Usage
 
 ### Step 0: Install
 
