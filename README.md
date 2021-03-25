@@ -17,12 +17,12 @@
 </p>
 
 <!-- DO NOT ADD CONDA DOWNLOADS... README CHANGES MUST BE APPROVED BY EDEN OR WILL -->
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytorch-lightning)](https://pypi.org/project/pytorch-lightning/)
-[![PyPI Status](https://badge.fury.io/py/pytorch-lightning.svg)](https://badge.fury.io/py/pytorch-lightning)
-[![PyPI Status](https://pepy.tech/badge/pytorch-lightning)](https://pepy.tech/project/pytorch-lightning)
-[![codecov](https://codecov.io/gh/PyTorchLightning/pytorch-lightning/branch/master/graph/badge.svg)](https://codecov.io/gh/PyTorchLightning/pytorch-lightning)
-[![ReadTheDocs](https://readthedocs.org/projects/pytorch-lightning/badge/?version=stable)](https://pytorch-lightning.readthedocs.io/en/stable/)
-[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/PytorchLightning/pytorch-lightning/blob/master/LICENSE)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pathaia)](https://pypi.org/project/pathaia/)
+[![PyPI Status](https://badge.fury.io/py/pathaia.svg)](https://badge.fury.io/py/pathaia)
+[![PyPI Status](https://pepy.tech/badge/pathaia)](https://pepy.tech/project/pathaia)
+[![codecov](https://codecov.io/gh/ArnaudAbreu/PathAIA/branch/master/graph/badge.svg)](https://codecov.io/gh/ArnaudAbreu/PathAIA)
+[![ReadTheDocs](https://readthedocs.org/projects/pathaia/badge/?version=stable)](https://pathaia.readthedocs.io/en/stable/)
+[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/ArnaudABreu/PathAIA/blob/master/LICENSE)
 
 </div>
 
