@@ -8,12 +8,11 @@
 ---
 
 <p align="center">
-  <a href="#key-features">Key Features</a> •
   <a href="#basic-usage">Basic Usage</a> •
   <a href="#advanced-features">Advanced features</a> •
   <a href="https://linktothedoc.com">Docs</a> •
   <a href="#community">Community</a> •
-  <a href="#licence">License</a>
+  <a href="#license">License</a>
 </p>
 
 <!-- DO NOT ADD CONDA DOWNLOADS... README CHANGES MUST BE APPROVED BY EDEN OR WILL -->
@@ -112,9 +111,9 @@ If you have any questions please:
 1. [Read the docs](https://pytorch-lightning.rtfd.io/en/latest).
 2. [Check existing issues](https://github.com/ArnaudAbreu/PathAIA/issues), or [add a new issue](https://github.com/ArnaudAbreu/PathAIA/issues/new)
 
-## Licence
+## License
 
-Please observe the Apache 2.0 license that is listed in this repository.
+Please observe the GNU 3.0 license that is listed in this repository.
 
 ## BibTeX
 If you want to cite the framework feel free to use this.
