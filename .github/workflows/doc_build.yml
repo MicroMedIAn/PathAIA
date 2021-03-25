@@ -11,11 +11,11 @@ jobs:
 
     - uses: ammaraskar/sphinx-action@0.4
       with:
-        docs-folder: "doc/"
         pre-build-command: python -m pip install sphinx_rtd_theme
+        docs-folder: "doc/"
 
     - uses: actions/upload-artifact@v1
       with:
         name: DocumentationHTML
-        path: docs/_build/html/
-        if: success()
+        path: doc/build/html/
+      if: success()
