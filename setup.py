@@ -14,6 +14,7 @@ setup(
         "openslide-python",
         "scikit-image",
         "matplotlib",
+        "nptyping"
     ],
     include_package_data=True,
 )

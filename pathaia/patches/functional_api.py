@@ -26,7 +26,15 @@ from skimage.transform import resize
 from tqdm import tqdm
 from .errors import UnknownFilterError
 from pathlib import Path
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union, Iterable
+from nptyping import NDArray
 
+Filter = Sequence[Union[str, Callable]]
+PathLike = Union[str, os.PathLike]
+Slide = openslide.OpenSlide
+Patch = Dict[str, Union[str, int]]
+NDImage = NDArray[(Any, Any, 3), numpy.uint8]
+NDMask = NDArray[(Any, Any), bool]
 
 izi_filters = {
     "has-dapi": filter_hasdapi,
@@ -37,16 +45,16 @@ izi_filters = {
 slide_filters = {"full": filter_thumbnail}
 
 
-def filter_image(image, filters):
+def filter_image(image: NDImage, filters: Sequence[Filter]) -> bool:
     """
     Check multiple filters on an image.
 
     Args:
-        image (ndarray): the patch to be filtered.
-        filters (list of function): functions that turn images into booleans.
+        image: the patch to be filtered.
+        filters: functions that turn images into booleans.
 
     Returns:
-        bool: whether an image has passed every filters.
+        Whether an image has passed every filters.
 
     """
     for filt in filters:
@@ -61,17 +69,17 @@ def filter_image(image, filters):
     return True
 
 
-def apply_slide_filters(thumb, filters):
+def apply_slide_filters(thumb: NDImage, filters: Sequence[Filter]) -> NDMask:
     """
     Apply all filters to input thumbnail. Performs logical and between output masks.
 
     Args:
-        thumb (ndarray): thumbnail to compute mask from.
-        filters (list of str or functions): list of filters to apply to thumb. Each
+        thumb: thumbnail to compute mask from.
+        filters: list of filters to apply to thumb. Each
             filter should output a boolean mask with same dimensions as thumb.
 
     Returns:
-        ndarray: Boolean mask where tissue pixels are True.
+        Boolean mask where tissue pixels are True.
     """
     mask = numpy.ones(thumb.shape[:2], dtype=bool)
     for filt in filters:
@@ -82,36 +90,48 @@ def apply_slide_filters(thumb, filters):
 
 
 def slide_rois(
-    slide,
-    level,
-    psize,
-    interval,
-    ancestors=None,
-    offset=None,
-    filters=None,
-    thumb_size=512,
-    slide_filters=None,
-):
+    slide: Slide,
+    level: int,
+    psize: int,
+    interval: Dict[str, int],
+    ancestors: Optional[Sequence[Patch]] = None,
+    offset: Optional[Sequence[Dict[str, int]]] = None,
+    filters: Optional[Sequence[Filter]] = None,
+    thumb_size: int = 512,
+    slide_filters: Optional[Sequence[Filter]] = None,
+) -> Iterable[Tuple[Patch, NDImage]]:
     """
-    Return the absolute coordinates of patches.
-
     Given a slide, a pyramid level, a patchsize in pixels, an interval in pixels
-    and an offset in pixels.
+    and an offset in pixels, get patches with its coordinates.
 
     Args:
-        slide (OpenSlide): the slide to patchify.
-        level (int): pyramid level.
-        psize (int): size of the side of the patch (in pixels).
-        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
-        ancestors (list of patch dict): patches that contain upcoming patches.
-        offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-        filters (list of func): filters to accept patches.
-        thumb_size (int): size of thumbnail's longest side. Always preserves aspect ratio.
-        slide_filters (list of str or func): list of filters to apply to thumbnail. Should output boolean mask.
+        slide: the slide to patchify.
+        level: pyramid level.
+        psize: size of the side of the patch (in pixels).
+        interval: {"x", "y"} interval between 2 neighboring patches.
+        ancestors: patches that contain upcoming patches.
+        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        filters: filters to accept patches.
+        thumb_size: size of thumbnail's longest side. Always preserves aspect ratio.
+        slide_filters: list of filters to apply to thumbnail. Should output boolean mask.
 
     Yields:
-        ndarray: numpy array rgb image.
-        tuple of ndarray: icoords, jcoords.
+        A tuple containing a dict describing a patch and the corresponding image as
+        ndarray. The dict contains the patch's id, ancestor's id if relevant,
+        coordinates (at level 0), level and size (at level 0).
+
+    Example::
+        >>> level = 1
+        >>> psize = 224
+        >>> interval = {"x": 224, "y": 224}
+        >>> next(slide_rois(slide, level, psize, interval))
+        "id": "#1",
+        "x": 0,
+        "y": 0,
+        "level": 1,
+        "dx": 448,
+        "dy": 448,
+        "parent": "None"
 
     """
     ancestors = ifnone(ancestors, [])
@@ -197,33 +217,36 @@ def slide_rois(
 
 
 def patchify_slide(
-    slidefile,
-    outdir,
-    level,
-    psize,
-    interval,
-    offset=None,
-    filters=None,
-    erase_tree=None,
-    thumb_size=512,
-    slide_filters=None,
-    verbose=2,
+    slidefile: PathLike,
+    outdir: PathLike,
+    level: int,
+    psize: int,
+    interval: Dict[str, int],
+    offset: Optional[Dict[str, int]] = None,
+    filters: Optional[Sequence[Filter]] = None,
+    erase_tree: Optional[bool] = None,
+    thumb_size: int = 512,
+    slide_filters: Optional[Sequence[Filter]] = None,
+    verbose: int = 2,
 ):
     """
     Save patches of a given wsi.
 
     Args:
-        slidefile (str): abs path to slide file.
-        outdir (str): abs path to an output folder.
-        level (int): pyramid level.
-        psize (int): size of the side of the patches (in pixels).
-        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
-        offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-        filters (list of func): filters to accept patches.
-        erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
-        thumb_size (int): size of thumbnail's longest side. Always preserves aspect ratio.
-        slide_filters (list of str or func): list of filters to apply to thumbnail. Should output boolean mask.
-        verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
+        slidefile: abs path to slide file.
+        outdir: abs path to an output folder.
+        level: pyramid level.
+        psize: size of the side of the patches (in pixels).
+        interval: {"x", "y"} interval between 2 neighboring patches.
+        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        filters: filters to accept patches.
+        erase_tree: whether to erase outfolder if it exists. If None, user will be
+            prompted for a choice.
+        thumb_size: size of thumbnail's longest side. Always preserves aspect ratio.
+        slide_filters: list of filters to apply to thumbnail. Should output boolean
+            mask.
+        verbose (int: 0 => nada, 1 => patchifying parameters, 2 => start-end of
+            processes, thumbnail export.
 
     """
     offset = ifnone(offset, {"x": 0, "y": 0})
@@ -295,37 +318,40 @@ def patchify_slide(
 
 
 def patchify_slide_hierarchically(
-    slidefile,
-    outdir,
-    top_level,
-    low_level,
-    psize,
-    interval,
-    offset=None,
-    filters=None,
-    silent=None,
-    erase_tree=None,
-    thumb_size=512,
-    slide_filters=None,
-    verbose=2,
+    slidefile: PathLike,
+    outdir: PathLike,
+    top_level: int,
+    low_level: int,
+    psize: int,
+    interval: Dict[str, int],
+    offset: Optional[Dict[str, int]] = None,
+    filters: Optional[Sequence[Filter]] = None,
+    silent: Optional[Sequence[int]] = None,
+    erase_tree: Optional[bool] = None,
+    thumb_size: int = 512,
+    slide_filters: Optional[Sequence[Filter]] = None,
+    verbose: int = 2,
 ):
     """
     Save patches of a given wsi in a hierarchical way.
 
     Args:
-        slidefile (str): abs path to a slide file.
-        outdir (str): abs path to an output folder.
-        top_level (int): top pyramid level to consider.
-        low_level (int): lowest pyramid level to consider.
-        psize (int): size of the side of the patches (in pixels).
-        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
-        offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-        filters (dict of list of func): filters to accept patches.
-        silent (list of int): pyramid level not to output.
-        erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
-        thumb_size (int): size of thumbnail's longest side. Always preserves aspect ratio.
-        slide_filters (list of str or func): list of filters to apply to thumbnail. Should output boolean mask.
-        verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
+        slidefile: abs path to a slide file.
+        outdir: abs path to an output folder.
+        top_level: top pyramid level to consider.
+        low_level: lowest pyramid level to consider.
+        psize: size of the side of the patches (in pixels).
+        interval: {"x", "y"} interval between 2 neighboring patches.
+        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        filters: filters to accept patches.
+        silent: pyramid level not to output.
+        erase_tree: whether to erase outfolder if it exists. If None, user will be
+            prompted for a choice.
+        thumb_size: size of thumbnail's longest side. Always preserves aspect ratio.
+        slide_filters: list of filters to apply to thumbnail. Should output boolean
+            mask.
+        verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes,
+            thumbnail export.
 
     """
     offset = ifnone(offset, {"x": 0, "y": 0})
@@ -383,7 +409,7 @@ def patchify_slide_hierarchically(
                     offset=offset,
                     filters=level_filters[level],
                     thumb_size=thumb_size,
-                    slide_filters=slide_filters
+                    slide_filters=slide_filters,
                 ):
                     if level not in silent:
                         outfile = os.path.join(
@@ -407,39 +433,42 @@ def patchify_slide_hierarchically(
 
 
 def patchify_folder(
-    infolder,
-    outfolder,
-    level,
-    psize,
-    interval,
-    offset=None,
-    filters=None,
-    extensions=(".mrxs",),
-    recurse=False,
-    folders=None,
-    erase_tree=None,
-    thumb_size=512,
-    slide_filters=None,
-    verbose=2,
+    infolder: str,
+    outfolder: str,
+    level: int,
+    psize: int,
+    interval: Dict[str, int],
+    offset: Optional[Dict[str, int]] = None,
+    filters: Optional[Sequence[Filter]] = None,
+    extensions: Sequence[str] = (".mrxs",),
+    recurse: bool = False,
+    folders: Optional[Sequence[str]] = None,
+    erase_tree: Optional[bool] = None,
+    thumb_size: int = 512,
+    slide_filters: Optional[Sequence[Filter]] = None,
+    verbose: int = 2,
 ):
     """
     Save patches of all wsi inside a folder.
 
     Args:
-        infolder (str): abs path to a folder of slides.
-        outfolder (str): abs path to an output folder.
-        level (int): pyramid level.
-        psize (int): size of the side of the patches (in pixels).
-        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
-        offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-        filters (list of func): filters to accept patches.
-        extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
-        recurse (bool): whether to look for files recursively.
-        folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
-        erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
-        thumb_size (int): size of thumbnail's longest side. Always preserves aspect ratio.
-        slide_filters (list of str or func): list of filters to apply to thumbnail. Should output boolean mask.
-        verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
+        infolder: abs path to a folder of slides.
+        outfolder: abs path to an output folder.
+        level: pyramid level.
+        psize: size of the side of the patches (in pixels).
+        interval: {"x", "y"} interval between 2 neighboring patches.
+        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        filters: filters to accept patches.
+        extensions: list of file extensions to consider. Defaults to '.mrxs'.
+        recurse: whether to look for files recursively.
+        folders: list of subfolders to explore when recurse is True. Defaults to all.
+        erase_tree: whether to erase outfolder if it exists. If None, user will be
+            prompted for a choice.
+        thumb_size: size of thumbnail's longest side. Always preserves aspect ratio.
+        slide_filters: list of filters to apply to thumbnail. Should output boolean
+            mask.
+        verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes,
+            thumbnail export.
 
     """
     if os.path.isdir(outfolder):
@@ -484,41 +513,43 @@ def patchify_folder(
 
 
 def patchify_folder_hierarchically(
-    infolder,
-    outfolder,
-    top_level,
-    low_level,
-    psize,
-    interval,
-    offset=None,
-    filters=None,
-    silent=None,
-    extensions=(".mrxs",),
-    recurse=False,
-    folders=None,
-    erase_tree=None,
-    thumb_size=512,
-    slide_filters=None,
-    verbose=2,
+    infolder: PathLike,
+    outfolder: PathLike,
+    top_level: int,
+    low_level: int,
+    psize: int,
+    interval: Dict[str, int],
+    offset: Optional[Dict[str, int]] = None,
+    filters: Optional[Sequence[Filter]] = None,
+    silent: Optional[Sequence[int]] = None,
+    extensions: Sequence[str] = (".mrxs",),
+    recurse: bool = False,
+    folders: Optional[Sequence[str]] = None,
+    erase_tree: Optional[bool] = None,
+    thumb_size: int = 512,
+    slide_filters: Optional[Sequence[Filter]] = None,
+    verbose: int = 2,
 ):
     """
     Save hierarchical patches of all wsi inside a folder.
 
     Args:
-        infolder (str): abs path to a folder of slides.
-        outfolder (str): abs path to an output folder.
-        top_level (int): top pyramid level to consider.
-        low_level (int): lowest pyramid level to consider.
-        psize (int): size of the side of the patches (in pixels).
-        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
-        offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-        filters (dict of list of func): filters to accept patches.
-        silent (list of int): pyramid level not to output.
-        extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
-        recurse (bool): whether to look for files recursively.
-        folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
-        erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
-        verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
+        infolder: abs path to a folder of slides.
+        outfolder: abs path to an output folder.
+        top_level: top pyramid level to consider.
+        low_level: lowest pyramid level to consider.
+        psize: size of the side of the patches (in pixels).
+        interval: {"x", "y"} interval between 2 neighboring patches.
+        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        filters: filters to accept patches.
+        silent: pyramid level not to output.
+        extensions: list of file extensions to consider. Defaults to '.mrxs'.
+        recurse: whether to look for files recursively.
+        folders: list of subfolders to explore when recurse is True. Defaults to all.
+        erase_tree: whether to erase outfolder if it exists. If None, user will be
+            prompted for a choice.
+        verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes,
+            thumbnail export.
 
     """
     if os.path.isdir(outfolder):
@@ -564,36 +595,36 @@ def patchify_folder_hierarchically(
 
 
 def extract_tissue_patch_coords(
-    infolder,
-    outfolder,
-    level,
-    psize,
-    interval,
-    thumb_size=512,
-    extensions=(".mrxs",),
-    recurse=True,
-    folders=None,
-    erase_tree=None,
-    filters=None,
-    save_thumbs=False,
+    infolder: PathLike,
+    outfolder: PathLike,
+    level: int,
+    psize: int,
+    interval: Dict[str, int],
+    thumb_size: int = 512,
+    extensions: Sequence[str] = (".mrxs",),
+    recurse: bool = True,
+    folders: Optional[Sequence[str]] = None,
+    erase_tree: Optional[bool] = None,
+    filters: Optional[Sequence[Filter]] = None,
+    save_thumbs: bool = False,
 ):
     """
     Extracts all patch coordinates that contain tissue at aspecific level from WSI files
     in a folder and stores them in csvs. Foreground is evaluated using otsu thresholding.
 
     Args:
-        infolder (str): abs path to a folder of slides.
-        outfolder (str): abs path to a folder to stroe output csv files.
-        level (int): pyramid level to consider.
-        psize (int): size of the side of the patches (in pixels).
-        interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
-        thumb_size (int): size of thumbnail's longest side. Always preserves aspect ratio.
-        extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
-        recurse (bool): whether to look for files recursively.
-        folders (list of str): list of subfolders to explore when recurse is True. Defaults to all.
-        erase_tree (bool): whether to erase outfolder if it exists. If None, user will be prompted for a choice.
-        filters (list of str or func): list of filters to apply to thumbnail. Should output boolean mask.
-        save_thumbs (bool): save masked thumbnails of extracted zones.
+        infolder: abs path to a folder of slides.
+        outfolder: abs path to a folder to stroe output csv files.
+        level: pyramid level to consider.
+        psize: size of the side of the patches (in pixels).
+        interval: {"x", "y"} interval between 2 neighboring patches.
+        thumb_size: size of thumbnail's longest side. Always preserves aspect ratio.
+        extensions: list of file extensions to consider. Defaults to '.mrxs'.
+        recurse: whether to look for files recursively.
+        folders: list of subfolders to explore when recurse is True. Defaults to all.
+        erase_tree: whether to erase outfolder if it exists. If None, user will be prompted for a choice.
+        filters: list of filters to apply to thumbnail. Should output boolean mask.
+        save_thumbs: save masked thumbnails of extracted zones.
     """
     outfolder = Path(outfolder)
     if outfolder.is_dir():
