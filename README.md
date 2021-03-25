@@ -21,7 +21,7 @@
 [![PyPI Status](https://pepy.tech/badge/pathaia)](https://pepy.tech/project/pathaia)
 [![codecov](https://codecov.io/gh/ArnaudAbreu/PathAIA/branch/master/graph/badge.svg)](https://codecov.io/gh/ArnaudAbreu/PathAIA)
 [![ReadTheDocs](https://readthedocs.org/projects/pathaia/badge/?version=stable)](https://pathaia.readthedocs.io/en/stable/)
-[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/ArnaudABreu/PathAIA/blob/master/LICENSE)
+[![license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/ArnaudABreu/PathAIA/blob/master/LICENSE)
 
 </div>
 
@@ -113,7 +113,7 @@ If you have any questions please:
 
 ## License
 
-Please observe the GNU 3.0 license that is listed in this repository.
+Please observe the GNU GPL 3.0 license that is listed in this repository.
 
 ## BibTeX
 If you want to cite the framework feel free to use this.
