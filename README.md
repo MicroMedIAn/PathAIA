@@ -1,2 +1,124 @@
+<div align="center">
+
 # PathAIA
-Digital Pathology Analysis Tools
+
+
+**Simple digital patghology analysis tools.**
+
+---
+
+<p align="center">
+  <a href="#key-features">Key Features</a> •
+  <a href="#how-to-use">How To Use</a> •
+  <a href="https://pytorch-lightning.readthedocs.io/en/stable/">Docs</a> •
+  <a href="#examples">Examples</a> •
+  <a href="#community">Community</a> •
+  <a href="#license">License</a>
+</p>
+
+<!-- DO NOT ADD CONDA DOWNLOADS... README CHANGES MUST BE APPROVED BY EDEN OR WILL -->
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytorch-lightning)](https://pypi.org/project/pytorch-lightning/)
+[![PyPI Status](https://badge.fury.io/py/pytorch-lightning.svg)](https://badge.fury.io/py/pytorch-lightning)
+[![PyPI Status](https://pepy.tech/badge/pytorch-lightning)](https://pepy.tech/project/pytorch-lightning)
+[![codecov](https://codecov.io/gh/PyTorchLightning/pytorch-lightning/branch/master/graph/badge.svg)](https://codecov.io/gh/PyTorchLightning/pytorch-lightning)
+[![ReadTheDocs](https://readthedocs.org/projects/pytorch-lightning/badge/?version=stable)](https://pytorch-lightning.readthedocs.io/en/stable/)
+[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/PytorchLightning/pytorch-lightning/blob/master/LICENSE)
+
+</div>
+
+
+---
+
+## PyTorch Lightning is just organized PyTorch
+Lightning disentangles PyTorch code to decouple the science from the engineering.
+![PT to PL](docs/source/_static/images/general/pl_quick_start_full_compressed.gif)
+
+---
+
+## How To Use
+
+### Step 0: Install
+
+Simple installation from PyPI
+```bash
+pip install pathaia
+```
+
+### Step 1: Import pathaia's patch extraction tool
+
+```python
+from pathaia.patches import patchify_folder_hierarchically
+```
+
+### Step 2: Define your extraction parameters
+You can extract at multiple pyramid levels with a hierarchical structure between oatches of different levels. You can control pretty much every extraction parameter you like, from patch size to interval between patches or filters to chose which patch to extract. You can also decide whether you want to save patches as png or just extract coordinates in csv.
+
+```python
+infolder = "/path/to/input/slide/folder"
+outfolder = "/path/to/output/patches/folder"
+top_level = 5
+low_level = 0
+psize = 224
+interval = {"x: 224, "y":224}
+silent = list(range(low_level, top_level+1))
+extensions = [".svs"]
+recurse = False
+slide_filters = "full"
+verbose = 2
+```
+With these parameters you will find all svs slides that are directly in `infolder` and extract patch coordinates from levels 0 to 5 with a hierarchical structure. No png image will be stored as `silent` lists all levels. Patches will be contiguous with size 224 and will only be extracted from tissue zone that are determined by filtering on slide thumbnails. With `verbose=2` thumbnails of extracted areas are also stored into disk.
+
+### Step 3: Extract !
+
+```python
+patchify_folder_hierachically(
+    infolder,
+    outfolder,
+    top_level,
+    low_level,
+    psize,
+    interval,
+    silent=silent,
+    extensions=extensions,
+    recurse=recurse,
+    slide_filters=slide_filters,
+    verbose=verbose,
+)
+```
+Output csv will look like : INSERT EXAMPLE HERE
+
+## Advanced features
+You can use more advanced features to work on slides, most notably using your custom filters. Check [documentation](https://linktothedoc.com) for more info.
+
+---
+
+## Community
+
+The lightning community is maintained by 4 core contributors from [Institut National du Cancer de Toulouse - Oncopole](https://www.iuct-oncopole.fr/):
+* [Arnaud Abreu](https://github.com/ArnaudAbreu)
+* [Pilar Ortega](https://github.com/pilarOrtega)
+* [Robin Schwob](https://github.com/schwobr)
+* [Kevin Cortacero](https://github.com/KevinCortacero)
+
+### Asking for help
+If you have any questions please:
+1. [Read the docs](https://pytorch-lightning.rtfd.io/en/latest).
+2. [Check existing issues](https://github.com/ArnaudAbreu/PathAIA/issues), or [add a new issue](https://github.com/ArnaudAbreu/PathAIA/issues/new)
+
+## Licence
+
+Please observe the Apache 2.0 license that is listed in this repository.
+
+## BibTeX
+If you want to cite the framework feel free to use this.
+
+```bibtex
+@article{falcon2019pytorch,
+  title={PathAIA},
+  author={Abreu, A and .al},
+  journal={GitHub. Note: https://github.com/ArnaudAbreu/PathAIA},
+  volume={3},
+  year={2021}
+}
+```
+
