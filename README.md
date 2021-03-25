@@ -84,7 +84,15 @@ patchify_folder_hierachically(
     verbose=verbose,
 )
 ```
-Output csv will look like : INSERT EXAMPLE HERE
+Output csv will look like :
+|         id         |       parent      |        level       |   x  |   y  |  dx |  dy |
+|:-----------:|:-------------:|:------------:|:----:|:----:|:---:|:---:|
+|  Patch identifier  | Parent identifier | int (0, max level) |  int |  int | int | int |
+|         #1         |        None       |          2         |   0  |   0  | 996 | 996 |
+|        #1#1        |         #1        |          1         |   0  |   0  | 448 | 448 |
+|       #1#1#1       |        #1#1       |          0         |   0  |   0  | 224 | 224 |
+|       #1#1#2       |        #1#1       |          0         |   0  |  224 | 224 | 224 |
+|         ...        |         ...       |         ...        |  ... |  ... | ... | ... |
 
 ## Advanced features
 You can use more advanced features to work on slides, most notably using your custom filters. Check [documentation](https://linktothedoc.com) for more info.
