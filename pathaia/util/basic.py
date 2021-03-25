@@ -13,4 +13,13 @@ def ifnone(x, default):
     Returns:
         any: x if x is not None else default
     """
-    return x if x is not None else default    
+    return x if x is not None else default
+
+
+def dumb():
+    """
+    Dumb function.
+
+    A dumb function to test github actions on changes.
+    """
+    pass
