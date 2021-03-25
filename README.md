@@ -120,7 +120,7 @@ Please observe the Apache 2.0 license that is listed in this repository.
 If you want to cite the framework feel free to use this.
 
 ```bibtex
-@article{falcon2019pytorch,
+@article{pathaia2021,
   title={PathAIA},
   author={Abreu, A and .al},
   journal={GitHub. Note: https://github.com/ArnaudAbreu/PathAIA},
