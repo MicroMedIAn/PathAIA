@@ -18,4 +18,4 @@ jobs:
       with:
         name: DocumentationHTML
         path: doc/_build/html/
-        if: success()
+      if: success()
