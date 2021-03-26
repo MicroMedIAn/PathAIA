@@ -9,9 +9,10 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - run: |
+    - name: Update doc source
+      run: |
         sudo apt-get install python3-sphinx
-        sphinx-apidoc -f -t doc/template/ -o doc/source/ pathaia
+        sphinx-apidoc -f --templatedir=doc/template/ -o doc/source/ pathaia/
       shell: bash
 
     - uses: ammaraskar/sphinx-action@0.4
