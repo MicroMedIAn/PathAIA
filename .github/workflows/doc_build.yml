@@ -12,6 +12,7 @@ jobs:
     - run: |
         sudo apt-get install python3-sphinx
         sphinx-apidoc -f -t doc/template/ -o doc/source/ pathaia
+      shell: bash
 
     - uses: ammaraskar/sphinx-action@0.4
       with:
