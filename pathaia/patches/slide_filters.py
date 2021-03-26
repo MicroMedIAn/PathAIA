@@ -1,15 +1,15 @@
 import cv2
 import numpy as np
 from skimage.morphology import remove_small_objects
-from ..util.types import NDMask, NDImage
+from ..util.types import NDBoolMask, NDImage
 
 
 def filter_remove_small_objects(
-    in_mask: NDMask,
+    in_mask: NDBoolMask,
     avoid_overmask: bool = True,
     overmask_thresh: float = 10,
     min_size_fac: float = 1,
-) -> NDMask:
+) -> NDBoolMask:
     """
     Removes small objects from a binary mask. Can recursively lowers its minimum
     accepted size if too much tissue is erased.
@@ -42,7 +42,7 @@ def filter_remove_small_objects(
     return out_mask
 
 
-def filter_thumbnail(x: NDImage) -> NDMask:
+def filter_thumbnail(x: NDImage) -> NDBoolMask:
     """
     Computes a tissue mask from a slide thumbnail. Filters background, red pen, blue pen
     using La*b* space.

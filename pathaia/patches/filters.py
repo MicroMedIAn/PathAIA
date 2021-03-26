@@ -3,7 +3,7 @@
 from skimage.color import rgb2lab
 import numpy
 from typing import Dict, Sequence, Union
-from ..util.types import Filter, FilterList, NDImage, NDMask
+from ..util.types import Filter, FilterList, NDImage, NDBoolMask
 
 
 class Error(Exception):
@@ -101,7 +101,7 @@ def filter_has_significant_dapi(
 
 def get_tissue_from_rgb(
     image: NDImage, blacktol: Union[float, int] = 0, whitetol: Union[float, int] = 230,
-) -> NDMask:
+) -> NDBoolMask:
     """
     Return the tissue mask segmentation of an image.
 
@@ -129,7 +129,7 @@ def get_tissue_from_rgb(
 
 def get_tissue_from_lab(
     image: NDImage, blacktol: Union[float, int] = 5, whitetol: Union[float, int] = 90,
-) -> NDMask:
+) -> NDBoolMask:
     """
     Get the tissue mask segmentation of an image.
 
@@ -156,7 +156,7 @@ def get_tissue(
     blacktol: Union[float, int] = 5,
     whitetol: Union[float, int] = 90,
     method: str = "lab",
-) -> NDMask:
+) -> NDBoolMask:
     """
     Get the tissue mask segmentation of an image.
 
