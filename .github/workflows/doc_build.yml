@@ -9,6 +9,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - run: |
+        python -m pip install --upgrade --user pip
+        pip install sphinx
+        sphinx-apidoc -f -t doc/template -o doc/source pathaia
+
     - uses: ammaraskar/sphinx-action@0.4
       with:
         pre-build-command: python -m pip install sphinx_rtd_theme
