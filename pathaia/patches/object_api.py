@@ -7,7 +7,9 @@ Draft for hierarchical patch extraction and representation is proposed.
 """
 
 import os
+from typing import Dict, Optional, Sequence
 from ..util.basic import ifnone
+from ..utils.types import PathLike, Filter, FilterList
 from .functional_api import patchify_slide
 from .functional_api import patchify_folder
 from .functional_api import patchify_slide_hierarchically
@@ -17,33 +19,32 @@ from .errors import UnknownLevelError
 
 
 class Patchifier(object):
-    """A class to handle patchification tasks."""
+    """
+    A class to handle patchification tasks.
+
+    Args:
+        outdir: path to an output directory.
+        level: pyramid level to extract.
+        psize: size of the side of the patches (in pixels).
+        interval: {"x", "y"} interval between 2 neighboring patches.
+        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        filters: filters to accept patches.
+        extensions: list of file extensions to consider. Defaults to '.mrxs'.
+        verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes,
+            thumbnail export.
+    """
 
     def __init__(
         self,
-        outdir,
-        level,
-        psize,
-        interval,
-        offset=None,
-        filters=None,
-        extensions=None,
-        verbose=2,
+        outdir: PathLike,
+        level: int,
+        psize: int,
+        interval: Dict[str, int],
+        offset: Optional[Dict[str, int]] = None,
+        filters: Optional[Sequence[Filter]] = None,
+        extensions: Optional[Sequence[str]] = None,
+        verbose: int = 2,
     ):
-        """
-        Create the patchifier.
-
-        Args:
-            outdir (str): path to an output directory.
-            level (int): pyramid level to extract.
-            psize (int): size of the side of the patches (in pixels).
-            interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
-            offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-            filters (list of func): filters to accept patches.
-            extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
-            verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
-
-        """
         self.outdir = outdir
         self.level = level
         self.psize = psize
@@ -53,12 +54,12 @@ class Patchifier(object):
         self.verbose = verbose
         self.extensions = ifnone(extensions, (".mrxs",))
 
-    def patchify(self, path):
+    def patchify(self, path: PathLike):
         """
         Patchify a slide or an entire folder of slides.
 
         Args:
-            path (str): absolute path to a slide or a folder of slides.
+            path: absolute path to a slide or a folder of slides.
 
         """
         if os.path.isdir(path):
@@ -85,49 +86,48 @@ class Patchifier(object):
                 verbose=self.verbose,
             )
 
-    def add_filter(self, filter_func):
+    def add_filter(self, filter_func: Filter):
         """
         Add a filter function to this patch extractor.
 
         Args:
-            filter_func (callable): a function that take an image as argument and output a bool.
+            filter_func: a function that take an image as argument and output a bool.
 
         """
         self.filters.append(filter_func)
 
 
 class HierarchicalPatchifier(object):
-    """A class to handle patchification tasks."""
+    """
+    A class to handle hierachical patchification tasks.
+
+    Args:
+        outdir: path to an output directory.
+        top_level: top pyramid level to consider.
+        low_level: lowest pyramid level to consider.
+        psize: size of the side of the patches (in pixels).
+        interval: {"x", "y"} interval between 2 neighboring patches.
+        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        filters: filters to accept patches.
+        silent: pyramid level not to output.
+        extensions: list of file extensions to consider. Defaults to '.mrxs'.
+        verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
+
+    """
 
     def __init__(
         self,
-        outdir,
-        top_level,
-        low_level,
-        psize,
-        interval,
-        offset=None,
-        filters=None,
-        silent=None,
-        extensions=None,
-        verbose=2,
+        outdir: PathLike,
+        top_level: int,
+        low_level: int,
+        psize: int,
+        interval: Dict[str, int],
+        offset: Optional[Dict[str, int]] = None,
+        filters: Optional[FilterList] = None,
+        silent: Optional[Sequence[int]] = None,
+        extensions: Optional[Sequence[str]] = None,
+        verbose: int = 2,
     ):
-        """
-        Create the hierarchical patchifier.
-
-        Args:
-            outdir (str): path to an output directory.
-            top_level (int): top pyramid level to consider.
-            low_level (int): lowest pyramid level to consider.
-            psize (int): size of the side of the patches (in pixels).
-            interval (dictionary): {"x", "y"} interval between 2 neighboring patches.
-            offset (dictionary): {"x", "y"} offset in px on x and y axis for patch start.
-            filters (dict of list of func): filters to accept patches.
-            silent (list of int): pyramid level not to output.
-            extensions (list of str): list of file extensions to consider. Defaults to '.mrxs'.
-            verbose (int): 0 => nada, 1 => patchifying parameters, 2 => start-end of processes, thumbnail export.
-
-        """
         self.outdir = outdir
         self.top_level = top_level
         self.low_level = low_level
@@ -139,12 +139,12 @@ class HierarchicalPatchifier(object):
         self.silent = ifnone(silent, [])
         self.extensions = ifnone(extensions, (".mrxs",))
 
-    def patchify(self, path):
+    def patchify(self, path: PathLike):
         """
         Patchify hierarchically a slide or an entire folder of slides.
 
         Args:
-            path (str): absolute path to a slide or a folder of slides.
+            path: absolute path to a slide or a folder of slides.
 
         """
         if os.path.isdir(path):
@@ -175,12 +175,12 @@ class HierarchicalPatchifier(object):
                 verbose=self.verbose,
             )
 
-    def add_filter(self, filter_func, level=None):
+    def add_filter(self, filter_func: Filter, level: Optional[int] = None):
         """
         Add a filter function to the hierarchical patch extractor.
 
         Args:
-            filter_func (callable): a function that take an image as argument and output a bool.
+            filter_func: a function that take an image as argument and output a bool.
 
         """
         # if level is None, append filter func to all levels
