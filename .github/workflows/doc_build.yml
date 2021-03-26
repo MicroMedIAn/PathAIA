@@ -9,14 +9,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Update doc source
-      run: |
-        python -m pip install -U pip
-        pip install -U sphinx
-        export PATH=/home/runner/.local/bin:$PATH
-        sphinx-apidoc -f --templatedir=doc/template/ -o doc/source/ pathaia/
-      shell: bash
-
     - uses: ammaraskar/sphinx-action@0.4
       with:
         pre-build-command: python -m pip install sphinx-rtd-theme sphinx-autodoc-typehints
