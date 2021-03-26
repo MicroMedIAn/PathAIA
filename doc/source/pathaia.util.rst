@@ -1,19 +1,42 @@
-pathaia.util package
-====================
+util
+====
 
-Submodules
-----------
+basic
+-------------------------
 
-.. toctree::
-   :maxdepth: 4
+.. automodule:: pathaia.util.basic
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-   pathaia.util.images
-   pathaia.util.paths
+images
+--------------------------
 
-Module contents
----------------
+.. automodule:: pathaia.util.images
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. automodule:: pathaia.util
+management
+------------------------------
+
+.. automodule:: pathaia.util.management
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+paths
+-------------------------
+
+.. automodule:: pathaia.util.paths
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+types
+-------------------------
+
+.. automodule:: pathaia.util.types
    :members:
    :undoc-members:
    :show-inheritance:
