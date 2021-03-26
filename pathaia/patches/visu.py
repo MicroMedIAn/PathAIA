@@ -3,23 +3,30 @@
 
 import numpy
 from skimage.morphology import binary_dilation, disk
+import openslide
+from typing import Sequence, Tuple
+from ..util.types import Patch, NDByteImage
 
 
 def preview_from_queries(
-    slide, queries, level_preview=-1, color=(255, 255, 0), thickness=3
-):
+    slide: openslide.OpenSlide,
+    queries: Sequence[Patch],
+    level_preview: int = -1,
+    color: Tuple[int, int, int] = (255, 255, 0),
+    thickness: int = 3,
+) -> NDByteImage:
     """
     Give thumbnail with patches displayed.
 
-    Arguments:
-        - slide: openslide object
-        - queries: patch queries {"x", "y", "dx", "dy", "level"}
-        - level_preview: int, pyramid level for preview thumbnail
-        - color: tuple of int, rgb color for patch boundaries
-        - thickness: int, thickness of patch boundaries
+    Args:
+        slide: openslide object
+        queries: patch queries {"x", "y", "dx", "dy", "level"}
+        level_preview: pyramid level for preview thumbnail
+        color: rgb color for patch boundaries
+        thickness: thickness of patch boundaries
 
     Returns:
-        - thumbnail: thumbnail image with patches displayed.
+        Thumbnail image with patches displayed.
 
     """
     # get thumbnail first
@@ -43,11 +50,11 @@ def preview_from_queries(
         endx = min(x + dx, image.shape[1] - 1)
         endy = min(y + dy, image.shape[0] - 1)
         # horizontal segments
-        grid[starty, startx : endx] = 0
-        grid[endy, startx : endx] = 0
+        grid[starty, startx:endx] = 0
+        grid[endy, startx:endx] = 0
         # vertical segments
-        grid[starty : endy, startx] = 0
-        grid[starty : endy, endx] = 0
+        grid[starty:endy, startx] = 0
+        grid[starty:endy, endx] = 0
     grid = grid < 255
     d = disk(thickness)
     grid = binary_dilation(grid, d)

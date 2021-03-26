@@ -24,7 +24,6 @@
 {% endif %}
 
 {{ toctree(subpackages) }}
-{% endif %}
 
 {%- if submodules %}
 {% if separatemodules %}

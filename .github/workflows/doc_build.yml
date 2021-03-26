@@ -1,0 +1,21 @@
+name: "Pull Request Docs Check"
+on: 
+- pull_request
+- push
+
+jobs:
+  docs:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v1
+
+    - uses: ammaraskar/sphinx-action@0.4
+      with:
+        pre-build-command: python -m pip install sphinx-rtd-theme sphinx-autodoc-typehints
+        docs-folder: "doc/"
+
+    - uses: actions/upload-artifact@v1
+      with:
+        name: DocumentationHTML
+        path: doc/build/html/
+      if: success()

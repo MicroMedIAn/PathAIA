@@ -8,6 +8,8 @@ datasets creation and experiment monitoring/evaluation.
 import pandas as pd
 import os
 import warnings
+from typing import Sequence, Tuple, Iterator, List
+from .types import Patch
 
 
 class Error(Exception):
@@ -70,17 +72,17 @@ class UnknownColumnError(Error):
     pass
 
 
-def get_patch_csv_from_patch_folder(patch_folder):
+def get_patch_csv_from_patch_folder(patch_folder: str) -> str:
     """
     Give csv of patches given the slide patch folder.
 
     Check existence of the path and return absolute path of the csv.
 
     Args:
-        patch_folder (str): absolute path to a pathaia slide folder.
+        patch_folder: absolute path to a pathaia slide folder.
 
     Returns:
-        str: absolute path of csv patch file.
+        Absolute path of csv patch file.
 
     """
     if os.path.isdir(patch_folder):
@@ -95,17 +97,19 @@ def get_patch_csv_from_patch_folder(patch_folder):
     )
 
 
-def get_patch_folders_in_project(project_folder, exclude=["annotation"]):
+def get_patch_folders_in_project(
+    project_folder: str, exclude: Sequence[str] = ("annotation",)
+) -> Iterator[Tuple[str, str]]:
     """
     Give pathaia slide folders from a pathaia project folder (direct subfolders).
 
     Check existence of the project and yield slide folders inside.
 
     Args:
-        project_folder (str): absolute path to a pathaia project folder.
-        exclude (list of str): a list of str to exclude from subfolders of the project.
+        project_folder: absolute path to a pathaia project folder.
+        exclude: a list of str to exclude from subfolders of the project.
     Yields:
-        tuple of str: name of the slide and absolute path to its pathaia folder.
+        Name of the slide and absolute path to its pathaia folder.
 
     """
     if not os.path.isdir(project_folder):
@@ -123,17 +127,17 @@ def get_patch_folders_in_project(project_folder, exclude=["annotation"]):
                 yield name, patch_folder
 
 
-def get_slide_file(slide_folder, slide_name):
+def get_slide_file(slide_folder: str, slide_name: str) -> str:
     """
     Give the absolute path to a slide file.
 
     Get the slide absolute path if slide name and slide folder are provided.
 
     Args:
-        slide_folder (str): absolute path to a folder of WSIs.
-        slide_name (str): basename of the slide.
+        slide_folder: absolute path to a folder of WSIs.
+        slide_name: basename of the slide.
     Returns:
-        str: absolute path of the WSI.
+        Absolute path of the WSI.
 
     """
     if not os.path.isdir(slide_folder):
@@ -146,24 +150,27 @@ def get_slide_file(slide_folder, slide_name):
             if slide_name == base:
                 return os.path.join(slide_folder, name)
     raise SlideNotFoundError(
-        "Could not find an mrxs slide file for: {} in {}!!!".format(slide_name,
-                                                                    slide_folder)
+        "Could not find an mrxs slide file for: {} in {}!!!".format(
+            slide_name, slide_folder
+        )
     )
 
 
-def handle_labeled_patches(patch_file, level, column):
+def handle_labeled_patches(
+    patch_file: str, level: int, column: str
+) -> Iterator[Tuple[int, int, str]]:
     """
     Read a patch file.
 
     Read lines of the patch csv looking for 'column' label.
 
     Args:
-        patch_file (str): absolute path to a csv patch file.
-        level (int): pyramid level to query patches in the csv.
-        column (str): header of the column to use to label individual patches.
+        patch_file: absolute path to a csv patch file.
+        level: pyramid level to query patches in the csv.
+        column: header of the column to use to label individual patches.
 
     Yields:
-        tuple: position and label of patches (x, y, label).
+        Position and label of patches (x, y, label).
 
     """
     df = pd.read_csv(patch_file)
@@ -179,32 +186,29 @@ def handle_labeled_patches(patch_file, level, column):
 class PathaiaHandler(object):
     """
     A class to handle simple patch datasets.
-
     It usually computes the input of tf datasets proposed in pathaia.data.
+
+    Args:
+        project_folder: absolute path to a pathaia project.
+        slide_folder: absolute path to a slide folder.
     """
 
-    def __init__(self, project_folder, slide_folder):
-        """
-        Create the patch handler.
-
-        Args:
-            project_folder (str): absolute path to a pathaia project.
-            slide_folder (str): absolute path to a slide folder.
-
-        """
+    def __init__(self, project_folder: str, slide_folder: str):
         self.slide_folder = slide_folder
         self.project_folder = project_folder
 
-    def list_patches(self, level, dim, label):
+    def list_patches(
+        self, level: int, dim: Tuple[int, int], label: str
+    ) -> Tuple[List[Patch], List[str]]:
         """
         Create labeled patch dataset.
 
         Args:
-            level (int): pyramid level to extract patches in csv.
-            dim (tuple of int): dimensions of the patches in pixels.
-            label (str): column header in csv to use as a category.
+            level: pyramid level to extract patches in csv.
+            dim: dimensions of the patches in pixels.
+            label: column header in csv to use as a category.
         Returns:
-            tuple: (list of ndarray images, list of labels of any type)
+            List of patch dicts and list of labels.
 
         """
         patch_list = []
@@ -216,8 +220,13 @@ class PathaiaHandler(object):
                 # read patch file and get the right level
                 for x, y, lab in handle_labeled_patches(patch_file, level, label):
                     patch_list.append(
-                        {"slide": slide_path, "x": x, "y": y,
-                         "level": level, "dimensions": dim}
+                        {
+                            "slide": slide_path,
+                            "x": x,
+                            "y": y,
+                            "level": level,
+                            "dimensions": dim,
+                        }
                     )
                     labels.append(lab)
             except (PatchesNotFoundError, UnknownColumnError, SlideNotFoundError) as e:

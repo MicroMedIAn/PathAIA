@@ -7,6 +7,7 @@ Welcome to PathAIA's documentation!
 ===================================
 
 .. toctree::
+   :caption: Documentation
    :maxdepth: 4
 
    api

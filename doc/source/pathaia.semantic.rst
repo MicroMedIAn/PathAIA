@@ -1,18 +1,10 @@
-pathaia.semantic package
-========================
+semantic
+========
 
-Submodules
-----------
+functional\_api
+---------------------------------------
 
-.. toctree::
-   :maxdepth: 4
-
-   pathaia.semantic.functional_api
-
-Module contents
----------------
-
-.. automodule:: pathaia.semantic
+.. automodule:: pathaia.semantic.functional_api
    :members:
    :undoc-members:
    :show-inheritance:

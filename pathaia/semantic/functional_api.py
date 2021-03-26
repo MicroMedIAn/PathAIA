@@ -7,23 +7,26 @@ Can be used visualize model perception of an image.
 import numpy
 from ..util.images import unlabeled_regular_grid_list
 from ..util.paths import imfiles_in_folder
+from ..util import NDImage, NDIntMask2d, NDIntMask3d, NDIntMask4d
+from ..deep.dense import Vocabulary
 import os
 import tifffile
 from skimage.io import imread
+from typing import Union, Tuple
 
 
-def coarse(image, model):
+def coarse(image: NDImage, model: Vocabulary) -> NDIntMask2d:
     """Compute a coarse semantic segmentation of an image.
 
     Place a window on every pixel, pixel value in segmentation
     is its prediction (by a model) made on the window.
 
     Args:
-        image (ndarray): an image.
-        model (pathaia model): a ml model.
+        image: an image.
+        model: a ml model.
 
     Returns:
-        ndarray: segmentation of the given image.
+        Segmentation mask of the given image.
 
     """
     psize = model.context
@@ -40,18 +43,18 @@ def coarse(image, model):
     return segmentation
 
 
-def coarse_sep_channels_classif(image, model):
+def coarse_sep_channels_classif(image: NDImage, model: Vocabulary) -> NDIntMask3d:
     """Compute a coarse semantic segmentation of an image.
 
     Place a window on every pixel, pixel value in segmentation
     is its prediction (by a model) made on the window.
 
     Args:
-        image (ndarray): an image.
-        model (pathaia model): a ml model.
+        image: an image.
+        model: a ml model.
 
     Returns:
-        list of ndarray: segmentation of the given image.
+        Segmentation mask of the given image.
 
     """
     psize = model.context
@@ -78,18 +81,21 @@ def coarse_sep_channels_classif(image, model):
     return segmentations
 
 
-def coarse_sep_channels_desc(image, model, outrag=False):
+def coarse_sep_channels_desc(
+    image: NDImage, model: Vocabulary, outrag: bool = False
+) -> Union[NDIntMask4d, Tuple[NDIntMask4d, NDIntMask2d]]:
     """Compute a coarse semantic segmentation of an image.
 
     Place a window on every pixel, pixel value in segmentation
     is its prediction (by a model) made on the window.
 
     Args:
-        image (ndarray): an image.
-        model (pathaia model): a ml model.
+        image: an image.
+        model: a ml model.
+        rag: whether to return rag
 
     Returns:
-        list of ndarray: segmentation of the given image.
+        Segmentation mask of the given image, optionally with rag
 
     """
     psize = model.context
@@ -120,17 +126,19 @@ def coarse_sep_channels_desc(image, model, outrag=False):
     return segmentations
 
 
-def partition_slide_coarse(slidefolder, level, outfolder, model, sep_channels):
+def partition_slide_coarse(
+    slidefolder: str, level: int, outfolder: str, model: Vocabulary, sep_channels: bool
+):
     """Compute a coarse semantic segmentation of all patches of a slide.
 
     Do the coarse image segmentation on every patch extracted at a given level.
 
     Args:
-        slidefolder (str): absolute path to a pathaia slide folder.
-        level (int): level of patches in the pyramid.
-        outfolder (str): absolute path to an output folder for segmentations.
-        model (pathaia model): a ml predictor.
-        sep_channels (boolean): whether the model is multchannel.
+        slidefolder: absolute path to a pathaia slide folder.
+        level: level of patches in the pyramid.
+        outfolder: absolute path to an output folder for segmentations.
+        model: a ml predictor.
+        sep_channels: whether the model is multchannel.
 
     """
     imfolder = os.path.join(slidefolder, "level_{}".format(level))

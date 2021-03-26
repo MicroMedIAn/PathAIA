@@ -1,27 +1,31 @@
 import cv2
 import numpy as np
 from skimage.morphology import remove_small_objects
+from ..util.types import NDBoolMask, NDByteImage
 
 
 def filter_remove_small_objects(
-    in_mask, avoid_overmask=True, overmask_thresh=10, min_size_fac=1
-):
+    in_mask: NDBoolMask,
+    avoid_overmask: bool = True,
+    overmask_thresh: float = 10,
+    min_size_fac: float = 1,
+) -> NDBoolMask:
     """
     Removes small objects from a binary mask. Can recursively lowers its minimum
     accepted size if too much tissue is erased.
 
     Args:
-        in_mask (ndarray): input binary mask (must be boolean).
-        avoid_overmask (bool): if True recursively call itself if too much tissue is
-            erased. (default: True)
-        overmask_thresh (float): if avoid_overmask and more than overmask_thresh% of
+        in_mask: input binary mask (must be boolean).
+        avoid_overmask: if True recursively call itself if too much tissue is
+            erased.
+        overmask_thresh: if avoid_overmask and more than overmask_thresh% of
             the input mask is erased, calls the function recursively with lower minimum
-            accepted size. (default: 10)
-        min_size_fac (float): multiplier for overmask_thresh used to compute minimum
-            accepted size. Mainly for internal use in recursive call. (default: 1)
+            accepted size.
+        min_size_fac: multiplier for overmask_thresh used to compute minimum
+            accepted size. Mainly for internal use in recursive call.
 
     Returns:
-        ndarray: output binary mask with small objects removed.
+        Output binary mask with small objects removed.
     """
     min_size = int(min_size_fac * in_mask.sum() * overmask_thresh / 100)
     out_mask = remove_small_objects(in_mask, min_size=min_size)
@@ -38,16 +42,16 @@ def filter_remove_small_objects(
     return out_mask
 
 
-def filter_thumbnail(x):
+def filter_thumbnail(x: NDByteImage) -> NDBoolMask:
     """
     Computes a tissue mask from a slide thumbnail. Filters background, red pen, blue pen
     using La*b* space.
 
     Args:
-        x (ndarray): input thumbnail as a numpy byte array.
+        x: input thumbnail as a numpy byte array.
 
     Returns:
-        ndarray: Numpy binary mask where usable tissue is marked as True.
+        Numpy binary mask where usable tissue is marked as True.
     """
     x = cv2.cvtColor(x.astype(np.float32) / 255, cv2.COLOR_RGB2Lab)
     l, a, b = x.transpose(2, 0, 1)

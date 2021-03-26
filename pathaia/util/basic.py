@@ -1,16 +1,16 @@
 # coding utf-8
 """Useful functions for general use"""
+from typing import Any
 
 
-def ifnone(x, default):
+def ifnone(x: Any, default: Any) -> Any:
+    return x if x is not None else default
+
+
+def dumb():
     """
-    Wrapper for default assignment in case of None.
+    Dumb function.
 
-    Arguments:
-        x(any): input to be tested
-        default(any): default value for x
-
-    Returns:
-        any: x if x is not None else default
+    A dumb function to test github actions on changes.
     """
-    return x if x is not None else default    
+    pass

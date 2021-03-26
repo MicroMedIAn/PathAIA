@@ -2,6 +2,8 @@
 """A module to filter patches in a slide."""
 from skimage.color import rgb2lab
 import numpy
+from typing import Dict, Sequence, Union
+from ..util.types import Filter, FilterList, NDByteImage, NDBoolMask
 
 
 class Error(Exception):
@@ -24,8 +26,23 @@ class UnknownMethodError(Error):
     pass
 
 
-def standardize_filters(filters, top_level, low_level):
-    """Check validity of hierarchical filters."""
+def standardize_filters(
+    filters: FilterList,
+    top_level: int,
+    low_level: int,
+) -> Dict[int, Sequence[Filter]]:
+    """
+    Check validity of hierarchical filters.
+
+    Args:
+        filters: filters to apply. Can be formatted as a single string, a list or a
+            dictionary mapping a level to corresponding filters.
+        top_level: top pyramid level to consider.
+        low_level: lowest pyramid level to consider.
+
+    Returns:
+        Dictionnary mapping each level to corresponding filters.
+    """
     # check filters
     if type(filters) == str:
         level_filters = {k: [filters] for k in range(top_level, low_level - 1, -1)}
@@ -44,31 +61,37 @@ def standardize_filters(filters, top_level, low_level):
     return level_filters
 
 
-def filter_hasdapi(image, dapi_channel=0, tolerance=1):
+def filter_hasdapi(image: NDByteImage, dapi_channel: int = 0, tolerance: int = 1) -> bool:
     """
     Give presence of dapi in a patch.
 
     Args:
-        image (ndarray): image of a patch.
-        dapi_channel (int): channel to extract dapi signal.
-        tolerance (int): value on dapi intensity encountered to accept a patch.
+        image: image of a patch.
+        dapi_channel: channel to extract dapi signal.
+        tolerance: value on dapi intensity encountered to accept a patch.
     Returns:
-        bool: whether dapi is visible in slide.
+        Whether dapi is visible in slide.
 
     """
     return (image[:, :, dapi_channel] > tolerance).any() > 0
 
 
-def filter_has_significant_dapi(image, dapi_channel=0, tolerance=0.5, dapi_tolerance=1):
+def filter_has_significant_dapi(
+    image: NDByteImage,
+    dapi_channel: int = 0,
+    tolerance: float = 0.5,
+    dapi_tolerance: int = 1,
+) -> bool:
     """
-    Give if > 50% of dapi in a patch.
+    Give if enough dapi is present in a patch.
 
     Args:
-        image (ndarray): image of a patch.
-        dapi_channel (int): channel to extract dapi signal.
-        tolerance (int): value on dapi intensity encountered to accept a patch.
+        image: image of a patch.
+        dapi_channel: channel to extract dapi signal.
+        tolerance: part of the patch that must contain dapi.
+        dapi_tolerance: value on dapi intensity encountered to accept a patch.
     Returns:
-        bool: whether dapi is visible in slide.
+        Whether dapi is significantally visible in slide.
 
     """
     return (image[:, :, dapi_channel] > dapi_tolerance).sum() > tolerance * (
@@ -76,19 +99,21 @@ def filter_has_significant_dapi(image, dapi_channel=0, tolerance=0.5, dapi_toler
     )
 
 
-def get_tissue_from_rgb(image, blacktol=0, whitetol=230):
+def get_tissue_from_rgb(
+    image: NDByteImage, blacktol: Union[float, int] = 0, whitetol: Union[float, int] = 230,
+) -> NDBoolMask:
     """
     Return the tissue mask segmentation of an image.
 
     True pixels for the tissue, false pixels for the background.
 
     Args:
-        image (ndarray): image of a patch.
-        blacktol (float or int): tolerance value for black pixels.
-        whitetol (float or int): tolerance value for white pixels.
+        image: image of a patch.
+        blacktol: tolerance value for black pixels.
+        whitetol: tolerance value for white pixels.
 
     Returns:
-        2D-array: true pixels are tissue, false are background.
+        Mask where true pixels are tissue, false are background.
 
     """
     binarymask = numpy.zeros_like(image[..., 0], bool)
@@ -102,20 +127,22 @@ def get_tissue_from_rgb(image, blacktol=0, whitetol=230):
     return binarymask
 
 
-def get_tissue_from_lab(image, blacktol=5, whitetol=90):
+def get_tissue_from_lab(
+    image: NDByteImage, blacktol: Union[float, int] = 5, whitetol: Union[float, int] = 90,
+) -> NDBoolMask:
     """
-    Return the tissue mask segmentation of an image.
+    Get the tissue mask segmentation of an image.
 
     This version operates in the lab space, conversion of the image from
     rgb to lab is performed first.
 
     Args:
-        image (ndarray): image of a patch.
-        blacktol (float or int): tolerance value for black pixels.
-        whitetol (float or int): tolerance value for white pixels.
+        image: image of a patch.
+        blacktol: tolerance value for black pixels.
+        whitetol: tolerance value for white pixels.
 
     Returns:
-        2D-array: true pixels are tissue, false are background.
+        Mask where true pixels are tissue, false are background.
 
     """
     image = rgb2lab(image)[..., 0]
@@ -124,20 +151,25 @@ def get_tissue_from_lab(image, blacktol=5, whitetol=90):
     return binarymask
 
 
-def get_tissue(image, blacktol=5, whitetol=90, method="lab"):
+def get_tissue(
+    image: NDByteImage,
+    blacktol: Union[float, int] = 5,
+    whitetol: Union[float, int] = 90,
+    method: str = "lab",
+) -> NDBoolMask:
     """
-    Return the tissue mask segmentation of an image.
+    Get the tissue mask segmentation of an image.
 
     One can choose the segmentation method.
 
     Args:
-        image (ndarray): image of a patch.
-        blacktol (float or int): tolerance value for black pixels.
-        whitetol (float or int): tolerance value for white pixels.
-        method (str): one of 'lab' or 'rgb', function to be called.
+        image: image of a patch.
+        blacktol: tolerance value for black pixels.
+        whitetol: tolerance value for white pixels.
+        method: one of 'lab' or 'rgb', function to be called.
 
     Returns:
-        2D-array: true pixels are tissue, false are background.
+        Mask where true pixels are tissue, false are background.
 
     """
     if method not in ["lab", "rgb"]:
@@ -148,20 +180,22 @@ def get_tissue(image, blacktol=5, whitetol=90, method="lab"):
         return get_tissue_from_rgb(image, blacktol, whitetol)
 
 
-def filter_has_tissue_he(image, blacktol=5, whitetol=90):
+def filter_has_tissue_he(
+    image: NDByteImage, blacktol: Union[float, int] = 5, whitetol: Union[float, int] = 90
+) -> bool:
     """
     Return true if tissue inside the patch.
 
-    This version operates in the lab space, conversion of the image from
-    rgb to lab is performed first.
+    Filters tissue using the l channel from lab space. Conversion of the image from rgb
+    to lab is performed first.
 
     Args:
-        image (ndarray): image of a patch.
-        blacktol (float or int): tolerance value for black pixels.
-        whitetol (float or int): tolerance value for white pixels.
+        image: image of a patch.
+        blacktol: tolerance value for black pixels.
+        whitetol: tolerance value for white pixels.
 
     Returns:
-        bool: true if tissue is detected.
+        True if tissue is detected.
 
     """
     return get_tissue_from_lab(image, blacktol=blacktol, whitetol=whitetol).any()
