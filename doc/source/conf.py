@@ -40,6 +40,7 @@ release = '0.1'
 extensions = []
 extensions.append("sphinx.ext.autodoc")
 extensions.append("sphinx.ext.napoleon")
+extensions.append("sphinx_autodoc_typehints")
 
 add_module_names = False
 

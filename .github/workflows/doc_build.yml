@@ -11,11 +11,11 @@ jobs:
 
     - run: |
         sudo apt-get install python3-sphinx
-        sphinx-apidoc -f -t doc/template -o doc/source pathaia
+        sphinx-apidoc -f -t doc/template/ -o doc/source/ pathaia
 
     - uses: ammaraskar/sphinx-action@0.4
       with:
-        pre-build-command: python -m pip install sphinx_rtd_theme
+        pre-build-command: python -m pip install sphinx_rtd_theme sphinx-autodoc-typehints
         docs-folder: "doc/"
 
     - uses: actions/upload-artifact@v1
