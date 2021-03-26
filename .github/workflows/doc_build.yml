@@ -10,7 +10,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - run: |
-        apt-get install python3-sphinx
+        sudo apt-get install python3-sphinx
         sphinx-apidoc -f -t doc/template -o doc/source pathaia
 
     - uses: ammaraskar/sphinx-action@0.4
