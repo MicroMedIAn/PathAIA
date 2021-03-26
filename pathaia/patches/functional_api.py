@@ -11,7 +11,7 @@ import openslide
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid, get_coords_from_mask
 from ..util.basic import ifnone
-from ..utils.types import Filter, FilterList, PathLike, Slide, Patch, NDImage, NDMask
+from ..utils.types import Filter, FilterList, PathLike, Patch, NDImage, NDMask
 from .visu import preview_from_queries
 from .filters import (
     filter_hasdapi,
@@ -84,7 +84,7 @@ def apply_slide_filters(thumb: NDImage, filters: Sequence[Filter]) -> NDMask:
 
 
 def slide_rois(
-    slide: Slide,
+    slide: openslide.OpenSlide,
     level: int,
     psize: int,
     interval: Dict[str, int],
