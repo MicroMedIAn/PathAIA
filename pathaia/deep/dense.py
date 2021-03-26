@@ -7,10 +7,13 @@ inference on image datasets.
 from sklearn.cluster import MiniBatchKMeans, KMeans
 from ..util.images import images_in_folder, sample_img_sep_channels, sample_img
 from ..util.paths import dataset2folders
+from ..util.types import NDImageBatch, NDBoolMaskBatch, PathLike
 from matplotlib import pyplot as plt
 import numpy
 import os
 import json
+from typing import Set, Optional, Union, Any, List, Sequence
+from nptyping import NDArray
 
 
 class Vocabulary(object):
@@ -22,12 +25,15 @@ class Vocabulary(object):
     """
 
     def __init__(
-        self, context, size, level, img_per_slide, ptc_per_img, dataset_len, n_channels
+        self,
+        context: int,
+        size: int,
+        level: int,
+        img_per_slide: int,
+        ptc_per_img: int,
+        dataset_len: int,
+        n_channels: int,
     ):
-        """Initialize the Vocabulary object.
-
-        Set the context and the n_words attributes.
-        """
         self._context = context
         self._n_words = size
         self._level = level
@@ -41,45 +47,40 @@ class Vocabulary(object):
         self._annotations = dict()
 
     @property
-    def training_slides(self):
-        """Set of str: IDs of the slides used for training.
-
+    def training_slides(self) -> Set[str]:
+        """
         The set of slides used to obtain the centroids of the model.
 
         """
         return self._training_slides
 
     @property
-    def context(self):
-        """int: Size of words in pixels.
-
-        The side of a patch-word.
+    def context(self) -> int:
+        """
+        The size of a patch-word.
 
         """
         return self._context
 
     @property
-    def level(self):
-        """int: Level to extract patches.
-
+    def level(self) -> int:
+        """
         The pyramid level (magnification) at which extract patches in slide.
 
         """
         return self._level
 
     @property
-    def n_words(self):
-        """int: Size of the Vocabulary.
-
+    def n_words(self) -> int:
+        """
         The number of words, i.e. centroids.
 
         """
         return self._n_words
 
     @property
-    def img_per_slide(self):
-        """int: images to take per slide.
-
+    def img_per_slide(self) -> int:
+        """
         The number of 'big' images to take into account
         to fit on a single slide.
 
@@ -87,9 +88,8 @@ class Vocabulary(object):
         return self._img_per_slide
 
     @property
-    def ptc_per_img(self):
-        """int: patches to take per image.
-
+    def ptc_per_img(self) -> int:
+        """
         The number of 'small' images to extract from a 'big'
         image in a slide.
 
@@ -97,21 +97,20 @@ class Vocabulary(object):
         return self._ptc_per_img
 
     @property
-    def n_channels(self):
-        """int: number of channels in images.
-
+    def n_channels(self) -> int:
+        """
         The number of channels in the images we fit on.
 
         """
         return self._n_channels
 
-    def fit_on_imbatch(self, batch, mask_batch=None):
+    def fit_on_imbatch(self, batch: NDImageBatch, mask_batch: NDBoolMaskBatch = None):
         """Partial fit of the k-means model used as Vocabulary.
 
         Fit the k-means clf on a new batch of data.
 
         Args:
-            batch (ndarray): batch of big images to fit on.
+            batch: batch of big images to fit on.
 
         """
         ptcs = []
@@ -123,27 +122,29 @@ class Vocabulary(object):
                 ptcs += sample_img(img, self._context, self._ptc_per_img, msk)
         self._clf.partial_fit(ptcs)
 
-    def predict(self, batch, fuzzy=False):
+    def predict(
+        self, batch: NDArray[(Any, Any), float], fuzzy: bool = False
+    ) -> Union[NDArray[(Any,), int], NDArray[(Any, Any), int]]:
         """Predict with the k-means model.
 
         Predict with the k-means clf on a new batch of data.
 
         Args:
-            batch (ndarray): batch of flattened patches to predict.
+            batch: batch of flattened patches to predict.
 
         Returns:
-            ndarray: predictions on batch of data.
+            Predictions on batch of data.
 
         """
         if fuzzy:
             return self._clf.transform(batch)
         return self._clf.predict(batch)
 
-    def fit_on_slide(self, slide_ptc_folder):
+    def fit_on_slide(self, slide_ptc_folder: PathLike):
         """Fit Vocabulary on a single slide batch.
 
         Args:
-            slide_ptc_folder (str): path to an image folder.
+            slide_ptc_folder: path to an image folder.
 
         """
         batch = []
@@ -153,13 +154,15 @@ class Vocabulary(object):
             batch.append(img)
         self.fit_on_imbatch(batch)
 
-    def fit_on_dataset(self, dataset_folder, verbose, outfolder=None):
+    def fit_on_dataset(
+        self, dataset_folder: PathLike, verbose: int, outfolder: Optional[PathLike] = None
+    ):
         """Fit vocabulary on several batches taken from several slides.
 
         Args:
-            dataset_folder (str): path to a pathaia dataset folder.
-            level (int): pyramid level at which extract patches.
-            verbose (int): degree of console output while fitting.
+            dataset_folder: path to a pathaia dataset folder.
+            level: pyramid level at which extract patches.
+            verbose: degree of console output while fitting.
 
         """
         slide2folder = dataset2folders(
@@ -217,13 +220,13 @@ class Vocabulary(object):
                 )
             )
 
-    def to_json(self, filepath):
+    def to_json(self, filepath: PathLike):
         """Save vocabulary parameters to a json file.
 
         Put parameters to a dictionary and save it into a json file.
 
         Args:
-            filepath (str): path to a json file to write.
+            filepath: path to a json file to write.
 
         """
         output_dict = dict()
@@ -241,13 +244,13 @@ class Vocabulary(object):
         with open(filepath, "w") as outputjson:
             outputjson.write(json_txt)
 
-    def from_json(self, filepath):
+    def from_json(self, filepath: PathLike):
         """Load vocabulary from json.
 
         Read json as a dictionary and put params in object's attributes.
 
         Args:
-            filepath (str): path to a json file to read.
+            filepath: path to a json file to read.
 
         """
         with open(filepath, "r") as inputjson:
@@ -281,12 +284,15 @@ class SepChannelsVocabulary(object):
     """
 
     def __init__(
-        self, context, size, level, img_per_slide, ptc_per_img, dataset_len, n_channels
+        self,
+        context: int,
+        size: int,
+        level: int,
+        img_per_slide: int,
+        ptc_per_img: int,
+        dataset_len: int,
+        n_channels: int,
     ):
-        """Initialize the Vocabulary object.
-
-        Set the context and the n_words attributes.
-        """
         self._context = context
         self._n_words = size
         self._level = level
@@ -302,45 +308,40 @@ class SepChannelsVocabulary(object):
         self._training_slides = set()
 
     @property
-    def training_slides(self):
-        """Set of str: IDs of the slides used for training.
-
+    def training_slides(self) -> Set[str]:
+        """
         The set of slides used to obtain the centroids of the model.
 
         """
         return self._training_slides
 
     @property
-    def context(self):
-        """int: Size of words in pixels.
-
+    def context(self) -> int:
+        """
         The side of a patch-word.
 
         """
         return self._context
 
     @property
-    def level(self):
-        """int: Level to extract patches.
-
+    def level(self) -> int:
+        """
         The pyramid level (magnification) at which extract patches in slide.
 
         """
         return self._level
 
     @property
-    def n_words(self):
-        """int: Size of the Vocabulary.
-
+    def n_words(self) -> int:
+        """
         The number of words, i.e. centroids.
 
         """
         return self._n_words
 
     @property
-    def img_per_slide(self):
-        """int: images to take per slide.
-
+    def img_per_slide(self) -> int:
+        """
         The number of 'big' images to take into account
         to fit on a single slide.
 
@@ -348,9 +349,8 @@ class SepChannelsVocabulary(object):
         return self._img_per_slide
 
     @property
-    def ptc_per_img(self):
-        """int: patches to take per image.
-
+    def ptc_per_img(self) -> int:
+        """
         The number of 'small' images to extract from a 'big'
         image in a slide.
 
@@ -358,21 +358,22 @@ class SepChannelsVocabulary(object):
         return self._ptc_per_img
 
     @property
-    def n_channels(self):
-        """int: number of channels in images.
-
+    def n_channels(self) -> int:
+        """
         The number of channels in the images we fit on.
 
         """
         return self._n_channels
 
-    def fit_on_imbatch(self, batch, mask_batch=None):
+    def fit_on_imbatch(
+        self, batch: NDImageBatch, mask_batch: Optional[NDBoolMaskBatch] = None
+    ):
         """Partial fit of the k-means model used as Vocabulary.
 
         Fit the k-means clf on a new batch of data.
 
         Args:
-            batch (ndarray): batch of big images to fit on.
+            batch: batch of big images to fit on.
 
         """
         ch_ptcs = [[] for c in range(self._n_channels)]
@@ -384,16 +385,18 @@ class SepChannelsVocabulary(object):
         for clf, ptcs in zip(self._clf, ch_ptcs):
             clf.partial_fit(ptcs)
 
-    def predict(self, batch, fuzzy=False):
+    def predict(
+        self, batch: Sequence[NDArray[(Any, Any), float]], fuzzy=False
+    ) -> Union[List[NDArray[(Any,), int]], List[NDArray[(Any, Any), int]]]:
         """Predict with the k-means model.
 
         Predict with the k-means clf on a new batch of data.
 
         Args:
-            batch (list of ndarray): flattened patches to predict, one list per channel.
+            batch: flattened patches to predict, one list per channel.
 
         Returns:
-            ndarray: predictions on batch of data.
+            Predictions on batch of data.
 
         """
         preds = []
@@ -405,11 +408,11 @@ class SepChannelsVocabulary(object):
                 preds.append(clf.predict(ptcs))
         return preds
 
-    def fit_on_slide(self, slide_ptc_folder):
+    def fit_on_slide(self, slide_ptc_folder: PathLike):
         """Fit Vocabulary on a single slide batch.
 
         Args:
-            slide_ptc_folder (str): path to an image folder.
+            slide_ptc_folder: path to an image folder.
 
         """
         batch = []
@@ -419,13 +422,18 @@ class SepChannelsVocabulary(object):
             batch.append(img)
         self.fit_on_imbatch(batch)
 
-    def fit_on_dataset(self, dataset_folder, verbose, outfolder=None):
+    def fit_on_dataset(
+        self,
+        dataset_folder: PathLike,
+        verbose: int,
+        outfolder: Optional[PathLike] = None,
+    ):
         """Fit vocabulary on several batches taken from several slides.
 
         Args:
-            dataset_folder (str): path to a pathaia dataset folder.
-            level (int): pyramid level at which extract patches.
-            verbose (int): degree of console output while fitting.
+            dataset_folder: path to a pathaia dataset folder.
+            level: pyramid level at which extract patches.
+            verbose: degree of console output while fitting.
 
         """
         slide2folder = dataset2folders(
@@ -490,13 +498,13 @@ class SepChannelsVocabulary(object):
                     )
                 )
 
-    def to_json(self, filepath):
+    def to_json(self, filepath: PathLike):
         """Save vocabulary parameters to a json file.
 
         Put parameters to a dictionary and save it into a json file.
 
         Args:
-            filepath (str): path to a json file to write.
+            filepath: path to a json file to write.
 
         """
         output_dict = dict()
@@ -518,13 +526,13 @@ class SepChannelsVocabulary(object):
         with open(filepath, "w") as outputjson:
             outputjson.write(json_txt)
 
-    def from_json(self, filepath):
+    def from_json(self, filepath: PathLike):
         """Load vocabulary from json.
 
         Read json as a dictionary and put params in object's attributes.
 
         Args:
-            filepath (str): path to a json file to read.
+            filepath: path to a json file to read.
 
         """
         with open(filepath, "r") as inputjson:

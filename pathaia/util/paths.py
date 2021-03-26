@@ -91,7 +91,7 @@ def imfiles_in_folder(
 
 
 def dataset2folders(
-    projfolder: str,
+    projfolder: PathLike,
     level: int,
     randomize: bool = False,
     slide_data_lim: Optional[int] = None,
