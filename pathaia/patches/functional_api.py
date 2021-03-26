@@ -27,7 +27,7 @@ from skimage.transform import resize
 from tqdm import tqdm
 from .errors import UnknownFilterError
 from pathlib import Path
-from typing import Dict, Optional, Sequence, Tuple, Iterable
+from typing import Dict, Optional, Sequence, Tuple, Iterator
 
 
 izi_filters = {
@@ -93,7 +93,7 @@ def slide_rois(
     filters: Optional[Sequence[Filter]] = None,
     thumb_size: int = 512,
     slide_filters: Optional[Sequence[Filter]] = None,
-) -> Iterable[Tuple[Patch, NDImage]]:
+) -> Iterator[Tuple[Patch, NDImage]]:
     """
     Given a slide, a pyramid level, a patchsize in pixels, an interval in pixels
     and an offset in pixels, get patches with its coordinates.

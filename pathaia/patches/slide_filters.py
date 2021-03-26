@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from skimage.morphology import remove_small_objects
-from ..util.types import NDBoolMask, NDImage
+from ..util.types import NDBoolMask, NDByteImage
 
 
 def filter_remove_small_objects(
@@ -42,7 +42,7 @@ def filter_remove_small_objects(
     return out_mask
 
 
-def filter_thumbnail(x: NDImage) -> NDBoolMask:
+def filter_thumbnail(x: NDByteImage) -> NDBoolMask:
     """
     Computes a tissue mask from a slide thumbnail. Filters background, red pen, blue pen
     using La*b* space.

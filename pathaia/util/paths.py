@@ -6,17 +6,19 @@ import numpy
 from pathlib import Path
 from fastcore.foundation import L, setify
 import shutil
+from typing import Sequence, List, Optional, Dict
+from .types import PathLike
 
 
-def slides_in_folder(folder, extensions=(".mrxs",)):
+def slides_in_folder(folder: str, extensions: Sequence[str] = (".mrxs",)) -> List[str]:
     """
     Return slide files inside a folder for a given extension.
 
     Args:
-        folder (str): absolute path to a directory containing slides.
-        extension (list or tuple of str): file extensions of the slides.
+        folder: absolute path to a directory containing slides.
+        extension: file extensions of the slides.
     Returns:
-        list of str: list of absolute path of slide files.
+        List of absolute paths of slide files.
 
     """
     abspathlist = []
@@ -29,15 +31,15 @@ def slides_in_folder(folder, extensions=(".mrxs",)):
     return abspathlist
 
 
-def slide_basename(slidepath):
+def slide_basename(slidepath: str) -> str:
     """
     Give the basename of a slide from its absolutepath.
 
     Args:
-        slidepath (str): absolute path to a slide.
+        slidepath: absolute path to a slide.
 
     Returns:
-        basename (str): basename of the slide.
+        basename: basename of the slide.
 
     """
     base = os.path.basename(slidepath)
@@ -46,12 +48,12 @@ def slide_basename(slidepath):
 
 
 def imfiles_in_folder(
-    folder,
-    authorized=(".png", ".jpg", ".jpeg", ".tif", ".tiff"),
-    forbiden=("thumbnail",),
-    randomize=False,
-    datalim=None,
-):
+    folder: str,
+    authorized: Sequence[str] = (".png", ".jpg", ".jpeg", ".tif", ".tiff"),
+    forbiden: Sequence[str] = ("thumbnail",),
+    randomize: bool = False,
+    datalim: Optional[int] = None,
+) -> List[str]:
     """
     Get image files in a given folder.
 
@@ -59,14 +61,14 @@ def imfiles_in_folder(
     from the research.
 
     Args:
-        folder (str): absolute path to an image directory.
-        authorized (list or tuple): authorized image file extensions.
-        forbiden (list or tuple): non-authorized words in file names.
-        randomize (bool): whether to randomize output list of files.
-        datalim (int or None): maximum number of file to extract in folder.
+        folder: absolute path to an image directory.
+        authorized: authorized image file extensions.
+        forbiden: non-authorized words in file names.
+        randomize: whether to randomize output list of files.
+        datalim: maximum number of file to extract in folder.
 
     Returns:
-        list of str: absolute paths of image files in folder.
+        Absolute paths of image files in folder.
 
     """
     imfiles = []
@@ -88,7 +90,12 @@ def imfiles_in_folder(
     return imfiles
 
 
-def dataset2folders(projfolder, level, randomize=False, slide_data_lim=None):
+def dataset2folders(
+    projfolder: str,
+    level: int,
+    randomize: bool = False,
+    slide_data_lim: Optional[int] = None,
+) -> Dict[str, str]:
     """
     Link slidenames to their pathaia patch folder.
 
@@ -96,13 +103,13 @@ def dataset2folders(projfolder, level, randomize=False, slide_data_lim=None):
     to the level of patch extraction.
 
     Args:
-        projfolder (str): absolute path to a pathaia project folder.
-        level (int): pyramid level of patch extraction to consider.
-        randomize (bool): whether to randomize output list of slides.
-        slide_data_lim (int or None): number of slides to consider in project.
+        projfolder: absolute path to a pathaia project folder.
+        level: pyramid level of patch extraction to consider.
+        randomize: whether to randomize output list of slides.
+        slide_data_lim: number of slides to consider in project.
 
     Returns:
-        dict: slidenames are keys, absolute path to patch dir are values.
+        Dictionary mapping slidenames and absolute paths to patch dirs.
 
     """
     slide2folder = dict()
@@ -132,19 +139,25 @@ def _get_files(p, fs, extensions=None):
     return res
 
 
-def get_files(path, extensions=None, recurse=True, folders=None, followlinks=True):
+def get_files(
+    path: PathLike,
+    extensions: Optional[Sequence[str]] = None,
+    recurse: bool = True,
+    folders: Optional[Sequence[str]] = None,
+    followlinks: bool = True,
+) -> List[Path]:
     """
     Find all files in a folder recursively.
 
     Arguments:
-        path (str): Path to input folder.
-        extensions (list of str): list of acceptable file extensions.
-        recurse (bool): whether to perform a recursive search or not.
-        folders (list of str): direct subfolders to explore (if None explore all).
-        followlinks (bool): whether to follow symlinks or not.
+        path: Path to input folder.
+        extensions: list of acceptable file extensions.
+        recurse: whether to perform a recursive search or not.
+        folders: direct subfolders to explore (if None explore all).
+        followlinks: whether to follow symlinks or not.
 
     Returns:
-        list: list of all absolute paths to found files.
+        List of all absolute paths to found files.
     """
     path = Path(path)
     folders = L(folders)
@@ -168,16 +181,19 @@ def get_files(path, extensions=None, recurse=True, folders=None, followlinks=Tru
     return L(res)
 
 
-def safe_rmtree(path, ignore_errors=True, erase_tree=None):
+def safe_rmtree(
+    path: PathLike, ignore_errors: bool = True, erase_tree: Optional[bool] = None
+) -> bool:
     """
     Safe version of rmtree that asks for permission before deleting.
 
     Arguments:
-        path (bytes): path to folder to be deleted.
-        ignore_error (bool): whether to ignore errors or not.
+        path: path to folder to be deleted.
+        ignore_error: whether to ignore errors or not.
+        erase_tree: whether to remove tree or not. If None asks for permission.
 
     Returns:
-        bool: True if erase_tree==True or if user gave permission.
+        True if erase_tree==True or if user gave permission.
     """
     response = ""
     if erase_tree is None:

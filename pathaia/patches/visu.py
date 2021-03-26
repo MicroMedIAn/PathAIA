@@ -5,7 +5,7 @@ import numpy
 from skimage.morphology import binary_dilation, disk
 import openslide
 from typing import Sequence, Tuple
-from ..util.types import Patch, NDImage
+from ..util.types import Patch, NDByteImage
 
 
 def preview_from_queries(
@@ -14,7 +14,7 @@ def preview_from_queries(
     level_preview: int = -1,
     color: Tuple[int, int, int] = (255, 255, 0),
     thickness: int = 3,
-) -> NDImage:
+) -> NDByteImage:
     """
     Give thumbnail with patches displayed.
 

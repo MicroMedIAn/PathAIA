@@ -3,7 +3,7 @@
 from skimage.color import rgb2lab
 import numpy
 from typing import Dict, Sequence, Union
-from ..util.types import Filter, FilterList, NDImage, NDBoolMask
+from ..util.types import Filter, FilterList, NDByteImage, NDBoolMask
 
 
 class Error(Exception):
@@ -61,7 +61,7 @@ def standardize_filters(
     return level_filters
 
 
-def filter_hasdapi(image: NDImage, dapi_channel: int = 0, tolerance: int = 1) -> bool:
+def filter_hasdapi(image: NDByteImage, dapi_channel: int = 0, tolerance: int = 1) -> bool:
     """
     Give presence of dapi in a patch.
 
@@ -77,7 +77,7 @@ def filter_hasdapi(image: NDImage, dapi_channel: int = 0, tolerance: int = 1) ->
 
 
 def filter_has_significant_dapi(
-    image: NDImage,
+    image: NDByteImage,
     dapi_channel: int = 0,
     tolerance: float = 0.5,
     dapi_tolerance: int = 1,
@@ -100,7 +100,7 @@ def filter_has_significant_dapi(
 
 
 def get_tissue_from_rgb(
-    image: NDImage, blacktol: Union[float, int] = 0, whitetol: Union[float, int] = 230,
+    image: NDByteImage, blacktol: Union[float, int] = 0, whitetol: Union[float, int] = 230,
 ) -> NDBoolMask:
     """
     Return the tissue mask segmentation of an image.
@@ -128,7 +128,7 @@ def get_tissue_from_rgb(
 
 
 def get_tissue_from_lab(
-    image: NDImage, blacktol: Union[float, int] = 5, whitetol: Union[float, int] = 90,
+    image: NDByteImage, blacktol: Union[float, int] = 5, whitetol: Union[float, int] = 90,
 ) -> NDBoolMask:
     """
     Get the tissue mask segmentation of an image.
@@ -152,7 +152,7 @@ def get_tissue_from_lab(
 
 
 def get_tissue(
-    image: NDImage,
+    image: NDByteImage,
     blacktol: Union[float, int] = 5,
     whitetol: Union[float, int] = 90,
     method: str = "lab",
@@ -181,7 +181,7 @@ def get_tissue(
 
 
 def filter_has_tissue_he(
-    image: NDImage, blacktol: Union[float, int] = 5, whitetol: Union[float, int] = 90
+    image: NDByteImage, blacktol: Union[float, int] = 5, whitetol: Union[float, int] = 90
 ) -> bool:
     """
     Return true if tissue inside the patch.
