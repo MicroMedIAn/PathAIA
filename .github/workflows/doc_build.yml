@@ -11,13 +11,13 @@ jobs:
 
     - name: Update doc source
       run: |
-        sudo apt-get install python3-sphinx
+        sudo apt-get update && sudo apt-get install python3-sphinx
         sphinx-apidoc -f --templatedir=doc/template/ -o doc/source/ pathaia/
       shell: bash
 
     - uses: ammaraskar/sphinx-action@0.4
       with:
-        pre-build-command: python -m pip install sphinx_rtd_theme sphinx-autodoc-typehints
+        pre-build-command: python -m pip install sphinx-rtd-theme sphinx-autodoc-typehints
         docs-folder: "doc/"
 
     - uses: actions/upload-artifact@v1
