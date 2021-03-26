@@ -5,13 +5,13 @@ on:
 
 jobs:
   docs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v1
 
     - name: Update doc source
       run: |
-        sudo apt-get update && sudo apt-get install python3-sphinx
+        sudo apt-get update && sudo apt-get install python3-sphinx=3.4
         sphinx-apidoc -f --templatedir=doc/template/ -o doc/source/ pathaia/
       shell: bash
 
