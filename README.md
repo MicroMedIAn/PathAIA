@@ -49,7 +49,7 @@ from pathaia.patches import patchify_folder_hierarchically
 ```
 
 ### Step 2: Define your extraction parameters
-You can extract at multiple pyramid levels with a hierarchical structure between oatches of different levels. You can control pretty much every extraction parameter you like, from patch size to interval between patches or filters to chose which patch to extract. You can also decide whether you want to save patches as png or just extract coordinates in csv.
+You can extract at multiple pyramid levels with a hierarchical structure between patches of different levels. You can control pretty much every extraction parameter you like, from patch size to interval between patches or filters to chose which patch to extract. You can also decide whether you want to save patches as png or just extract coordinates in csv.
 
 ```python
 infolder = "/path/to/input/slide/folder"
@@ -64,7 +64,7 @@ recurse = False
 slide_filters = "full"
 verbose = 2
 ```
-With these parameters you will find all svs slides that are directly in `infolder` and extract patch coordinates from levels 0 to 5 with a hierarchical structure. No png image will be stored as `silent` lists all levels. Patches will be contiguous with size 224 and will only be extracted from tissue zone that are determined by filtering on slide thumbnails. With `verbose=2` thumbnails of extracted areas are also stored into disk.
+With these parameters you will find all svs slides that are directly in `infolder` and extract patch coordinates from levels 0 to 5 with a hierarchical structure. No png image will be stored as `silent` lists all levels. Patches will be contiguous with size 224 and will only be extracted from tissue zone that are determined by filtering on slide thumbnails. With `verbose=2` thumbnails of extracted areas are also stored on disk.
 
 ### Step 3: Extract !
 
@@ -100,7 +100,7 @@ You can use more advanced features to work on slides, most notably using your cu
 
 ## Community
 
-The lightning community is maintained by 4 core contributors from [Institut National du Cancer de Toulouse - Oncopole](https://www.iuct-oncopole.fr/):
+The lightning community is maintained by 4 core contributors from [Institut Universitaire du Cancer de Toulouse - Oncopole](https://www.iuct-oncopole.fr/):
 * [Arnaud Abreu](https://github.com/ArnaudAbreu)
 * [Pilar Ortega](https://github.com/pilarOrtega)
 * [Robin Schwob](https://github.com/schwobr)
@@ -127,4 +127,3 @@ If you want to cite the framework feel free to use this.
   year={2021}
 }
 ```
-
