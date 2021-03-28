@@ -9,7 +9,7 @@ Draft for hierarchical patch extraction and representation is proposed.
 import os
 from typing import Dict, Optional, Sequence
 from ..util.basic import ifnone
-from ..utils.types import PathLike, Filter, FilterList
+from ..util.types import PathLike, Filter, FilterList
 from .functional_api import patchify_slide
 from .functional_api import patchify_folder
 from .functional_api import patchify_slide_hierarchically
