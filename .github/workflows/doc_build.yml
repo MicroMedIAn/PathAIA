@@ -7,9 +7,10 @@ jobs:
   docs:
     runs-on: ubuntu-20.04
     steps:
+
     - name: Install dependencies
-      run: |
-        apt-get install openslide-tools
+      run: sudo apt-get install openslide-tools
+
     - uses: actions/checkout@v1
 
     - uses: ammaraskar/sphinx-action@0.4
