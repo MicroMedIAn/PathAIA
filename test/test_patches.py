@@ -346,6 +346,11 @@ class FakeSlide(object):
         # get pil image
         return Image.fromarray(numpy_img, mode="RGBA")
 
+    def get_thumbnail(self, size):
+        """
+        """
+        return self.read_region((0, 0), 10, size)
+
 
 class TestPatchify(unittest.TestCase):
     """
@@ -356,7 +361,7 @@ class TestPatchify(unittest.TestCase):
         level = 1
         psize = 224
         interval = {"x": 224, "y": 224}
-        patch = next(slide_rois(self.slide, level, psize, interval))
+        patchinfo, image = next(slide_rois(self.slide, level, psize, interval))
         expected = {
             "id": "#1",
             "x": 0,
@@ -367,7 +372,7 @@ class TestPatchify(unittest.TestCase):
             "parent": "None"
         }
         for k, v in expected.items():
-            self.assertEqual(v, patch[k])
+            self.assertEqual(v, patchinfo[k])
 
 
 if __name__ == '__main__':
