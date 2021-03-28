@@ -8,8 +8,11 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
 
-    - name: Install dependencies
+    - name: Install openslide-tools
       run: sudo apt-get install openslide-tools
+
+    - name: Install openslide-python
+      run: sudo apt-get install python-openslide
 
     - uses: actions/checkout@v1
 
