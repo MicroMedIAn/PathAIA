@@ -1,6 +1,7 @@
 import unittest
 import numpy
 from PIL import Image
+from pathaia.patches import slide_rois
 
 HEMASK = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -344,3 +345,30 @@ class FakeSlide(object):
         numpy_img[labels == 2] = self.tissue_color
         # get pil image
         return Image.fromarray(numpy_img, mode="RGBA")
+
+
+class TestPatchify(unittest.TestCase):
+    """
+    """
+    slide = FakeSlide(name="fake_slide", staining="H&E", extension=".mrxs")
+
+    def test_slide_rois(self):
+        level = 1
+        psize = 224
+        interval = {"x": 224, "y": 224}
+        patch = next(slide_rois(self.slide, level, psize, interval))
+        expected = {
+            "id": "#1",
+            "x": 0,
+            "y": 0,
+            "level": 1,
+            "dx": 448,
+            "dy": 448,
+            "parent": "None"
+        }
+        for k, v in expected.items():
+            self.assertEqual(v, patch[k])
+
+
+if __name__ == '__main__':
+    unittest.main()
