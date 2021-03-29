@@ -29,7 +29,7 @@
 ---
 
 ## PathAIA aims to standardize and automate most of WSI analysis in digital pathology
-If you feel like you keep rewriting the same code over and over again when working on Whole Slide Images and you wish there where a nicely integrated library to automate all this, you came to the right place. With PathAIA we aim to create a fast, high level and modular library to work on WSI at scale in order to perform image analysis or to create a well rounded dataset for your machine learning project.
+If you feel like you keep rewriting the same code over and over again when working on Whole Slide Images and you wish there were a nicely integrated library to automate all this, you came to the right place. With PathAIA we aim to create a fast, high level and modular library to work on WSI at scale in order to perform image analysis or to create a well rounded dataset for your machine learning project.
 
 ---
 
