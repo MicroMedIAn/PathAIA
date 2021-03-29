@@ -1,4 +1,4 @@
-from .data import HEMASK
+from tests.data import HEMASK
 from PIL import Image
 import numpy
 from openslide import AbstractSlide
@@ -65,7 +65,6 @@ class FakeSlide(AbstractSlide):
     def associated_images(self):
         return {}
 
-    @property
     def get_best_level_for_downsample(self, downsample):
         for k in range(1, self.level_count):
             if self.level_downsamples[k] > downsample:

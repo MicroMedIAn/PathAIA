@@ -1,6 +1,6 @@
 import unittest
 from pathaia.patches import slide_rois
-from ..helpers import FakeSlide
+from tests.helpers import FakeSlide
 
 
 class TestPatchify(unittest.TestCase):
