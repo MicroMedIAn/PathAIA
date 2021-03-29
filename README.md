@@ -20,7 +20,7 @@
 [![PyPI Status](https://badge.fury.io/py/pathaia.svg)](https://badge.fury.io/py/pathaia)
 [![PyPI Status](https://pepy.tech/badge/pathaia)](https://pepy.tech/project/pathaia)
 [![codecov](https://codecov.io/gh/ArnaudAbreu/PathAIA/branch/master/graph/badge.svg?token=SE4ZX0LXN6)](https://codecov.io/gh/ArnaudAbreu/PathAIA)
-[![ReadTheDocs](https://readthedocs.org/projects/pathaia/badge/?version=stable)](https://pathaia.readthedocs.io/en/stable/)
+[![Documentation Status](https://readthedocs.org/projects/pathaia/badge/?version=latest)](https://pathaia.readthedocs.io/en/latest/?badge=latest)
 [![license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/ArnaudABreu/PathAIA/blob/master/LICENSE)
 
 </div>
