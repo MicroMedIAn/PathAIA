@@ -56,6 +56,8 @@ def filter_image(image: NDImage, filters: Sequence[Filter]) -> bool:
             if not filt(image):
                 return False
         elif type(filt) == str:
+            if filt not in izi_filters:
+                raise UnknownFilterError("{} is not a valid filter !!!".format(filt))
             if not izi_filters[filt](image):
                 return False
         else:
