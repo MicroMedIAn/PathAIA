@@ -11,7 +11,9 @@ setup(
     install_requires=[
         "fastcore",
         "numpy",
+        "tqdm",
         "openslide-python",
+        "opencv-python",
         "scikit-image",
         "matplotlib",
         "nptyping"

@@ -11,7 +11,7 @@ import openslide
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid, get_coords_from_mask
 from ..util.basic import ifnone
-from ..utils.types import Filter, FilterList, PathLike, Patch, NDImage, NDMask
+from ..util.types import Filter, FilterList, PathLike, Patch, NDImage, NDBoolMask
 from .visu import preview_from_queries
 from .filters import (
     filter_hasdapi,
@@ -63,7 +63,7 @@ def filter_image(image: NDImage, filters: Sequence[Filter]) -> bool:
     return True
 
 
-def apply_slide_filters(thumb: NDImage, filters: Sequence[Filter]) -> NDMask:
+def apply_slide_filters(thumb: NDImage, filters: Sequence[Filter]) -> NDBoolMask:
     """
     Apply all filters to input thumbnail. Performs logical and between output masks.
 
