@@ -80,6 +80,8 @@ def apply_slide_filters(thumb: NDImage, filters: Sequence[Filter]) -> NDBoolMask
     mask = numpy.ones(thumb.shape[:2], dtype=bool)
     for filt in filters:
         if isinstance(filt, str):
+            if filt not in slide_filters:
+                raise UnknownFilterError("{} is not a valid filter !!!".format(filt))
             filt = slide_filters[filt]
         mask = mask & filt(thumb)
     return mask
