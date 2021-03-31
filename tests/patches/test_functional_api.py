@@ -42,7 +42,7 @@ def test_apply_slide_filters():
         return numpy.ones(x.shape[:2], dtype=bool)
 
     def always_false(x):
-        return numpy.ones(x.shape[:2], dtype=bool)
+        return numpy.zeros(x.shape[:2], dtype=bool)
 
     slide_filters["true"] = always_true
     slide_filters["false"] = always_false
