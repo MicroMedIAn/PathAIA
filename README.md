@@ -3,7 +3,7 @@
 # PathAIA
 
 
-**Simple digital patghology analysis tools.**
+**Simple digital pathology analysis tools.**
 
 ---
 
