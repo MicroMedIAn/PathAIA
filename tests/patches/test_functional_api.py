@@ -5,6 +5,7 @@ from pathaia.patches import (
     apply_slide_filters,
     slide_rois,
     UnknownFilterError,
+    Patch,
 )
 from tests.helpers import FakeSlide
 import numpy
@@ -67,31 +68,29 @@ def test_slide_rois():
     level = 1
     psize = 224
     interval = (224, 224)
-    patchinfo, image = next(slide_rois(slide, level, psize, interval))
-    expected = {
-        "id": "#1",
-        "x": 0,
-        "y": 0,
-        "level": 1,
-        "dx": 448,
-        "dy": 448,
-        "parent": "None",
-    }
-    for k, v in expected.items():
-        assert v == patchinfo[k]
+    dsr = slide.level_downsamples[level]
+    patch, image = next(slide_rois(slide, level, psize, interval))
+    expected = Patch(
+        id="#1",
+        slidename=slide._filename,
+        position=(0, 0),
+        level=1,
+        size=(psize, psize),
+        size_0=(int(psize * dsr), int(psize * dsr)),
+    )
+    assert patch == expected
 
     ancestors = [expected]
-    patchinfo, image = next(
-        slide_rois(slide, level - 1, psize, interval, ancestors=ancestors)
+    level -= 1
+    dsr = slide.level_downsamples[level]
+    patch, image = next(slide_rois(slide, level, psize, interval, ancestors=ancestors))
+    expected = Patch(
+        id="#1#1",
+        slidename=slide._filename,
+        position=(0, 0),
+        level=0,
+        size=(psize, psize),
+        size_0=(int(psize * dsr), int(psize * dsr)),
+        parent=ancestors[0],
     )
-    expected = {
-        "id": "#1#1",
-        "x": 0,
-        "y": 0,
-        "level": 0,
-        "dx": 224,
-        "dy": 224,
-        "parent": "#1",
-    }
-    for k, v in expected.items():
-        assert v == patchinfo[k]
+    assert patch == expected

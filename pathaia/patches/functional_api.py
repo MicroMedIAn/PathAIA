@@ -11,7 +11,7 @@ import openslide
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid, get_coords_from_mask
 from ..util.basic import ifnone
-from ..util.types import Filter, FilterList, PathLike, Patch, NDImage, NDBoolMask, Coord
+from ..util.types import Filter, FilterList, PathLike, NDImage, NDBoolMask, Coord, Patch
 from .visu import preview_from_queries
 from .filters import (
     filter_hasdapi,
@@ -113,23 +113,8 @@ def slide_rois(
         slide_filters: list of filters to apply to thumbnail. Should output boolean mask.
 
     Yields:
-        A tuple containing a dict describing a patch and the corresponding image as
-        ndarray. The dict contains the patch's id, ancestor's id if relevant,
-        coordinates (at level 0), level and size (at level 0).
-
-    Example::
-        >>> level = 1
-        >>> psize = 224
-        >>> interval = {"x": 224, "y": 224}
-        >>> next(slide_rois(slide, level, psize, interval))
-        "id": "#1",
-        "x": 0,
-        "y": 0,
-        "level": 1,
-        "dx": 448,
-        "dy": 448,
-        "parent": "None"
-
+        A tuple containing a Patch object and the corresponding image as
+        ndarray.
     """
     interval = convert_coords(interval)
     offset = convert_coords(offset)
@@ -138,16 +123,16 @@ def slide_rois(
     slide_filters = ifnone(slide_filters, [])
     if len(ancestors) > 0:
         mag = slide.level_downsamples[level]
-        shape_x = round(ancestors[0]["dx"] / mag)
-        shape_y = round(ancestors[0]["dy"] / mag)
+        shape_x = round(ancestors[0].size_0[0] / mag)
+        shape_y = round(ancestors[0].size_0[1] / mag)
         shape = Coord(x=shape_x, y=shape_y)
         dx = int(psize * mag)
         dy = int(psize * mag)
         patches = []
         for ancestor in ancestors:
             # ancestor is a patch
-            rx, ry = ancestor["x"], ancestor["y"]
-            prefix = ancestor["id"]
+            rx, ry = ancestor.position
+            prefix = ancestor.id
             k = 0
             for patch_coord in regular_grid(shape, interval, psize):
                 k += 1
@@ -155,28 +140,26 @@ def slide_rois(
                 y = round(patch_coord[1] * mag + ry)
                 x = round(patch_coord[0] * mag + rx)
                 patches.append(
-                    {
-                        "id": idx,
-                        "x": x,
-                        "y": y,
-                        "level": level,
-                        "dx": dx,
-                        "dy": dy,
-                        "parent": prefix,
-                    }
+                    Patch(
+                        id=idx,
+                        slidename=slide._filename.split("/")[-1],
+                        position=(x, y),
+                        level=level,
+                        size=(psize, psize),
+                        size_0=(dx, dy),
+                        parent=ancestor,
+                    )
                 )
         for patch in tqdm(patches, ascii=True):
             try:
-                image = slide.read_region(
-                    (patch["x"], patch["y"]), patch["level"], (psize, psize)
-                )
+                image = slide.read_region(patch.position, patch.level, patch.size)
                 image = numpy.array(image)[:, :, 0:3]
                 if filter_image(image, filters):
                     yield patch, image
             except openslide.lowlevel.OpenSlideError:
                 print(
                     "small failure while reading tile x={}, y={} in {}".format(
-                        patch["x"], patch["y"], slide._filename
+                        *patch.position, slide._filename
                     )
                 )
     else:
@@ -196,15 +179,14 @@ def slide_rois(
                 image = slide.read_region((x, y), level, (psize, psize))
                 image = numpy.array(image)[:, :, 0:3]
                 if filter_image(image, filters):
-                    yield {
-                        "id": idx,
-                        "x": x,
-                        "y": y,
-                        "level": level,
-                        "dx": dx,
-                        "dy": dy,
-                        "parent": "None",
-                    }, image
+                    yield Patch(
+                        id=idx,
+                        slidename=slide._filename.split("/")[-1],
+                        position=(x, y),
+                        level=level,
+                        size=(psize, psize),
+                        size_0=(dx, dy),
+                    ), image
             except openslide.lowlevel.OpenSlideError:
                 print(
                     "small failure while reading tile x={}, y={} in {}".format(
@@ -282,7 +264,7 @@ def patchify_slide(
     ########################
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        for data, img in slide_rois(
+        for patch, img in slide_rois(
             slide,
             level,
             psize,
@@ -293,19 +275,19 @@ def patchify_slide(
             slide_filters=slide_filters,
         ):
             outfile = os.path.join(
-                outleveldir, "{}_{}_{}.png".format(data["x"], data["y"], data["level"])
+                outleveldir, "{}_{}_{}.png".format(*patch.position, patch.level)
             )
             imsave(outfile, img)
-            plist.append(data)
+            plist.append(patch)
     if verbose > 1:
         print("end of patchification.")
         print("starting metadata csv export...")
-    csv_columns = ["id", "parent", "level", "x", "y", "dx", "dy"]
+    csv_columns = Patch.get_fields()
     csv_path = os.path.join(slide_folder_output, "patches.csv")
     with open(csv_path, "w") as csvfile:
         writer = csv.DictWriter(csvfile, csv_columns)
         writer.writeheader()
-        writer.writerows(plist)
+        writer.writerows(map(Patch.to_csv_row, plist))
     if verbose > 1:
         print("end of metadata export.")
         print("starting thumbnail export...")
@@ -371,7 +353,7 @@ def patchify_slide_hierarchically(
             )
         os.makedirs(slide_folder_output, exist_ok=True)
 
-    csv_columns = ["id", "parent", "level", "x", "y", "dx", "dy"]
+    csv_columns = Patch.get_fields()
     csv_path = os.path.join(slide_folder_output, "patches.csv")
     slide = openslide.OpenSlide(str(slidefile))
     with open(csv_path, "w") as csvfile:
@@ -399,7 +381,7 @@ def patchify_slide_hierarchically(
             ########################
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                for data, img in slide_rois(
+                for patch, img in slide_rois(
                     slide,
                     level,
                     psize,
@@ -413,15 +395,15 @@ def patchify_slide_hierarchically(
                     if level not in silent:
                         outfile = os.path.join(
                             outleveldir,
-                            "{}_{}_{}.png".format(data["x"], data["y"], data["level"]),
+                            "{}_{}_{}.png".format(*patch.position, patch.level),
                         )
                         imsave(outfile, img)
-                    current_plist.append(data)
+                    current_plist.append(patch)
             plist = [p for p in current_plist]
             if verbose > 1:
                 print("end of patchification.")
                 print("starting metadata csv export...")
-            writer.writerows(plist)
+            writer.writerows(map(Patch.to_csv_row, plist))
             if verbose > 1:
                 print("end of metadata export.")
                 print("starting thumbnail export...")

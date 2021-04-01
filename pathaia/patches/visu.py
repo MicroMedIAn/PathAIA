@@ -5,7 +5,7 @@ import numpy
 from skimage.morphology import binary_dilation, disk
 import openslide
 from typing import Sequence, Tuple
-from ..util.types import Patch, NDByteImage
+from ..util.types import NDByteImage, Patch
 
 
 def preview_from_queries(
@@ -20,7 +20,7 @@ def preview_from_queries(
 
     Args:
         slide: openslide object
-        queries: patch queries {"x", "y", "dx", "dy", "level"}
+        queries: patch objects to preview from
         level_preview: pyramid level for preview thumbnail
         color: rgb color for patch boundaries
         thickness: thickness of patch boundaries
@@ -41,10 +41,10 @@ def preview_from_queries(
     grid = 255 * numpy.ones((image.shape[0], image.shape[1]), numpy.uint8)
     for query in queries:
         # position in queries are absolute
-        x = int(query["x"] / dsr)
-        y = int(query["y"] / dsr)
-        dx = int(query["dx"] / dsr)
-        dy = int(query["dy"] / dsr)
+        x = int(query.position[0] / dsr)
+        y = int(query.position[1] / dsr)
+        dx = int(query.size_0[0] / dsr)
+        dy = int(query.size_0[1] / dsr)
         startx = min(x, image.shape[1] - 1)
         starty = min(y, image.shape[0] - 1)
         endx = min(x + dx, image.shape[1] - 1)
