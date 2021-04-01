@@ -7,15 +7,16 @@ Draft for hierarchical patch extraction and representation is proposed.
 """
 
 import os
-from typing import Dict, Optional, Sequence
+from typing import Optional, Sequence
 from ..util.basic import ifnone
-from ..util.types import PathLike, Filter, FilterList
+from ..util.types import PathLike, Filter, FilterList, Coord
 from .functional_api import patchify_slide
 from .functional_api import patchify_folder
 from .functional_api import patchify_slide_hierarchically
 from .functional_api import patchify_folder_hierarchically
 from .filters import standardize_filters
 from .errors import UnknownLevelError
+from .compat import convert_coords
 
 
 class Patchifier(object):
@@ -39,8 +40,8 @@ class Patchifier(object):
         outdir: PathLike,
         level: int,
         psize: int,
-        interval: Dict[str, int],
-        offset: Optional[Dict[str, int]] = None,
+        interval: Coord,
+        offset: Coord = (0, 0),
         filters: Optional[Sequence[Filter]] = None,
         extensions: Optional[Sequence[str]] = None,
         verbose: int = 2,
@@ -48,8 +49,8 @@ class Patchifier(object):
         self.outdir = outdir
         self.level = level
         self.psize = psize
-        self.interval = interval
-        self.offset = ifnone(offset, {"x": 0, "y": 0})
+        self.interval = convert_coords(interval)
+        self.offset = convert_coords(offset)
         self.filters = ifnone(filters, [])
         self.verbose = verbose
         self.extensions = ifnone(extensions, (".mrxs",))
@@ -121,8 +122,8 @@ class HierarchicalPatchifier(object):
         top_level: int,
         low_level: int,
         psize: int,
-        interval: Dict[str, int],
-        offset: Optional[Dict[str, int]] = None,
+        interval: Coord,
+        offset: Coord = (0, 0),
         filters: Optional[FilterList] = None,
         silent: Optional[Sequence[int]] = None,
         extensions: Optional[Sequence[str]] = None,
@@ -132,8 +133,8 @@ class HierarchicalPatchifier(object):
         self.top_level = top_level
         self.low_level = low_level
         self.psize = psize
-        self.interval = interval
-        self.offset = ifnone(offset, {"x": 0, "y": 0})
+        self.interval = convert_coords(interval)
+        self.offset = convert_coords(offset)
         self.filters = standardize_filters(ifnone(filters, {}), top_level, low_level)
         self.verbose = verbose
         self.silent = ifnone(silent, [])

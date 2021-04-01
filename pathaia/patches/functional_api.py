@@ -11,7 +11,7 @@ import openslide
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid, get_coords_from_mask
 from ..util.basic import ifnone
-from ..util.types import Filter, FilterList, PathLike, Patch, NDImage, NDBoolMask
+from ..util.types import Filter, FilterList, PathLike, Patch, NDImage, NDBoolMask, Coord
 from .visu import preview_from_queries
 from .filters import (
     filter_hasdapi,
@@ -20,14 +20,13 @@ from .filters import (
     standardize_filters,
 )
 from .slide_filters import filter_thumbnail
+from .compat import convert_coords
 import os
 import csv
 from skimage.io import imsave
-from skimage.transform import resize
 from tqdm import tqdm
 from .errors import UnknownFilterError
-from pathlib import Path
-from typing import Dict, Optional, Sequence, Tuple, Iterator
+from typing import Optional, Sequence, Tuple, Iterator
 
 
 izi_filters = {
@@ -91,9 +90,9 @@ def slide_rois(
     slide: openslide.OpenSlide,
     level: int,
     psize: int,
-    interval: Dict[str, int],
+    interval: Coord,
     ancestors: Optional[Sequence[Patch]] = None,
-    offset: Optional[Sequence[Dict[str, int]]] = None,
+    offset: Coord = (0, 0),
     filters: Optional[Sequence[Filter]] = None,
     thumb_size: int = 512,
     slide_filters: Optional[Sequence[Filter]] = None,
@@ -106,9 +105,9 @@ def slide_rois(
         slide: the slide to patchify.
         level: pyramid level.
         psize: size of the side of the patch (in pixels).
-        interval: {"x", "y"} interval between 2 neighboring patches.
+        interval: (x, y) interval between 2 neighboring patches.
         ancestors: patches that contain upcoming patches.
-        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        offset: (x, y) offset in px on x and y axis for patch start.
         filters: filters to accept patches.
         thumb_size: size of thumbnail's longest side. Always preserves aspect ratio.
         slide_filters: list of filters to apply to thumbnail. Should output boolean mask.
@@ -132,15 +131,16 @@ def slide_rois(
         "parent": "None"
 
     """
+    interval = convert_coords(interval)
+    offset = convert_coords(offset)
     ancestors = ifnone(ancestors, [])
-    offset = ifnone(offset, {"x": 0, "y": 0})
     filters = ifnone(filters, [])
     slide_filters = ifnone(slide_filters, [])
     if len(ancestors) > 0:
         mag = slide.level_downsamples[level]
-        shape = dict()
-        shape["x"] = round(ancestors[0]["dx"] / mag)
-        shape["y"] = round(ancestors[0]["dy"] / mag)
+        shape_x = round(ancestors[0]["dx"] / mag)
+        shape_y = round(ancestors[0]["dy"] / mag)
+        shape = Coord(x=shape_x, y=shape_y)
         dx = int(psize * mag)
         dy = int(psize * mag)
         patches = []
@@ -149,11 +149,11 @@ def slide_rois(
             rx, ry = ancestor["x"], ancestor["y"]
             prefix = ancestor["id"]
             k = 0
-            for patch in regular_grid(shape, interval, psize):
+            for patch_coord in regular_grid(shape, interval, psize):
                 k += 1
                 idx = "{}#{}".format(prefix, k)
-                y = round(patch["y"] * mag + ry)
-                x = round(patch["x"] * mag + rx)
+                y = round(patch_coord[1] * mag + ry)
+                x = round(patch_coord[0] * mag + rx)
                 patches.append(
                     {
                         "id": idx,
@@ -180,17 +180,16 @@ def slide_rois(
                     )
                 )
     else:
-        shape = dict()
-        shape["x"], shape["y"] = slide.level_dimensions[level]
+        shape = Coord(*slide.level_dimensions[level])
         mag = slide.level_downsamples[level]
         thumb = numpy.array(slide.get_thumbnail((thumb_size, thumb_size)))
         mask = apply_slide_filters(thumb, slide_filters)
         k = 0
-        for patch in get_coords_from_mask(mask, shape, interval, psize):
+        for patch_coord in get_coords_from_mask(mask, shape, interval, psize):
             k += 1
             idx = "#{}".format(k)
-            y = round(patch["y"] * mag + offset["y"])
-            x = round(patch["x"] * mag + offset["x"])
+            y = round(patch_coord[1] * mag + offset[1])
+            x = round(patch_coord[0] * mag + offset[0])
             dx = round(psize * mag)
             dy = round(psize * mag)
             try:
@@ -219,8 +218,8 @@ def patchify_slide(
     outdir: PathLike,
     level: int,
     psize: int,
-    interval: Dict[str, int],
-    offset: Optional[Dict[str, int]] = None,
+    interval: Coord,
+    offset: Coord = (0, 0),
     filters: Optional[Sequence[Filter]] = None,
     erase_tree: Optional[bool] = None,
     thumb_size: int = 512,
@@ -235,8 +234,8 @@ def patchify_slide(
         outdir: abs path to an output folder.
         level: pyramid level.
         psize: size of the side of the patches (in pixels).
-        interval: {"x", "y"} interval between 2 neighboring patches.
-        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        interval: (x, y) interval between 2 neighboring patches.
+        offset: (x, y) offset in px on x and y axis for patch start.
         filters: filters to accept patches.
         erase_tree: whether to erase outfolder if it exists. If None, user will be
             prompted for a choice.
@@ -247,7 +246,8 @@ def patchify_slide(
             processes, thumbnail export.
 
     """
-    offset = ifnone(offset, {"x": 0, "y": 0})
+    interval = convert_coords(interval)
+    offset = convert_coords(offset)
     filters = ifnone(filters, [])
     # Get name of the slide
     slide_id = slide_basename(slidefile)
@@ -321,8 +321,8 @@ def patchify_slide_hierarchically(
     top_level: int,
     low_level: int,
     psize: int,
-    interval: Dict[str, int],
-    offset: Optional[Dict[str, int]] = None,
+    interval: Coord,
+    offset: Coord = (0, 0),
     filters: Optional[FilterList] = None,
     silent: Optional[Sequence[int]] = None,
     erase_tree: Optional[bool] = None,
@@ -339,8 +339,8 @@ def patchify_slide_hierarchically(
         top_level: top pyramid level to consider.
         low_level: lowest pyramid level to consider.
         psize: size of the side of the patches (in pixels).
-        interval: {"x", "y"} interval between 2 neighboring patches.
-        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        interval: (x, y) interval between 2 neighboring patches.
+        offset: (x, y) offset in px on x and y axis for patch start.
         filters: filters to accept patches.
         silent: pyramid level not to output.
         erase_tree: whether to erase outfolder if it exists. If None, user will be
@@ -352,7 +352,8 @@ def patchify_slide_hierarchically(
             thumbnail export.
 
     """
-    offset = ifnone(offset, {"x": 0, "y": 0})
+    interval = convert_coords(interval)
+    offset = convert_coords(offset)
     filters = ifnone(filters, {})
     silent = ifnone(silent, [])
     level_filters = standardize_filters(filters, top_level, low_level)
@@ -435,8 +436,8 @@ def patchify_folder(
     outfolder: str,
     level: int,
     psize: int,
-    interval: Dict[str, int],
-    offset: Optional[Dict[str, int]] = None,
+    interval: Coord,
+    offset: Coord = (0, 0),
     filters: Optional[Sequence[Filter]] = None,
     extensions: Sequence[str] = (".mrxs",),
     recurse: bool = False,
@@ -454,8 +455,8 @@ def patchify_folder(
         outfolder: abs path to an output folder.
         level: pyramid level.
         psize: size of the side of the patches (in pixels).
-        interval: {"x", "y"} interval between 2 neighboring patches.
-        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        interval: (x, y) interval between 2 neighboring patches.
+        offset: (x, y) offset in px on x and y axis for patch start.
         filters: filters to accept patches.
         extensions: list of file extensions to consider. Defaults to '.mrxs'.
         recurse: whether to look for files recursively.
@@ -471,7 +472,8 @@ def patchify_folder(
     """
     if os.path.isdir(outfolder):
         erase_tree = safe_rmtree(outfolder, ignore_errors=True, erase_tree=erase_tree)
-    offset = ifnone(offset, {"x": 0, "y": 0})
+    interval = convert_coords(interval)
+    offset = convert_coords(offset)
     filters = ifnone(filters, [])
     slidefiles = get_files(
         infolder, extensions=extensions, recurse=recurse, folders=folders
@@ -516,8 +518,8 @@ def patchify_folder_hierarchically(
     top_level: int,
     low_level: int,
     psize: int,
-    interval: Dict[str, int],
-    offset: Optional[Dict[str, int]] = None,
+    interval: Coord,
+    offset: Coord = (0, 0),
     filters: Optional[FilterList] = None,
     silent: Optional[Sequence[int]] = None,
     extensions: Sequence[str] = (".mrxs",),
@@ -537,8 +539,8 @@ def patchify_folder_hierarchically(
         top_level: top pyramid level to consider.
         low_level: lowest pyramid level to consider.
         psize: size of the side of the patches (in pixels).
-        interval: {"x", "y"} interval between 2 neighboring patches.
-        offset: {"x", "y"} offset in px on x and y axis for patch start.
+        interval: (x, y) interval between 2 neighboring patches.
+        offset: (x, y) offset in px on x and y axis for patch start.
         filters: filters to accept patches.
         silent: pyramid level not to output.
         extensions: list of file extensions to consider. Defaults to '.mrxs'.
@@ -552,7 +554,8 @@ def patchify_folder_hierarchically(
     """
     if os.path.isdir(outfolder):
         erase_tree = safe_rmtree(outfolder, ignore_errors=True, erase_tree=erase_tree)
-    offset = ifnone(offset, {"x": 0, "y": 0})
+    interval = convert_coords(interval)
+    offset = convert_coords(offset)
     filters = ifnone(filters, {})
     silent = ifnone(silent, [])
     slidefiles = get_files(
@@ -590,84 +593,3 @@ def patchify_folder_hierarchically(
             openslide.lowlevel.OpenSlideError,
         ) as e:
             warnings.warn(str(e))
-
-
-def extract_tissue_patch_coords(
-    infolder: PathLike,
-    outfolder: PathLike,
-    level: int,
-    psize: int,
-    interval: Dict[str, int],
-    thumb_size: int = 512,
-    extensions: Sequence[str] = (".mrxs",),
-    recurse: bool = True,
-    folders: Optional[Sequence[str]] = None,
-    erase_tree: Optional[bool] = None,
-    filters: Optional[Sequence[Filter]] = None,
-    save_thumbs: bool = False,
-):
-    """
-    Extracts all patch coordinates that contain tissue at aspecific level from WSI files
-    in a folder and stores them in csvs. Foreground is evaluated using otsu thresholding.
-
-    Args:
-        infolder: abs path to a folder of slides.
-        outfolder: abs path to a folder to stroe output csv files.
-        level: pyramid level to consider.
-        psize: size of the side of the patches (in pixels).
-        interval: {"x", "y"} interval between 2 neighboring patches.
-        thumb_size: size of thumbnail's longest side. Always preserves aspect ratio.
-        extensions: list of file extensions to consider. Defaults to '.mrxs'.
-        recurse: whether to look for files recursively.
-        folders: list of subfolders to explore when recurse is True. Defaults to all.
-        erase_tree: whether to erase outfolder if it exists. If None, user will be prompted for a choice.
-        filters: list of filters to apply to thumbnail. Should output boolean mask.
-        save_thumbs: save masked thumbnails of extracted zones.
-    """
-    outfolder = Path(outfolder)
-    if outfolder.is_dir():
-        erase_tree = safe_rmtree(outfolder, ignore_errors=True, erase_tree=erase_tree)
-    outfolder.mkdir(parents=True, exist_ok=True)
-    if save_thumbs:
-        thumbfolder = outfolder / "thumbnails"
-        thumbfolder.mkdir()
-    overlap_size = psize - interval
-    files = get_files(infolder, extensions=extensions, recurse=recurse, folders=folders)
-    filters = ifnone(filters, [])
-
-    for file in files:
-        print(file.stem)
-        slide = openslide.OpenSlide(str(file))
-        dsr = int(slide.level_downsamples[level])
-        psize_0 = dsr * psize
-        w, h = slide.dimensions
-
-        thumb = numpy.array(slide.get_thumbnail((thumb_size, thumb_size)))
-        mask = apply_slide_filters(thumb, filters)
-        if save_thumbs:
-            imsave(thumbfolder / f"{file.stem}.png", mask[..., None] * thumb)
-        mask_w = int((w / dsr - overlap_size) / interval)
-        mask_h = int((h / dsr - overlap_size) / interval)
-        mask = resize(mask, (mask_h, mask_w))
-
-        outfile = (outfolder / file.relative_to(infolder)).with_suffix(".csv")
-        if not outfile.parent.exists():
-            outfile.parent.mkdir(parents=True)
-
-        with open(outfile, "w") as f:
-            writer = csv.DictWriter(f, ["id", "parent", "level", "x", "y", "dx", "dy"])
-            writer.writeheader()
-            for k, (y, x) in enumerate(numpy.argwhere(mask)):
-                x = x * interval * dsr
-                y = y * interval * dsr
-                writer.writerow(
-                    {
-                        "id": f"#{k}",
-                        "level": level,
-                        "x": x,
-                        "y": y,
-                        "dx": psize_0,
-                        "dy": psize_0,
-                        "parent": "None",
-                    }
-                )

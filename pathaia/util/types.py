@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Sequence, Union
+from typing import Any, Callable, Dict, Sequence, Union, NamedTuple
 from nptyping import NDArray
 import os
 import numpy
@@ -7,6 +7,12 @@ Filter = Sequence[Union[str, Callable]]
 FilterList = Union[str, Sequence[Filter], Dict[int, Sequence[Filter]]]
 PathLike = Union[str, os.PathLike]
 Patch = Dict[str, Union[str, int]]
+
+
+class Coord(NamedTuple):
+    x: int
+    y: int
+
 
 NDByteImage = NDArray[(Any, Any, 3), numpy.uint8]
 NDFloat32Image = NDArray[(Any, Any, 3), numpy.float32]

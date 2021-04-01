@@ -4,61 +4,57 @@ import numpy
 from skimage.io import imread
 from skimage.transform import resize
 from .paths import imfiles_in_folder
-from .types import NDBoolMask, PathLike, NDImage, NDByteImage
+from .types import NDBoolMask, PathLike, NDImage, NDByteImage, Coord
 import itertools
-from typing import Dict, Iterator, List, Tuple, Sequence, Optional, Union, Any
+from typing import Iterator, List, Tuple, Sequence, Optional, Union, Any
 from nptyping import NDArray
 
 
-def regular_grid(
-    shape: Dict[str, int], step: Dict[str, int], psize: int
-) -> Iterator[Dict[str, int]]:
+def regular_grid(shape: Coord, interval: Coord, psize: int) -> Iterator[Coord]:
     """
     Get a regular grid of position on a slide given its dimensions.
 
     Arguments:
-        shape: {"x", "y"} shape of the window to tile.
-        step: {"x", "y"} steps between patch samples.
+        shape: (x, y) shape of the window to tile.
+        interval: (x, y) steps between patch samples.
         psize: size of the side of the patch (in pixels).
 
     Yields:
-        {"x", "y"} positions on a regular grid.
+        (x, y) positions on a regular grid.
 
     """
-    maxi = step["y"] * int((shape["y"] - (psize - step["y"])) / step["y"]) + 1
-    maxj = step["x"] * int((shape["x"] - (psize - step["x"])) / step["x"]) + 1
-    col = numpy.arange(start=0, stop=maxj, step=step["x"], dtype=int)
-    line = numpy.arange(start=0, stop=maxi, step=step["y"], dtype=int)
+    maxi = interval[1] * int((shape[1] - (psize - interval[1])) / interval[1]) + 1
+    maxj = interval[0] * int((shape[0] - (psize - interval[0])) / interval[0]) + 1
+    col = numpy.arange(start=0, stop=maxj, step=interval[0], dtype=int)
+    line = numpy.arange(start=0, stop=maxi, step=interval[1], dtype=int)
     for i, j in itertools.product(line, col):
-        yield {"x": j, "y": i}
+        yield Coord(x=j, y=i)
 
 
 def get_coords_from_mask(
-    mask: NDBoolMask, shape: Dict[str, int], step: Dict[str, int], psize: int
-) -> Iterator[Dict[str, int]]:
+    mask: NDBoolMask, shape: Coord, interval: Coord, psize: int
+) -> Iterator[Coord]:
     """
     Get tissue coordinates given a tissue binary mask and slide dimensions.
 
     Arguments:
         mask: binary mask where tissue is marked as True.
-        shape: {"x", "y"} shape of the window to tile.
-        step: {"x", "y"} steps between patch samples.
+        shape: (x, y) shape of the window to tile.
+        interval: (x, y) steps between patch samples.
         psize: size of the side of the patch (in pixels).
 
     Yields:
-        {"x", "y"} positions on a regular grid.
+        (x, y) positions on a regular grid.
     """
 
-    mask_h = int((shape["y"] - psize) / step["y"]) + 1
-    mask_w = int((shape["x"] - psize) / step["x"]) + 1
+    mask_h = int((shape[1] - psize) / interval[1]) + 1
+    mask_w = int((shape[0] - psize) / interval[0]) + 1
     mask = resize(mask, (mask_h, mask_w))
     for i, j in numpy.argwhere(mask):
-        yield {"x": j * step["x"], "y": i * step["y"]}
+        yield Coord(x=j * interval[0], y=i * interval[1])
 
 
-def unlabeled_regular_grid_list(
-    shape: Tuple[int, int], step: int, psize: int
-) -> List[Tuple[int, int]]:
+def unlabeled_regular_grid_list(shape: Coord, step: int, psize: int) -> List[Coord]:
     """
     Get a regular grid of position on a slide given its dimensions.
 
@@ -203,12 +199,12 @@ def sample_img_sep_channels(
 
 if __name__ == "__main__":
     shape = {"x": 50000, "y": 10000}
-    step = {"x": 768, "y": 768}
+    interval = {"x": 768, "y": 768}
     psize = 1024
     mask = numpy.ones((1024, 512), dtype=bool)
-    old_coords = list(regular_grid(shape, step, psize))
+    old_coords = list(regular_grid(shape, interval, psize))
     old_coords.sort(key=lambda x: (x["x"], x["y"]))
-    new_coords = list(get_coords_from_mask(mask, shape, step, psize))
+    new_coords = list(get_coords_from_mask(mask, shape, interval, psize))
     new_coords.sort(key=lambda x: (x["x"], x["y"]))
     assert all(
         [x0 == x1 and y0 == y1 for (x0, y0), (x1, y1) in zip(old_coords, new_coords)]
