@@ -5,26 +5,30 @@ from skimage.io import imread
 from skimage.transform import resize
 from .paths import imfiles_in_folder
 from .types import NDBoolMask, PathLike, NDImage, NDByteImage, Coord
+from ..patches.compat import convert_coords
 import itertools
 from typing import Iterator, List, Tuple, Sequence, Optional, Union, Any
 from nptyping import NDArray
 
 
-def regular_grid(shape: Coord, interval: Coord, psize: int) -> Iterator[Coord]:
+def regular_grid(shape: Coord, interval: Coord, psize: Coord) -> Iterator[Coord]:
     """
     Get a regular grid of position on a slide given its dimensions.
 
     Arguments:
         shape: (x, y) shape of the window to tile.
         interval: (x, y) steps between patch samples.
-        psize: size of the side of the patch (in pixels).
+        psize: (w, h) size of the patches (in pixels).
 
     Yields:
         (x, y) positions on a regular grid.
 
     """
-    maxi = interval[1] * int((shape[1] - (psize - interval[1])) / interval[1]) + 1
-    maxj = interval[0] * int((shape[0] - (psize - interval[0])) / interval[0]) + 1
+    psize = convert_coords(psize)
+    interval = convert_coords(interval)
+    shape = convert_coords(shape)
+    maxi = interval[1] * int((shape[1] - (psize[1] - interval[1])) / interval[1]) + 1
+    maxj = interval[0] * int((shape[0] - (psize[0] - interval[0])) / interval[0]) + 1
     col = numpy.arange(start=0, stop=maxj, step=interval[0], dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=interval[1], dtype=int)
     for i, j in itertools.product(line, col):
@@ -32,7 +36,7 @@ def regular_grid(shape: Coord, interval: Coord, psize: int) -> Iterator[Coord]:
 
 
 def get_coords_from_mask(
-    mask: NDBoolMask, shape: Coord, interval: Coord, psize: int
+    mask: NDBoolMask, shape: Coord, interval: Coord, psize: Coord
 ) -> Iterator[Coord]:
     """
     Get tissue coordinates given a tissue binary mask and slide dimensions.
@@ -41,14 +45,17 @@ def get_coords_from_mask(
         mask: binary mask where tissue is marked as True.
         shape: (x, y) shape of the window to tile.
         interval: (x, y) steps between patch samples.
-        psize: size of the side of the patch (in pixels).
+        psize: (w, h) size of the patches (in pixels).
 
     Yields:
         (x, y) positions on a regular grid.
     """
 
-    mask_h = int((shape[1] - psize) / interval[1]) + 1
-    mask_w = int((shape[0] - psize) / interval[0]) + 1
+    psize = convert_coords(psize)
+    interval = convert_coords(interval)
+    shape = convert_coords(shape)
+    mask_h = int((shape[1] - psize[1]) / interval[1]) + 1
+    mask_w = int((shape[0] - psize[0]) / interval[0]) + 1
     mask = resize(mask, (mask_h, mask_w))
     for i, j in numpy.argwhere(mask):
         yield Coord(x=j * interval[0], y=i * interval[1])
