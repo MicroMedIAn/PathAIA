@@ -27,8 +27,7 @@ def regular_grid(shape: Coord, interval: Coord, psize: Coord) -> Iterator[Coord]
     psize = convert_coords(psize)
     interval = convert_coords(interval)
     shape = convert_coords(shape)
-    maxi = interval[1] * int((shape[1] - (psize[1] - interval[1])) / interval[1]) + 1
-    maxj = interval[0] * int((shape[0] - (psize[0] - interval[0])) / interval[0]) + 1
+    maxj, maxi = interval * ((shape - (psize - interval)) / interval) + 1
     col = numpy.arange(start=0, stop=maxj, step=interval[0], dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=interval[1], dtype=int)
     for i, j in itertools.product(line, col):
@@ -54,11 +53,10 @@ def get_coords_from_mask(
     psize = convert_coords(psize)
     interval = convert_coords(interval)
     shape = convert_coords(shape)
-    mask_h = int((shape[1] - psize[1]) / interval[1]) + 1
-    mask_w = int((shape[0] - psize[0]) / interval[0]) + 1
+    mask_w, mask_h = (shape - psize) / interval + 1
     mask = resize(mask, (mask_h, mask_w))
     for i, j in numpy.argwhere(mask):
-        yield Coord(x=j * interval[0], y=i * interval[1])
+        yield interval * (j, i)
 
 
 def unlabeled_regular_grid_list(shape: Coord, step: int, psize: int) -> List[Coord]:

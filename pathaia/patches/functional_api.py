@@ -123,11 +123,8 @@ def slide_rois(
     slide_filters = ifnone(slide_filters, [])
     if len(ancestors) > 0:
         mag = slide.level_downsamples[level]
-        shape_x = round(ancestors[0].size_0[0] / mag)
-        shape_y = round(ancestors[0].size_0[1] / mag)
-        shape = Coord(x=shape_x, y=shape_y)
-        dx = int(psize[0] * mag)
-        dy = int(psize[0] * mag)
+        shape = Coord(ancestors[0].size_0) / mag
+        size_0 = psize * mag
         patches = []
         for ancestor in ancestors:
             # ancestor is a patch
@@ -137,16 +134,15 @@ def slide_rois(
             for patch_coord in regular_grid(shape, interval, psize):
                 k += 1
                 idx = "{}#{}".format(prefix, k)
-                y = round(patch_coord[1] * mag + ry)
-                x = round(patch_coord[0] * mag + rx)
+                position = patch_coord * mag + ry
                 patches.append(
                     Patch(
                         id=idx,
                         slidename=slide._filename.split("/")[-1],
-                        position=(x, y),
+                        position=position,
                         level=level,
                         size=psize,
-                        size_0=(dx, dy),
+                        size_0=size_0,
                         parent=ancestor,
                     )
                 )
@@ -171,26 +167,24 @@ def slide_rois(
         for patch_coord in get_coords_from_mask(mask, shape, interval, psize):
             k += 1
             idx = "#{}".format(k)
-            y = round(patch_coord[1] * mag + offset[1])
-            x = round(patch_coord[0] * mag + offset[0])
-            dx = round(psize[0] * mag)
-            dy = round(psize[1] * mag)
+            position = patch_coord * mag + offset
+            size_0 = psize * mag
             try:
-                image = slide.read_region((x, y), level, psize)
+                image = slide.read_region(position, level, psize)
                 image = numpy.array(image)[:, :, 0:3]
                 if filter_image(image, filters):
                     yield Patch(
                         id=idx,
                         slidename=slide._filename.split("/")[-1],
-                        position=(x, y),
+                        position=position,
                         level=level,
                         size=psize,
-                        size_0=(dx, dy),
+                        size_0=size_0,
                     ), image
             except openslide.lowlevel.OpenSlideError:
                 print(
                     "small failure while reading tile x={}, y={} in {}".format(
-                        x, y, slide._filename
+                        *position, slide._filename
                     )
                 )
 

@@ -3,7 +3,6 @@ from nptyping import NDArray
 import os
 import numpy
 from dataclasses import dataclass
-from fastcore.basics import tuplify
 
 
 class _CoordBase(NamedTuple):
@@ -17,13 +16,16 @@ class Coord(_CoordBase):
     If only x is given then takes value (x, x).
     """
 
-    def __new__(cls, x: int, y: Optional[int] = None):
+    def __new__(cls, x: Union[_CoordBase, int], y: Optional[int] = None):
         if y is None:
-            y = x
+            if isinstance(x, tuple):
+                x, y = x
+            else:
+                y = x
         return super().__new__(cls, x, y)
 
     def __add__(self, other):
-        x, y = self.__class__(*tuplify(other))
+        x, y = self.__class__(other)
         return self.__class__(int(x + self.x), int(y + self.y))
 
     def __radd__(self, other):
@@ -33,28 +35,28 @@ class Coord(_CoordBase):
         return self.__class__(-self.x, -self.y)
 
     def __sub__(self, other):
-        other = self.__class__(*tuplify(other))
+        other = self.__class__(other)
         return -other + self
 
     def __rsub__(self, other):
         return -self + other
 
     def __mul__(self, other):
-        x, y = self.__class__(*tuplify(other))
+        x, y = self.__class__(other)
         return self.__class__(int(x * self.x), int(y * self.y))
 
     def __rmul__(self, other):
         return self * other
 
     def __floordiv__(self, other):
-        x, y = self.__class__(*tuplify(other))
+        x, y = self.__class__(other)
         return self.__class__(int(self.x / x), int(self.y / y))
 
     def __truediv__(self, other):
         return self // other
 
     def __rfloordiv__(self, other):
-        x, y = self.__class__(*tuplify(other))
+        x, y = self.__class__(other)
         return self.__class__(int(x / self.x), int(y / self.y))
 
     def __rtruediv__(self, other):

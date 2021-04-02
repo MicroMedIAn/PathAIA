@@ -1,5 +1,4 @@
 import warnings
-from fastcore.basics import tuplify
 from ..util.types import Coord
 
 
@@ -11,5 +10,5 @@ def convert_coords(coords):
             category=DeprecationWarning,
         )
     else:
-        coords = Coord(*tuplify(coords))
+        coords = Coord(coords)
     return coords
