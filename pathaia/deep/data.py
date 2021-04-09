@@ -45,7 +45,6 @@ def generator_fn(
         A generator of tuples (patch, label).
 
     """
-
     def generator():
         for patch, y in zip(patch_list, label_list):
             x = slide_query(patch)

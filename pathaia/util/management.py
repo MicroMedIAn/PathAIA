@@ -242,7 +242,7 @@ class PathaiaHandler(object):
         self.slide_folder = slide_folder
         self.project_folder = project_folder
 
-    def _iter_slides(self) -> Iterator[tuple[str, str]]:
+    def _iter_slides(self) -> Iterator[Tuple[str, str]]:
         """Yield slide folders with associated 'patches.csv'."""
         for folder in get_patch_folders_in_project(self.project_folder):
             try:
