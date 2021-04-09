@@ -163,7 +163,7 @@ def get_slide_file(
 
 def read_patch_file(
     patch_file: str, level: int, slide_path: str, column: str = None
-) -> Iterator[Tuple[int, int, str]]:
+) -> Iterator[Tuple[dict, str]]:
     """
     Read a patch file.
 
@@ -278,7 +278,7 @@ class PathaiaHandler(object):
 
     def list_patches(
         self, level: int, dim: Tuple[int, int],
-        label: str = None, slides: Iterator = None
+        column: str = None, slides: Iterator = None
     ) -> Tuple[List[Patch], List[str]]:
         """
         Create labeled patch dataset.
@@ -300,7 +300,7 @@ class PathaiaHandler(object):
             try:
                 # read patch file and get the right level
                 for patch, label in read_patch_file(
-                    patch_file, level, slide_path, label
+                    patch_file, level, slide_path, column
                 ):
                     patch_list.append(patch)
                     labels.append(label)
