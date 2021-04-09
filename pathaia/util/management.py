@@ -269,7 +269,7 @@ class PathaiaHandler(object):
 
         """
         slides = []
-        for slide in self._iter_slides:
+        for slide in self._iter_slides():
             slides.append(slide)
         np.random.shuffle(slides)
         validation = slides[0:int(ratio * len(slides))]
@@ -293,7 +293,7 @@ class PathaiaHandler(object):
         """
         patch_list = []
         labels = []
-        slide_list = self._iter_slides
+        slide_list = self._iter_slides()
         if slides is not None:
             slide_list = slides
         for slide_path, patch_file in slide_list:
