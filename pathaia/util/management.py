@@ -184,6 +184,7 @@ def read_patch_file(
                 "dy": row["dy"],
                 "id": row["id"],
                 "slide_path": slide_path,
+                "slide": slide_path,
                 "slide_name": os.path.basename(slide_path)
             }, None
     for _, row in level_df.iterrows():
@@ -194,6 +195,7 @@ def read_patch_file(
             "dy": row["dy"],
             "id": row["id"],
             "slide_path": slide_path,
+            "slide": slide_path,
             "slide_name": os.path.basename(slide_path)
         }, row[column]
 
