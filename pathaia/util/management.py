@@ -101,9 +101,7 @@ def get_patch_csv_from_patch_folder(patch_folder: str) -> str:
     )
 
 
-def get_patch_folders_in_project(
-    project_folder: str, exclude: Sequence[str] = ("annotation",)
-) -> Iterator[Tuple[str, str]]:
+def get_patch_folders_in_project(project_folder: str) -> Iterator[str]:
     """
     Give pathaia slide folders from a pathaia project folder (direct subfolders).
 
@@ -113,13 +111,9 @@ def get_patch_folders_in_project(
         project_folder: absolute path to a pathaia project folder.
         exclude: a list of str to exclude from subfolders of the project.
     Yields:
-        Name of the slide and absolute path to its pathaia folder.
+        Absolute path to folder containing patches csv files.
 
     """
-    if not os.path.isdir(project_folder):
-        raise EmptyProjectError(
-            "Did not find any project at: {}".format(project_folder)
-        )
     for folder in glob(os.path.join(project_folder, '*')):
         patch_file = os.path.join(folder, "patches.csv")
         if os.path.exists(patch_file):
