@@ -94,4 +94,5 @@ def get_tf_dataset(
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
     else:
         dataset = dataset.prefetch(prefetch)
+    dataset = dataset.repeat()
     return dataset
