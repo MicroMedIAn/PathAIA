@@ -183,6 +183,7 @@ def read_patch_file(
                 "dx": row["dx"],
                 "dy": row["dy"],
                 "id": row["id"],
+                "level": row["level"],
                 "slide_path": slide_path,
                 "slide": slide_path,
                 "slide_name": os.path.basename(slide_path)
@@ -194,6 +195,7 @@ def read_patch_file(
             "dx": row["dx"],
             "dy": row["dy"],
             "id": row["id"],
+            "level": row["level"],
             "slide_path": slide_path,
             "slide": slide_path,
             "slide_name": os.path.basename(slide_path)
