@@ -52,11 +52,15 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 autodoc_member_order = 'bysource'
-autodoc_mock_imports = ["openslide",
+autodoc_mock_imports = ["fastcore",
                         "numpy",
-                        "pandas",
-                        "sklearn",
-                        "skimage"
+                        "tqdm",
+                        "openslide",
+                        "cv2",
+                        "skimage",
+                        "matplotlib",
+                        "nptyping",
+                        "pandas"
                         ]
 
 
