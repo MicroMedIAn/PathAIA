@@ -60,7 +60,9 @@ autodoc_mock_imports = ["fastcore",
                         "skimage",
                         "matplotlib",
                         "nptyping",
-                        "pandas"
+                        "pandas",
+                        "sklearn",
+                        "tensorflow"
                         ]
 
 
