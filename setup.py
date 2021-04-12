@@ -22,7 +22,8 @@ setup(
         "opencv-python",
         "scikit-image",
         "matplotlib",
-        "nptyping"
+        "nptyping",
+        "pandas"
     ],
     include_package_data=True,
     long_description=long_description,
