@@ -88,11 +88,11 @@ def get_tf_dataset(
         output_shapes=((patch_size, patch_size, 3), label_list[0].shape),
     )
     dataset = dataset.batch(batch_size, drop_remainder=True)
+    dataset = dataset.repeat()
     # prefetch
     # <=> while fitting batch b, prepare b+k in parallel
     if prefetch is None:
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
     else:
         dataset = dataset.prefetch(prefetch)
-    dataset = dataset.repeat()
     return dataset

@@ -19,7 +19,7 @@ Sphinx configuration.
 import sphinx_rtd_theme
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../pathaia'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- Project information -----------------------------------------------------
