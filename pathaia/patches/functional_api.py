@@ -189,6 +189,82 @@ def slide_rois(
                 )
 
 
+def slide_rois_no_image(
+    slide: openslide.OpenSlide,
+    level: int,
+    psize: Coord,
+    interval: Coord,
+    ancestors: Optional[Sequence[Patch]] = None,
+    offset: Coord = (0, 0),
+    thumb_size: int = 512,
+    slide_filters: Optional[Sequence[Filter]] = None,
+) -> Iterator[Tuple[Patch, NDImage]]:
+    """
+    Given a slide, a pyramid level, a patchsize in pixels, an interval in pixels
+    and an offset in pixels, get patches with its coordinates. Does not export image at
+    any point.
+
+    Args:
+        slide: the slide to patchify.
+        level: pyramid level.
+        psize: (w, h) size of the patches (in pixels).
+        interval: (x, y) interval between 2 neighboring patches.
+        ancestors: patches that contain upcoming patches.
+        offset: (x, y) offset in px on x and y axis for patch start.
+        thumb_size: size of thumbnail's longest side. Always preserves aspect ratio.
+        slide_filters: list of filters to apply to thumbnail. Should output boolean mask.
+
+    Yields:
+        A tuple containing a Patch object and the corresponding image as
+        ndarray.
+    """
+    psize = convert_coords(psize)
+    offset = convert_coords(offset)
+    ancestors = ifnone(ancestors, [])
+    slide_filters = ifnone(slide_filters, [])
+    if len(ancestors) > 0:
+        mag = slide.level_downsamples[level]
+        shape = Coord(ancestors[0].size_0) / mag
+        size_0 = psize * mag
+        for ancestor in ancestors:
+            # ancestor is a patch
+            rx, ry = ancestor.position
+            prefix = ancestor.id
+            k = 0
+            for patch_coord in regular_grid(shape, interval, psize):
+                k += 1
+                idx = "{}#{}".format(prefix, k)
+                position = patch_coord * mag + ry
+                yield Patch(
+                    id=idx,
+                    slidename=slide._filename.split("/")[-1],
+                    position=position,
+                    level=level,
+                    size=psize,
+                    size_0=size_0,
+                    parent=ancestor,
+                )
+    else:
+        shape = Coord(*slide.level_dimensions[level])
+        mag = slide.level_downsamples[level]
+        thumb = numpy.array(slide.get_thumbnail((thumb_size, thumb_size)))
+        mask = apply_slide_filters(thumb, slide_filters)
+        k = 0
+        for patch_coord in get_coords_from_mask(mask, shape, interval, psize):
+            k += 1
+            idx = "#{}".format(k)
+            position = patch_coord * mag + offset
+            size_0 = psize * mag
+            yield Patch(
+                id=idx,
+                slidename=slide._filename.split("/")[-1],
+                position=position,
+                level=level,
+                size=psize,
+                size_0=size_0,
+            )
+
+
 def patchify_slide(
     slidefile: PathLike,
     outdir: PathLike,
