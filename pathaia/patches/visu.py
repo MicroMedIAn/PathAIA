@@ -11,9 +11,11 @@ from ..util.types import NDByteImage, Patch
 def preview_from_queries(
     slide: openslide.OpenSlide,
     queries: Sequence[Patch],
-    level_preview: int = -1,
+    min_res: int = 512,
     color: Tuple[int, int, int] = (255, 255, 0),
-    thickness: int = 3,
+    thickness: int = 2,
+    cell_size: int = 20,
+    patch_size: Tuple[int, int] = (None, None)
 ) -> NDByteImage:
     """
     Give thumbnail with patches displayed.
@@ -21,34 +23,39 @@ def preview_from_queries(
     Args:
         slide: openslide object
         queries: patch objects to preview from
-        level_preview: pyramid level for preview thumbnail
+        min_res: minimum size for the smallest side of the thumbnail (usually the width)
         color: rgb color for patch boundaries
         thickness: thickness of patch boundaries
+        cell_size: size of a cell representing a patch in the grid
 
     Returns:
         Thumbnail image with patches displayed.
 
     """
     # get thumbnail first
-    if level_preview == -1:
-        level_preview = slide.level_count - 1
-    dsr = slide.level_downsamples[level_preview]
-    image = slide.read_region(
-        (0, 0), level_preview, (slide.level_dimensions[level_preview])
-    )
+    w, h = slide.dimensions
+    dx, dy = patch_size
+    if dx is None: dx = queries[0]["dx"]
+    if dy is None: dy = queries[0]["dy"]
+    thumb_w = max(512, (w // dx)*(thickness + cell_size)+thickness)
+    thumb_h = max(512, (h // dy)*(thickness + cell_size)+thickness)
+    image = slide.get_thumbnail((thumb_w, thumb_h))
+    thumb_w, thumb_h = image.size
+    dsr_w = w / thumb_w
+    dsr_h = h / thumb_h
     image = numpy.array(image)[:, :, 0:3]
     # get grid
-    grid = 255 * numpy.ones((image.shape[0], image.shape[1]), numpy.uint8)
+    grid = 255 * numpy.ones((thumb_h, thumb_w), numpy.uint8)
     for query in queries:
         # position in queries are absolute
-        x = int(query.position[0] / dsr)
-        y = int(query.position[1] / dsr)
-        dx = int(query.size_0[0] / dsr)
-        dy = int(query.size_0[1] / dsr)
-        startx = min(x, image.shape[1] - 1)
-        starty = min(y, image.shape[0] - 1)
-        endx = min(x + dx, image.shape[1] - 1)
-        endy = min(y + dy, image.shape[0] - 1)
+        x = int(query["x"] / dsr_w)
+        y = int(query["y"] / dsr_h)
+        dx = int(query["dx"] / dsr_w)
+        dy = int(query["dy"] / dsr_h)
+        startx = min(x, thumb_w - 1)
+        starty = min(y, thumb_h - 1)
+        endx = min(x + dx, thumb_w - 1)
+        endy = min(y + dy, thumb_h - 1)
         # horizontal segments
         grid[starty, startx:endx] = 0
         grid[endy, startx:endx] = 0

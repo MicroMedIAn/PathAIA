@@ -19,7 +19,7 @@ Sphinx configuration.
 import sphinx_rtd_theme
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../pathaia'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- Project information -----------------------------------------------------
@@ -52,6 +52,18 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 autodoc_member_order = 'bysource'
+autodoc_mock_imports = ["fastcore",
+                        "numpy",
+                        "tqdm",
+                        "openslide",
+                        "cv2",
+                        "skimage",
+                        "matplotlib",
+                        "nptyping",
+                        "pandas",
+                        "sklearn",
+                        "tensorflow"
+                        ]
 
 
 # -- Options for HTML output -------------------------------------------------
