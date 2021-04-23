@@ -5,7 +5,7 @@ import numpy
 from skimage.morphology import binary_dilation, disk
 import openslide
 from typing import Sequence, Tuple
-from ..util.types import NDByteImage, Patch
+from ..util.types import NDByteImage, Patch, Coord
 
 
 def preview_from_queries(
@@ -14,8 +14,7 @@ def preview_from_queries(
     min_res: int = 512,
     color: Tuple[int, int, int] = (255, 255, 0),
     thickness: int = 2,
-    cell_size: int = 20,
-    patch_size: Tuple[int, int] = (None, None)
+    cell_size: int = 20
 ) -> NDByteImage:
     """
     Give thumbnail with patches displayed.
@@ -33,29 +32,25 @@ def preview_from_queries(
 
     """
     # get thumbnail first
-    w, h = slide.dimensions
-    dx, dy = patch_size
-    if dx is None: dx = queries[0]["dx"]
-    if dy is None: dy = queries[0]["dy"]
-    thumb_w = max(512, (w // dx)*(thickness + cell_size)+thickness)
-    thumb_h = max(512, (h // dy)*(thickness + cell_size)+thickness)
+    slide_size = Coord(slide.dimensions)
+    size_0 = Coord(queries[0].size_0)
+    res = slide_size / size_0 * (thickness + cell_size) + thickness
+    thumb_w = max(min_res, res.x)
+    thumb_h = max(min_res, res.y)
     image = slide.get_thumbnail((thumb_w, thumb_h))
-    thumb_w, thumb_h = image.size
-    dsr_w = w / thumb_w
-    dsr_h = h / thumb_h
+    thumb_size = Coord(image.size)
+    dsr = slide_size / thumb_size
     image = numpy.array(image)[:, :, 0:3]
     # get grid
-    grid = 255 * numpy.ones((thumb_h, thumb_w), numpy.uint8)
+    grid = 255 * numpy.ones(thumb_size, numpy.uint8)
     for query in queries:
         # position in queries are absolute
-        x = int(query["x"] / dsr_w)
-        y = int(query["y"] / dsr_h)
-        dx = int(query["dx"] / dsr_w)
-        dy = int(query["dy"] / dsr_h)
-        startx = min(x, thumb_w - 1)
-        starty = min(y, thumb_h - 1)
-        endx = min(x + dx, thumb_w - 1)
-        endy = min(y + dy, thumb_h - 1)
+        x, y = query.position / dsr
+        dx, dy = query.size_0 / dsr
+        startx = min(x, thumb_size.x - 1)
+        starty = min(y, thumb_size.y - 1)
+        endx = min(x + dx, thumb_size.x - 1)
+        endy = min(y + dy, thumb_size.y - 1)
         # horizontal segments
         grid[starty, startx:endx] = 0
         grid[endy, startx:endx] = 0
