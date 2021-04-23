@@ -81,16 +81,11 @@ class FakeSlide(AbstractSlide):
         tds = self.level_downsamples[-1]
         dj, di = self.level_dimensions[-1]
 
-        X_indices = numpy.zeros((dy, dx), dtype=float)
-        X_indices += x
-        Y_indices = numpy.zeros((dy, dx), dtype=float)
-        Y_indices += y
+        X_indices = numpy.full((dy, dx), x, dtype=float)
+        Y_indices = numpy.full((dy, dx), y, dtype=float)
         # go through columns of X
-        for column in range(X_indices.shape[1]):
-            X_indices[:, column] += column * ds
-        # go through all lines of Y
-        for line in range(Y_indices.shape[0]):
-            Y_indices[line, :] += line * ds
+        X_indices += (numpy.arange(dx) * ds)[None]
+        Y_indices += (numpy.arange(dy) * ds)[:, None]
         # rescale x and y indices
         J_indices = numpy.floor(X_indices / tds).astype(int)
         I_indices = numpy.floor(Y_indices / tds).astype(int)
@@ -98,12 +93,9 @@ class FakeSlide(AbstractSlide):
         J_indices[J_indices >= dj] = -1
         I_indices[I_indices >= di] = -1
         # compute 1D indices
-        Indices = I_indices * dj + J_indices
-        labels = numpy.zeros_like(Indices)
-        for index in numpy.unique(Indices):
-            # funny condition to allow out-of-slide regions like openslide ;-)
-            if index > 0:
-                labels[Indices == index] = HEMASK[index]
+        Indices = (I_indices * dj + J_indices)
+        hemask = numpy.array(HEMASK)
+        labels = numpy.where(Indices > 0, hemask[Indices], 0)
         numpy_img = numpy.zeros((dy, dx, 4), dtype=numpy.uint8)
         # out of bounds regions have val == 0 ^^
         numpy_img[labels == 0] = (0, 0, 0, 0)
