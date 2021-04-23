@@ -28,7 +28,7 @@ def regular_grid(shape: Coord, interval: Coord, psize: Coord) -> Iterator[Coord]
     interval = convert_coords(interval)
     shape = convert_coords(shape)
     step = interval + psize
-    maxj, maxi = step * ((shape + interval) / step) + 1
+    maxj, maxi = step * ((shape - psize) / step + 1)
     col = numpy.arange(start=0, stop=maxj, step=step[0], dtype=int)
     line = numpy.arange(start=0, stop=maxi, step=step[1], dtype=int)
     for i, j in itertools.product(line, col):
