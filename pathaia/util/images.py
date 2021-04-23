@@ -27,9 +27,10 @@ def regular_grid(shape: Coord, interval: Coord, psize: Coord) -> Iterator[Coord]
     psize = convert_coords(psize)
     interval = convert_coords(interval)
     shape = convert_coords(shape)
-    maxj, maxi = interval * ((shape - (psize - interval)) / interval) + 1
-    col = numpy.arange(start=0, stop=maxj, step=interval[0], dtype=int)
-    line = numpy.arange(start=0, stop=maxi, step=interval[1], dtype=int)
+    step = interval + psize
+    maxj, maxi = step * ((shape + interval) / step) + 1
+    col = numpy.arange(start=0, stop=maxj, step=step[0], dtype=int)
+    line = numpy.arange(start=0, stop=maxi, step=step[1], dtype=int)
     for i, j in itertools.product(line, col):
         yield Coord(x=j, y=i)
 
@@ -53,10 +54,11 @@ def get_coords_from_mask(
     psize = convert_coords(psize)
     interval = convert_coords(interval)
     shape = convert_coords(shape)
-    mask_w, mask_h = (shape - psize) / interval + 1
+    step = interval + psize
+    mask_w, mask_h = (shape - psize) / step + 1
     mask = resize(mask, (mask_h, mask_w))
     for i, j in numpy.argwhere(mask):
-        yield interval * (j, i)
+        yield step * (j, i)
 
 
 def unlabeled_regular_grid_list(shape: Coord, step: int, psize: int) -> List[Coord]:
@@ -200,17 +202,3 @@ def sample_img_sep_channels(
             ]
         )
     return tuple(patches)
-
-
-if __name__ == "__main__":
-    shape = {"x": 50000, "y": 10000}
-    interval = {"x": 768, "y": 768}
-    psize = 1024
-    mask = numpy.ones((1024, 512), dtype=bool)
-    old_coords = list(regular_grid(shape, interval, psize))
-    old_coords.sort(key=lambda x: (x["x"], x["y"]))
-    new_coords = list(get_coords_from_mask(mask, shape, interval, psize))
-    new_coords.sort(key=lambda x: (x["x"], x["y"]))
-    assert all(
-        [x0 == x1 and y0 == y1 for (x0, y0), (x1, y1) in zip(old_coords, new_coords)]
-    )

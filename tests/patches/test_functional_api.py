@@ -67,7 +67,7 @@ def test_slide_rois():
     slide = FakeSlide(name="fake_slide", staining="H&E", extension=".mrxs")
     level = 1
     psize = 224
-    interval = (224, 224)
+    interval = (0, 0)
     dsr = slide.level_downsamples[level]
     patch, image = next(slide_rois(slide, level, psize, interval))
     expected = Patch(
