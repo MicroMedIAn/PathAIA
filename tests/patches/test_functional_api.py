@@ -4,6 +4,7 @@ from pathaia.patches import (
     filter_image,
     apply_slide_filters,
     slide_rois,
+    slide_rois_no_image,
     UnknownFilterError,
     Patch,
 )
@@ -69,7 +70,8 @@ def test_slide_rois():
     psize = 224
     interval = (0, 0)
     dsr = slide.level_downsamples[level]
-    patch, image = next(slide_rois(slide, level, psize, interval))
+    patch1, _ = next(slide_rois(slide, level, psize, interval))
+    patch2 = next(slide_rois_no_image(slide, level, psize, interval))
     expected = Patch(
         id="#1",
         slidename=slide._filename,
@@ -78,12 +80,15 @@ def test_slide_rois():
         size=(psize, psize),
         size_0=(int(psize * dsr), int(psize * dsr)),
     )
-    assert patch == expected
+    assert patch1 == patch2 == expected
 
     ancestors = [expected]
     level -= 1
     dsr = slide.level_downsamples[level]
-    patch, image = next(slide_rois(slide, level, psize, interval, ancestors=ancestors))
+    patch1, _ = next(slide_rois(slide, level, psize, interval, ancestors=ancestors))
+    patch2 = next(
+        slide_rois_no_image(slide, level, psize, interval, ancestors=ancestors)
+    )
     expected = Patch(
         id="#1#1",
         slidename=slide._filename,
@@ -93,4 +98,4 @@ def test_slide_rois():
         size_0=(int(psize * dsr), int(psize * dsr)),
         parent=ancestors[0],
     )
-    assert patch == expected
+    assert patch1 == patch2 == expected
