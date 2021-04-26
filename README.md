@@ -69,7 +69,7 @@ With these parameters you will find all svs slides that are directly in `infolde
 ### Step 3: Extract !
 
 ```python
-patchify_folder_hierachically(
+patchify_folder_hierarchically(
     infolder,
     outfolder,
     top_level,
