@@ -4,61 +4,64 @@ import numpy
 from skimage.io import imread
 from skimage.transform import resize
 from .paths import imfiles_in_folder
-from .types import NDBoolMask, PathLike, NDImage, NDByteImage
+from .types import NDBoolMask, PathLike, NDImage, NDByteImage, Coord
+from ..patches.compat import convert_coords
 import itertools
-from typing import Dict, Iterator, List, Tuple, Sequence, Optional, Union, Any
+from typing import Iterator, List, Tuple, Sequence, Optional, Union, Any
 from nptyping import NDArray
 
 
-def regular_grid(
-    shape: Dict[str, int], step: Dict[str, int], psize: int
-) -> Iterator[Dict[str, int]]:
+def regular_grid(shape: Coord, interval: Coord, psize: Coord) -> Iterator[Coord]:
     """
     Get a regular grid of position on a slide given its dimensions.
 
     Arguments:
-        shape: {"x", "y"} shape of the window to tile.
-        step: {"x", "y"} steps between patch samples.
-        psize: size of the side of the patch (in pixels).
+        shape: (x, y) shape of the window to tile.
+        interval: (x, y) steps between patch samples.
+        psize: (w, h) size of the patches (in pixels).
 
     Yields:
-        {"x", "y"} positions on a regular grid.
+        (x, y) positions on a regular grid.
 
     """
-    maxi = step["y"] * int((shape["y"] - (psize - step["y"])) / step["y"]) + 1
-    maxj = step["x"] * int((shape["x"] - (psize - step["x"])) / step["x"]) + 1
-    col = numpy.arange(start=0, stop=maxj, step=step["x"], dtype=int)
-    line = numpy.arange(start=0, stop=maxi, step=step["y"], dtype=int)
+    psize = convert_coords(psize)
+    interval = convert_coords(interval)
+    shape = convert_coords(shape)
+    step = interval + psize
+    maxj, maxi = step * ((shape - psize) / step + 1)
+    col = numpy.arange(start=0, stop=maxj, step=step[0], dtype=int)
+    line = numpy.arange(start=0, stop=maxi, step=step[1], dtype=int)
     for i, j in itertools.product(line, col):
-        yield {"x": j, "y": i}
+        yield Coord(x=j, y=i)
 
 
 def get_coords_from_mask(
-    mask: NDBoolMask, shape: Dict[str, int], step: Dict[str, int], psize: int
-) -> Iterator[Dict[str, int]]:
+    mask: NDBoolMask, shape: Coord, interval: Coord, psize: Coord
+) -> Iterator[Coord]:
     """
     Get tissue coordinates given a tissue binary mask and slide dimensions.
 
     Arguments:
         mask: binary mask where tissue is marked as True.
-        shape: {"x", "y"} shape of the window to tile.
-        step: {"x", "y"} steps between patch samples.
-        psize: size of the side of the patch (in pixels).
+        shape: (x, y) shape of the window to tile.
+        interval: (x, y) steps between patch samples.
+        psize: (w, h) size of the patches (in pixels).
 
     Yields:
-        {"x", "y"} positions on a regular grid.
+        (x, y) positions on a regular grid.
     """
 
-    mask_h = int((shape["y"] - psize) / step["y"]) + 1
-    mask_w = int((shape["x"] - psize) / step["x"]) + 1
+    psize = convert_coords(psize)
+    interval = convert_coords(interval)
+    shape = convert_coords(shape)
+    step = interval + psize
+    mask_w, mask_h = (shape - psize) / step + 1
     mask = resize(mask, (mask_h, mask_w))
     for i, j in numpy.argwhere(mask):
-        yield {"x": j * step["x"], "y": i * step["y"]}
+        yield step * (j, i)
 
 
-def unlabeled_regular_grid_list(
-    shape: Tuple[int, int], step: int, psize: int
-) -> List[Tuple[int, int]]:
+def unlabeled_regular_grid_list(shape: Coord, step: int, psize: int) -> List[Coord]:
     """
     Get a regular grid of position on a slide given its dimensions.
 
@@ -199,17 +202,3 @@ def sample_img_sep_channels(
             ]
         )
     return tuple(patches)
-
-
-if __name__ == "__main__":
-    shape = {"x": 50000, "y": 10000}
-    step = {"x": 768, "y": 768}
-    psize = 1024
-    mask = numpy.ones((1024, 512), dtype=bool)
-    old_coords = list(regular_grid(shape, step, psize))
-    old_coords.sort(key=lambda x: (x["x"], x["y"]))
-    new_coords = list(get_coords_from_mask(mask, shape, step, psize))
-    new_coords.sort(key=lambda x: (x["x"], x["y"]))
-    assert all(
-        [x0 == x1 and y0 == y1 for (x0, y0), (x1, y1) in zip(old_coords, new_coords)]
-    )
