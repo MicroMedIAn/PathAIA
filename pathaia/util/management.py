@@ -10,6 +10,8 @@ import os
 import warnings
 from typing import Sequence, Tuple, Iterator, List
 from .types import Patch
+from glob import glob
+import numpy as np
 
 
 class Error(Exception):
@@ -90,16 +92,16 @@ def get_patch_csv_from_patch_folder(patch_folder: str) -> str:
         if os.path.exists(patch_file):
             return patch_file
         raise PatchesNotFoundError(
-            "Could not find extracted patches for the slide: {}".format(patch_folder)
+            "Could not find extracted patches for the slide: {}".format(
+                patch_folder
+            )
         )
     raise SlideNotFoundError(
         "Could not find a patch folder at: {}!!!".format(patch_folder)
     )
 
 
-def get_patch_folders_in_project(
-    project_folder: str, exclude: Sequence[str] = ("annotation",)
-) -> Iterator[Tuple[str, str]]:
+def get_patch_folders_in_project(project_folder: str) -> Iterator[str]:
     """
     Give pathaia slide folders from a pathaia project folder (direct subfolders).
 
@@ -109,25 +111,22 @@ def get_patch_folders_in_project(
         project_folder: absolute path to a pathaia project folder.
         exclude: a list of str to exclude from subfolders of the project.
     Yields:
-        Name of the slide and absolute path to its pathaia folder.
+        Absolute path to folder containing patches csv files.
 
     """
-    if not os.path.isdir(project_folder):
-        raise EmptyProjectError(
-            "Did not find any project at: {}".format(project_folder)
-        )
-    for name in os.listdir(project_folder):
-        keep = True
-        for ex in exclude:
-            if ex in name:
-                keep = False
-        if keep:
-            patch_folder = os.path.join(project_folder, name)
-            if os.path.isdir(patch_folder):
-                yield name, patch_folder
+    for folder in glob(os.path.join(project_folder, '*')):
+        patch_file = os.path.join(folder, "patches.csv")
+        if os.path.exists(patch_file):
+            yield folder
+        else:
+            for f in get_patch_folders_in_project(folder):
+                yield f
 
 
-def get_slide_file(slide_folder: str, slide_name: str) -> str:
+def get_slide_file(
+    slide_folder: str, project_folder: str, patch_folder: str,
+    extensions: List[str] = ['.mrxs', '.svs']
+) -> str:
     """
     Give the absolute path to a slide file.
 
@@ -135,7 +134,8 @@ def get_slide_file(slide_folder: str, slide_name: str) -> str:
 
     Args:
         slide_folder: absolute path to a folder of WSIs.
-        slide_name: basename of the slide.
+        project_folder: absolute path to a pathaia folder.
+        patch_folder: absolute path to a folder containing a 'patches.csv'.
     Returns:
         Absolute path of the WSI.
 
@@ -144,21 +144,20 @@ def get_slide_file(slide_folder: str, slide_name: str) -> str:
         raise SlideNotFoundError(
             "Could not find a slide folder at: {}!!!".format(slide_folder)
         )
-    for name in os.listdir(slide_folder):
-        if name.endswith(".mrxs") and not name.startswith("."):
-            base, _ = os.path.splitext(name)
-            if slide_name == base:
-                return os.path.join(slide_folder, name)
+    for ext in extensions:
+        slide = patch_folder.replace(project_folder, slide_folder) + ext
+        if os.path.exists(slide):
+            return slide
     raise SlideNotFoundError(
-        "Could not find an mrxs slide file for: {} in {}!!!".format(
-            slide_name, slide_folder
+        "Could not find an {} slide file for: {} in {}!!!".format(
+            ext, slide, slide_folder
         )
     )
 
 
-def handle_labeled_patches(
-    patch_file: str, level: int, column: str
-) -> Iterator[Tuple[int, int, str]]:
+def read_patch_file(
+    patch_file: str, level: int, slide_path: str, column: str = None
+) -> Iterator[Tuple[dict, str]]:
     """
     Read a patch file.
 
@@ -167,6 +166,7 @@ def handle_labeled_patches(
     Args:
         patch_file: absolute path to a csv patch file.
         level: pyramid level to query patches in the csv.
+        slide_path: absolute path to a slide file.
         column: header of the column to use to label individual patches.
 
     Yields:
@@ -176,29 +176,107 @@ def handle_labeled_patches(
     df = pd.read_csv(patch_file)
     level_df = df[df["level"] == level]
     if column not in level_df:
-        raise UnknownColumnError(
-            "Column {} does not exists in {}!!!".format(column, patch_file)
-        )
+        for _, row in level_df.iterrows():
+            yield {
+                "x": row["x"],
+                "y": row["y"],
+                "dx": row["dx"],
+                "dy": row["dy"],
+                "id": row["id"],
+                "level": row["level"],
+                "slide_path": slide_path,
+                "slide": slide_path,
+                "slide_name": os.path.basename(slide_path)
+            }, None
     for _, row in level_df.iterrows():
-        yield row["x"], row["y"], row[column]
+        yield {
+            "x": row["x"],
+            "y": row["y"],
+            "dx": row["dx"],
+            "dy": row["dy"],
+            "id": row["id"],
+            "level": row["level"],
+            "slide_path": slide_path,
+            "slide": slide_path,
+            "slide_name": os.path.basename(slide_path)
+        }, row[column]
+
+
+def write_slide_predictions(
+    slide_predictions: Iterator[Patch], slide_csv: str, column: str
+):
+    """
+    Write slide predictions in a pathaia slide csv.
+
+    Args:
+        slide_predictions: iterator on patch dicts.
+        slide_csv: absolute path to a pathaia slide csv.
+        column: name of the prediction column to append in csv.
+
+    """
+    patch_df = pd.read_csv(slide_csv, sep=None, engine="python")
+    patch_df = patch_df.set_index("id")
+    for patch in slide_predictions:
+        idx = patch["id"]
+        pred = patch[column]
+        patch_df.loc[idx, column] = pred
+    patch_df.to_csv(slide_csv, index=False)
 
 
 class PathaiaHandler(object):
     """
     A class to handle simple patch datasets.
+
     It usually computes the input of tf datasets proposed in pathaia.data.
 
     Args:
         project_folder: absolute path to a pathaia project.
         slide_folder: absolute path to a slide folder.
+
     """
 
     def __init__(self, project_folder: str, slide_folder: str):
+        """Init PathaiaHandler."""
         self.slide_folder = slide_folder
         self.project_folder = project_folder
 
+    def _iter_slides(self) -> Iterator[Tuple[str, str]]:
+        """Yield slide folders with associated 'patches.csv'."""
+        for folder in get_patch_folders_in_project(self.project_folder):
+            try:
+                slide_path = get_slide_file(
+                    self.slide_folder, self.project_folder, folder
+                )
+                patch_file = get_patch_csv_from_patch_folder(folder)
+            except (
+                PatchesNotFoundError, UnknownColumnError, SlideNotFoundError
+            ) as e:
+                warnings.warn(str(e))
+            yield slide_path, patch_file
+
+    def random_split(
+        self, ratio: float = 0.3
+    ) -> Tuple[List[Tuple[str, str]], List[Tuple[str, str]]]:
+        """
+        Split whole slide dataset into training/validation.
+
+        Args:
+            ratio: ratio of slides to keep for validation.
+        Returns:
+            Training and validation datasets.
+
+        """
+        slides = []
+        for slide in self._iter_slides():
+            slides.append(slide)
+        np.random.shuffle(slides)
+        validation = slides[0:int(ratio * len(slides))]
+        training = slides[int(ratio * len(slides))::]
+        return training, validation
+
     def list_patches(
-        self, level: int, dim: Tuple[int, int], label: str
+        self, level: int, dim: Tuple[int, int],
+        column: str = None, slides: Iterator = None
     ) -> Tuple[List[Patch], List[str]]:
         """
         Create labeled patch dataset.
@@ -213,22 +291,19 @@ class PathaiaHandler(object):
         """
         patch_list = []
         labels = []
-        for name, patch_folder in get_patch_folders_in_project(self.project_folder):
+        slide_list = self._iter_slides()
+        if slides is not None:
+            slide_list = slides
+        for slide_path, patch_file in slide_list:
             try:
-                slide_path = get_slide_file(self.slide_folder, name)
-                patch_file = get_patch_csv_from_patch_folder(patch_folder)
                 # read patch file and get the right level
-                for x, y, lab in handle_labeled_patches(patch_file, level, label):
-                    patch_list.append(
-                        {
-                            "slide": slide_path,
-                            "x": x,
-                            "y": y,
-                            "level": level,
-                            "dimensions": dim,
-                        }
-                    )
-                    labels.append(lab)
-            except (PatchesNotFoundError, UnknownColumnError, SlideNotFoundError) as e:
+                for patch, label in read_patch_file(
+                    patch_file, level, slide_path, column
+                ):
+                    patch_list.append(patch)
+                    labels.append(label)
+            except (
+                PatchesNotFoundError, UnknownColumnError, SlideNotFoundError
+            ) as e:
                 warnings.warn(str(e))
         return patch_list, labels

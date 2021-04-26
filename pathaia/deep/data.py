@@ -9,7 +9,7 @@ from typing import Sequence, Callable, Iterator, Any, Tuple, Optional
 from ..util.types import Patch, NDByteImage
 
 
-def slide_query(patch: Patch) -> NDByteImage:
+def slide_query(patch: Patch, patch_size: int) -> NDByteImage:
     """
     Query patch image in slide.
 
@@ -17,6 +17,7 @@ def slide_query(patch: Patch) -> NDByteImage:
 
     Args:
         patch: the patch to query.
+        patch_size: size of side of the patch in pixels.
 
     Returns:
         Numpy array rgb image of the patch.
@@ -24,13 +25,16 @@ def slide_query(patch: Patch) -> NDByteImage:
     """
     slide = openslide.OpenSlide(patch["slide"])
     pil_img = slide.read_region(
-        (patch["x"], patch["y"]), patch["level"], patch["dimensions"]
+        (patch["x"], patch["y"]), patch["level"], (patch_size, patch_size)
     )
     return np.array(pil_img)[:, :, 0:3]
 
 
 def generator_fn(
-    patch_list: Sequence[Patch], label_list: Sequence[Any], preproc: Callable
+    patch_list: Sequence[Patch],
+    label_list: Sequence[Any],
+    patch_size: int,
+    preproc: Callable
 ) -> Iterator[Tuple[Patch, Any]]:
     """
     Provide a generator for tf.data.Dataset.
@@ -45,10 +49,9 @@ def generator_fn(
         A generator of tuples (patch, label).
 
     """
-
     def generator():
         for patch, y in zip(patch_list, label_list):
-            x = slide_query(patch)
+            x = slide_query(patch, patch_size)
             yield preproc(x), y
 
     return generator
@@ -78,13 +81,14 @@ def get_tf_dataset(
         tf.data.Dataset: a proper tensorflow dataset to fit on.
 
     """
-    gen = generator_fn(patch_list, label_list, preproc)
+    gen = generator_fn(patch_list, label_list, patch_size, preproc)
     dataset = tf.data.Dataset.from_generator(
         generator=gen,
         output_types=(np.float32, np.int32),
         output_shapes=((patch_size, patch_size, 3), label_list[0].shape),
     )
     dataset = dataset.batch(batch_size, drop_remainder=True)
+    dataset = dataset.repeat()
     # prefetch
     # <=> while fitting batch b, prepare b+k in parallel
     if prefetch is None:
