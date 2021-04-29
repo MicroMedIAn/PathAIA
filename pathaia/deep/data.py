@@ -44,6 +44,7 @@ def generator_fn(
     Args:
         patch_list: patch list to query.
         label_list: label of patches.
+        patch_size: size of the side of the patches in pixels.
         preproc: a preprocessing function for images.
     Returns:
         A generator of tuples (patch, label).
