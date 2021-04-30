@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Sequence, Union, NamedTuple, Optional, List
+from typing import Any, Callable, Dict, Sequence, Union, NamedTuple, Optional, List, Tuple
 from nptyping import NDArray
 import os
 import numpy
@@ -131,3 +131,5 @@ NDFloat32ImageBatch = NDArray[(Any, Any, Any, 3), numpy.float32]
 NDFloat64ImageBatch = NDArray[(Any, Any, Any, 3), numpy.float64]
 NDFloatImageBatch = Union[NDFloat32ImageBatch, NDFloat64ImageBatch]
 NDImageBatch = Union[NDByteImageBatch, NDFloatImageBatch]
+
+RefDataSet = Tuple[List, List]
