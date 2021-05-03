@@ -135,3 +135,20 @@ def fair_dataset(dataset: RefDataSet, dtype: type, rm: Sequence[Any]) -> RefData
 
     """
     return shuffle_dataset(balance_dataset(clean_dataset(dataset, dtype, rm)))
+
+
+def clip_dataset(dataset: RefDataSet, max_spl: int) -> RefDataSet:
+    """
+    Clip a dataset (to a max number of samples).
+
+    Args:
+        dataset: samples of a dataset.
+        max_spl: max number of samples.
+
+    Returns:
+        Clipped dataset.
+
+    """
+    x, y = dataset
+    mx = min(max_spl, len(dataset[0]))
+    return x[0:mx], y[0:mx]
