@@ -223,16 +223,6 @@ def split_dataset(
 # -------------------------
 # will first shuffle, then clip the dataset...
 
-# Yet, some decorator apply directly to the generator,
-# like 'batch' for example:
-# ---------
-# @batch(2)
-# @shuffle
-# @clip
-# def my_generator(dataset)
-# -------------------------
-# will first shuffle, then clip the dataset, then put samples in batches of 2
-
 def shuffle(data_generator: Callable) -> Callable:
     """
     Decorate a data generator function with the shuffle function.
