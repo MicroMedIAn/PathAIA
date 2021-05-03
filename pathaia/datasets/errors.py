@@ -24,3 +24,13 @@ class UnknownSplitModeError(Error):
     """
 
     pass
+
+
+class InvalidDatasetError(Error):
+    """
+    Raise when trying to perform operation on a dataset with bad properties.
+
+    ************************************************************************
+    """
+
+    pass

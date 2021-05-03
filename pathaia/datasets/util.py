@@ -7,7 +7,7 @@ I still don't knwo exactly what we are putting into this module.
 from typing import Sequence, Dict, Any, Optional, Callable, Generator
 from ..util.types import RefDataSet
 import numpy as np
-from .errors import UnknownSplitModeError
+from .errors import UnknownSplitModeError, InvalidDatasetError
 
 
 def info(dataset: RefDataSet) -> Dict:
@@ -43,7 +43,7 @@ def shuffle_dataset(dataset: RefDataSet) -> RefDataSet:
 
     """
     x, y = dataset
-    ridx = np.arange(len(x))
+    ridx = np.arange(len(y))
     np.random.shuffle(ridx)
     rx = [x[i] for i in ridx]
     ry = [y[i] for i in ridx]
@@ -90,12 +90,9 @@ def balance_cat(dataset: RefDataSet, cat: Any, lack: int) -> RefDataSet:
     cat_x = [spl for spl, lab in zip(x, y) if lab == cat]
     ridx = np.arange(len(cat_x))
     np.random.shuffle(ridx)
-    ridx = ridx[0:lack]
-    x_padding = [cat_x[rd] for rd in ridx]
+    x_padding = [cat_x[ridx[k % len(ridx)]] for k in range(lack)]
     y_padding = [cat for k in range(lack)]
-    new_x = [spl for spl in x] + x_padding
-    new_y = [spl for spl in y] + y_padding
-    return new_x, new_y
+    return x_padding, y_padding
 
 
 def balance_dataset(dataset: RefDataSet) -> RefDataSet:
@@ -109,15 +106,20 @@ def balance_dataset(dataset: RefDataSet) -> RefDataSet:
         The balanced dataset.
 
     """
-    x = []
-    y = []
+    x = [xd for xd in dataset[0]]
+    y = [yd for yd in dataset[1]]
     cat_count = info(dataset)
-    maj_count = max(cat_count.values())
-    for cat, count in cat_count.items():
-        lack = maj_count - count
-        if lack > 0:
-            x, y = balance_cat(dataset, cat, lack)
-    return x, y
+    try:
+        maj_count = max(cat_count.values())
+        for cat, count in cat_count.items():
+            lack = maj_count - count
+            if lack > 0:
+                x_pad, y_pad = balance_cat(dataset, cat, lack)
+                x += x_pad
+                y += y_pad
+        return x, y
+    except ValueError as e:
+        raise InvalidDatasetError("{} check your dataset: {}".format(e, cat_count))
 
 
 def fair_dataset(dataset: RefDataSet, dtype: type, rm: Sequence[Any]) -> RefDataSet:
@@ -253,7 +255,8 @@ def shuffle(data_generator: Callable) -> Callable:
             shuffled version of the data generator.
 
         """
-        return data_generator(shuffle_dataset(dataset))
+        new_dataset = shuffle_dataset(dataset)
+        return data_generator(new_dataset)
     return shuffled_version
 
 
@@ -279,7 +282,8 @@ def balance(data_generator: Callable) -> Callable:
             balanced version of the data generator.
 
         """
-        return data_generator(balance_dataset(dataset))
+        new_dataset = balance_dataset(dataset)
+        return data_generator(new_dataset)
     return balanced_version
 
 
@@ -307,7 +311,8 @@ def clip(max_spl: int) -> Callable:
                 clipped version of the data generator.
 
             """
-            return data_generator(clip_dataset(dataset))
+            new_dataset = clip_dataset(dataset, max_spl)
+            return data_generator(new_dataset)
         return clipped_version
     return decorator
 
@@ -377,6 +382,7 @@ def clean(dtype: type, rm: Sequence[Any]) -> Callable:
                 cleaned version of the data generator.
 
             """
-            return data_generator(clean_dataset(dataset, dtype, rm))
+            new_dataset = clean_dataset(dataset, dtype, rm)
+            return data_generator(new_dataset)
         return cleaned_version
     return decorator
