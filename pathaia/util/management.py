@@ -350,7 +350,7 @@ class PathaiaHandler(object):
                 'module': resnet50
             }
         }
-        preproc = models[model]['module']
+        preproc = models[model]['module'].preprocess_input
         ModelClass = models[model]['model']
         model = ModelClass(weights='imagenet', include_top=False,
                            pooling='avg',
