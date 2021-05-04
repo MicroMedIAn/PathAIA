@@ -378,6 +378,10 @@ class PathaiaHandler(object):
                 PatchesNotFoundError, UnknownColumnError, SlideNotFoundError
             ) as e:
                 warnings.warn(str(e))
+            if len(patch_list) == 0:
+                # Raise error here
+                print(f'No patches for slide {slide_path}')
+                continue
             patch_set = get_tf_dataset(patch_list, label_list, preproc,
                                        batch_size=1, patch_size=patch_size)
             descriptors = model.predict(patch_set, steps=len(patch_list))
