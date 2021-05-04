@@ -83,10 +83,14 @@ def get_tf_dataset(
 
     """
     gen = generator_fn(patch_list, label_list, patch_size, preproc)
+    try:
+        shape_label = label_list[0].shape
+    except AttributeError:
+        shape_label = 1
     dataset = tf.data.Dataset.from_generator(
         generator=gen,
         output_types=(np.float32, np.int32),
-        output_shapes=((patch_size, patch_size, 3), label_list[0].shape),
+        output_shapes=((patch_size, patch_size, 3), shape_label),
     )
     dataset = dataset.batch(batch_size, drop_remainder=True)
     dataset = dataset.repeat()
