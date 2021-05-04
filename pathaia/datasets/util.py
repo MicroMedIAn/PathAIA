@@ -376,3 +376,33 @@ def clean(dtype: type, rm: Sequence[Any]) -> Callable:
             return data_generator(new_dataset)
         return cleaned_version
     return decorator
+
+
+def be_fair(dtype: type, rm: Sequence[Any]) -> Callable:
+    """Parameterize the decorator."""
+    def decorator(data_generator: Callable) -> Callable:
+        """
+        Decorate a data generator function with the clean function.
+
+        Args:
+            data_generator: a function that takes a dataset and yield samples.
+
+        Returns:
+            clean the dataset before the data_generator is applied.
+
+        """
+        def fair_version(dataset: RefDataSet) -> Generator:
+            """
+            Wrap the data_generator in this function.
+
+            Args:
+                dataset: just a dataset.
+
+            Returns:
+                cleaned version of the data generator.
+
+            """
+            new_dataset = fair_dataset(dataset, dtype, rm)
+            return data_generator(new_dataset)
+        return fair_version
+    return decorator
