@@ -367,15 +367,18 @@ class PathaiaHandler(object):
         for slide_path, patch_file in slide_list:
             try:
                 patch_list = []
+                label_list = []
                 # read patch file and get the right level
                 for patch, _ in read_patch_file(patch_file, slide_path,
                                                 level=level):
                     patch_list.append(patch)
+                    label_list.append(None)
             except (
                 PatchesNotFoundError, UnknownColumnError, SlideNotFoundError
             ) as e:
                 warnings.warn(str(e))
-            patch_set = get_tf_dataset(patch_list, preproc, patch_size=patch_size)
+            patch_set = get_tf_dataset(patch_list, label_list, preproc,
+                                       batch_size=1, patch_size=patch_size)
             descriptors = model.predict(patch_set)
             descriptor_csv = os.path.join(os.path.dirname(patch_file), f'features_{model}.csv')
             descriptors_to_csv(descriptors, descriptor_csv, patch_list)
