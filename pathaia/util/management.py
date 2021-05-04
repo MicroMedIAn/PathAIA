@@ -12,6 +12,10 @@ from typing import Sequence, Tuple, Iterator, List
 from .types import Patch
 from glob import glob
 import numpy as np
+from tensorflow.keras.applications import *
+from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.layers import GlobalAveragePooling2D
+from ..deep.data import get_tf_dataset
 
 
 class Error(Exception):
@@ -156,7 +160,7 @@ def get_slide_file(
 
 
 def read_patch_file(
-    patch_file: str, level: int, slide_path: str, column: str = None
+    patch_file: str, slide_path: str, column: str = None, level: int = None
 ) -> Iterator[Tuple[dict, str]]:
     """
     Read a patch file.
@@ -174,9 +178,10 @@ def read_patch_file(
 
     """
     df = pd.read_csv(patch_file)
-    level_df = df[df["level"] == level]
-    if column not in level_df:
-        for _, row in level_df.iterrows():
+    if level is not None:
+        df = df[df["level"] == level]
+    if column not in df:
+        for _, row in df.iterrows():
             yield {
                 "x": row["x"],
                 "y": row["y"],
@@ -188,7 +193,7 @@ def read_patch_file(
                 "slide": slide_path,
                 "slide_name": os.path.basename(slide_path)
             }, None
-    for _, row in level_df.iterrows():
+    for _, row in df.iterrows():
         yield {
             "x": row["x"],
             "y": row["y"],
@@ -221,6 +226,32 @@ def write_slide_predictions(
         pred = patch[column]
         patch_df.loc[idx, column] = pred
     patch_df.to_csv(slide_csv, index=False)
+
+
+def descriptors_to_csv(
+    descriptors: List[Tuple], filename: str, patch_list: List[Patch]
+):
+    """
+    Write patch embeddings into a csv file.
+
+    Args:
+        descriptors: list of
+        filename:
+    """
+    columns = ['id', 'level', 'x', 'y']
+    descriptors = np.asarray(descriptors)
+    for i in range(descriptors.shape[1]):
+        columns.append(f'Feat_{i}')
+    descriptor_df = pd.DataFrame([], columns=columns)
+    for x in range(len(patch_list)):
+        data = {'id': patch_list[x]['id'],
+                'level': patch_list[x]['level'],
+                'x': patch_list[x]['x'],
+                'y': patch_list[x]['y']}
+        for i in range(descriptors.shape[1]):
+            data[f'Feat_{i}'] = descriptors[x, i]
+        descriptor_df = descriptor_df.append(data, ignore_index=True)
+    descriptor_df.to_csv(filename, index=False)
 
 
 class PathaiaHandler(object):
@@ -307,3 +338,42 @@ class PathaiaHandler(object):
             ) as e:
                 warnings.warn(str(e))
         return patch_list, labels
+
+    def extract_features(
+        self, model: str = 'ResNet50', slides: Iterator = None,
+        patch_size: int = 224, level: int = None, layer: str = ''
+    ):
+        models = {
+            'ResNet50': {
+                'model': resnet50.ResNet50,
+                'module': resnet50
+            }
+        }
+        preproc = models[model]['module']
+        ModelClass = models[model]['model']
+        model = ModelClass(weights='imagenet', include_top=False,
+                           pooling='avg',
+                           input_shape=(patch_size, patch_size, 3))
+        if not layer == '':
+            layer_model = Model(inputs=model.input,
+                                outputs=model.get_layer(layer).output)
+            model = Sequential()
+            model.add(layer_model)
+            model.add(GlobalAveragePooling2D())
+        slide_list = self._iter_slides()
+        if slides is not None:
+            slide_list = slides
+        for slide_path, patch_file in slide_list:
+            try:
+                patch_list = []
+                # read patch file and get the right level
+                for patch, _ in read_patch_file(patch_file, level, slide_path):
+                    patch_list.append(patch)
+            except (
+                PatchesNotFoundError, UnknownColumnError, SlideNotFoundError
+            ) as e:
+                warnings.warn(str(e))
+            patch_set = get_tf_dataset(patch_list, preproc, patch_size=patch_size)
+            descriptors = model.predict(patch_set)
+            descriptor_csv = os.path.join(os.path.dirname(patch_file), f'features_{model}.csv')
+            descriptors_to_csv(descriptors, descriptor_csv, patch_list)
