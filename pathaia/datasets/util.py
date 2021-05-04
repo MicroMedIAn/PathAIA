@@ -4,10 +4,17 @@ A module to implement useful functions to apply to dataset.
 
 I still don't knwo exactly what we are putting into this module.
 """
-from typing import Sequence, Dict, Any, Optional, Callable, Generator
+from typing import (
+    Sequence, Dict, Any, Optional, Callable, Generator, Union
+)
 from ..util.types import RefDataSet
 import numpy as np
-from .errors import UnknownSplitModeError, InvalidDatasetError
+from .errors import (
+    UnknownSplitModeError,
+    InvalidDatasetError,
+    MissingArgumentError,
+    InvalidSplitError
+)
 
 
 def info(dataset: RefDataSet) -> Dict:
@@ -50,7 +57,9 @@ def shuffle_dataset(dataset: RefDataSet) -> RefDataSet:
     return rx, ry
 
 
-def clean_dataset(dataset: RefDataSet, dtype: type, rm: Sequence[Any]) -> RefDataSet:
+def clean_dataset(
+    dataset: RefDataSet, dtype: type, rm: Sequence[Any]
+) -> RefDataSet:
     """
     Remove bad data from a reference dataset.
 
@@ -122,7 +131,9 @@ def balance_dataset(dataset: RefDataSet) -> RefDataSet:
         raise InvalidDatasetError("{} check your dataset: {}".format(e, cat_count))
 
 
-def fair_dataset(dataset: RefDataSet, dtype: type, rm: Sequence[Any]) -> RefDataSet:
+def fair_dataset(
+    dataset: RefDataSet, dtype: type, rm: Sequence[Any]
+) -> RefDataSet:
     """
     Make a dataset fair.
 
@@ -159,8 +170,64 @@ def clip_dataset(dataset: RefDataSet, max_spl: int) -> RefDataSet:
 
 def split_dataset(
     dataset: RefDataSet,
+    sections: Sequence
+) -> Dict[Union[str, int], RefDataSet]:
+    """
+    Compute split of the dataset from ratios.
+
+    Args:
+        dataset: samples of a dataset.
+        sections: ratios of different splits, should sum to 1.
+
+    Returns:
+        splits of the dataset.
+
+    """
+    x, y = dataset
+    size = len(x)
+    result = dict()
+
+    if isinstance(sections, dict):
+        if sum(sections.values()) == 1:
+            offset = 0
+            for set_name, set_ratio in sections.items():
+                set_idx = int(set_ratio * size)
+                x_set = x[offset:offset + set_idx]
+                y_set = y[offset:offset + set_idx]
+                result[set_name] = (x_set, y_set)
+                offset += set_idx
+            return result
+
+        raise InvalidSplitError(
+            "Split values provided do not sum to 1: {}".format(sections)
+        )
+
+    if isinstance(sections, list) or isinstance(sections, tuple):
+        if sum(sections.values()) == 1:
+            offset = 0
+            for set_name, set_ratio in enumerate(sections):
+                set_idx = int(set_ratio * size)
+                x_set = x[offset:offset + set_idx]
+                y_set = y[offset:offset + set_idx]
+                result[set_name] = (x_set, y_set)
+                offset += set_idx
+            return result
+
+        raise InvalidSplitError(
+            "Split values provided do not sum to 1: {}".format(sections)
+        )
+
+    raise InvalidSplitError(
+        "Invalid arguments provided to the split method: \n{}\n{}".format(
+            sections, info(dataset)
+        )
+    )
+
+
+def split_dataset_(
+    dataset: RefDataSet,
     val_ratio: float,
-    test_ratio: Optional[float],
+    test_ratio: Optional[float] = None,
     mode: str = "tv"
 ) -> Dict[str, RefDataSet]:
     """
@@ -188,24 +255,28 @@ def split_dataset(
             "validation": (x_val, y_val)
         }
     if mode == "tvt":
-        test_size = int(test_ratio * size)
-        x_val = x[0:val_size]
-        y_val = y[0:val_size]
+        if test_ratio is not None:
+            test_size = int(test_ratio * size)
+            x_val = x[0:val_size]
+            y_val = y[0:val_size]
 
-        start_test = val_size
-        end_test = val_size + test_size
-        x_test = x[start_test:end_test]
-        y_test = y[start_test:end_test]
+            start_test = val_size
+            end_test = val_size + test_size
+            x_test = x[start_test:end_test]
+            y_test = y[start_test:end_test]
 
-        start_train = end_test
-        x_train = x[start_train::]
-        y_train = y[start_train::]
+            start_train = end_test
+            x_train = x[start_train::]
+            y_train = y[start_train::]
 
-        return {
-            "training": (x_train, y_train),
-            "validation": (x_val, y_val),
-            "test": (x_test, y_test)
-        }
+            return {
+                "training": (x_train, y_train),
+                "validation": (x_val, y_val),
+                "test": (x_test, y_test)
+            }
+        raise MissingArgumentError(
+            "Must set the test_ratio argument in 'tvt' mode!"
+        )
     raise UnknownSplitModeError(
         "{} is not a valid split mode! It should be either 'tv' or 'tvt'!".format(mode)
     )

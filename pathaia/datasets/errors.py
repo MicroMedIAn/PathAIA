@@ -34,3 +34,23 @@ class InvalidDatasetError(Error):
     """
 
     pass
+
+
+class MissingArgumentError(Error):
+    """
+    Raise when trying to perform operation on a dataset with bad properties.
+
+    ************************************************************************
+    """
+
+    pass
+
+
+class InvalidSplitError(Error):
+    """
+    Raise when trying to perform operation on a dataset with bad properties.
+
+    ************************************************************************
+    """
+
+    pass
