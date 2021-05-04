@@ -86,7 +86,7 @@ def get_tf_dataset(
     try:
         shape_label = label_list[0].shape
     except AttributeError:
-        shape_label = 1
+        shape_label = None
     dataset = tf.data.Dataset.from_generator(
         generator=gen,
         output_types=(np.float32, np.int32),
