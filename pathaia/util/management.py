@@ -372,7 +372,7 @@ class PathaiaHandler(object):
                 for patch, _ in read_patch_file(patch_file, slide_path,
                                                 level=level):
                     patch_list.append(patch)
-                    label_list.append(None)
+                    label_list.append(0)
             except (
                 PatchesNotFoundError, UnknownColumnError, SlideNotFoundError
             ) as e:
