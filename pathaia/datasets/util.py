@@ -5,21 +5,56 @@ A module to implement useful functions to apply to dataset.
 I still don't knwo exactly what we are putting into this module.
 """
 from typing import (
-    Sequence, Dict, Any, Optional, Callable, Generator, Union
+    Sequence, Dict, Any, Callable, Generator, Union
 )
-from ..util.types import RefDataSet
+from ..util.types import RefDataSet, SplitDataSet, DataSet
 import numpy as np
 from .errors import (
-    UnknownSplitModeError,
     InvalidDatasetError,
-    MissingArgumentError,
     InvalidSplitError
 )
 
 
+def extend_to_split_datasets(processing: Callable) -> Callable:
+    """
+    Decorate a dataset processing to extend usage to split datasets.
+
+    Args:
+        processing: a function that takes a RefDataSet and return a RefDataSet.
+
+    Returns:
+        Function adapted to Dataset inputs.
+
+    """
+    def extended_version(dataset: DataSet, *args, **kwargs) -> Union[Dict, DataSet]:
+        """
+        Wrap the processing in this function.
+
+        Args:
+            dataset: just a dataset.
+
+        Returns:
+            shuffled version of the data generator.
+
+        """
+        if isinstance(dataset, tuple):
+            return processing(dataset, *args, **kwargs)
+        if isinstance(dataset, dict):
+            result = dict()
+            for set_name, set_data in dataset.items():
+                result[set_name] = processing(set_data, *args, **kwargs)
+            return result
+        raise InvalidDatasetError(
+            "{} is not a valid type for datasets!"
+            " It should be a {}...".format(type(dataset), DataSet)
+        )
+    return extended_version
+
+
+@extend_to_split_datasets
 def info(dataset: RefDataSet) -> Dict:
     """
-    Check multiple filters on an image.
+    Produce info on an unsplitted dataset.
 
     Args:
         dataset: samples of a dataset.
@@ -38,6 +73,7 @@ def info(dataset: RefDataSet) -> Dict:
     return info
 
 
+@extend_to_split_datasets
 def shuffle_dataset(dataset: RefDataSet) -> RefDataSet:
     """
     Shuffle samples in a dataset.
@@ -57,6 +93,7 @@ def shuffle_dataset(dataset: RefDataSet) -> RefDataSet:
     return rx, ry
 
 
+@extend_to_split_datasets
 def clean_dataset(
     dataset: RefDataSet, dtype: type, rm: Sequence[Any]
 ) -> RefDataSet:
@@ -104,6 +141,7 @@ def balance_cat(dataset: RefDataSet, cat: Any, lack: int) -> RefDataSet:
     return x_padding, y_padding
 
 
+@extend_to_split_datasets
 def balance_dataset(dataset: RefDataSet) -> RefDataSet:
     """
     Balance the dataset using the balance_cat function on each cat.
@@ -131,6 +169,7 @@ def balance_dataset(dataset: RefDataSet) -> RefDataSet:
         raise InvalidDatasetError("{} check your dataset: {}".format(e, cat_count))
 
 
+@extend_to_split_datasets
 def fair_dataset(
     dataset: RefDataSet, dtype: type, rm: Sequence[Any]
 ) -> RefDataSet:
@@ -151,6 +190,7 @@ def fair_dataset(
     return shuffle_dataset(balance_dataset(clean_dataset(dataset, dtype, rm)))
 
 
+@extend_to_split_datasets
 def clip_dataset(dataset: RefDataSet, max_spl: int) -> RefDataSet:
     """
     Clip a dataset (to a max number of samples).
@@ -171,7 +211,7 @@ def clip_dataset(dataset: RefDataSet, max_spl: int) -> RefDataSet:
 def split_dataset(
     dataset: RefDataSet,
     sections: Sequence
-) -> Dict[Union[str, int], RefDataSet]:
+) -> SplitDataSet:
     """
     Compute split of the dataset from ratios.
 
@@ -224,65 +264,7 @@ def split_dataset(
     )
 
 
-def split_dataset_(
-    dataset: RefDataSet,
-    val_ratio: float,
-    test_ratio: Optional[float] = None,
-    mode: str = "tv"
-) -> Dict[str, RefDataSet]:
-    """
-    Compute split of the dataset from validation ratio and split mode.
-
-    Args:
-        dataset: samples of a dataset.
-        val_ratio: ratio of validation data.
-        mode: split mode, one of 'tv' (training-validation) or 'tvt' (training-validation-test)
-
-    Returns:
-        train, validation (test optional) datasets.
-
-    """
-    x, y = dataset
-    size = len(x)
-    val_size = int(val_ratio * size)
-    if mode == "tv":
-        x_val = x[0:val_size]
-        y_val = y[0:val_size]
-        x_train = x[val_size::]
-        y_train = y[val_size::]
-        return {
-            "training": (x_train, y_train),
-            "validation": (x_val, y_val)
-        }
-    if mode == "tvt":
-        if test_ratio is not None:
-            test_size = int(test_ratio * size)
-            x_val = x[0:val_size]
-            y_val = y[0:val_size]
-
-            start_test = val_size
-            end_test = val_size + test_size
-            x_test = x[start_test:end_test]
-            y_test = y[start_test:end_test]
-
-            start_train = end_test
-            x_train = x[start_train::]
-            y_train = y[start_train::]
-
-            return {
-                "training": (x_train, y_train),
-                "validation": (x_val, y_val),
-                "test": (x_test, y_test)
-            }
-        raise MissingArgumentError(
-            "Must set the test_ratio argument in 'tvt' mode!"
-        )
-    raise UnknownSplitModeError(
-        "{} is not a valid split mode! It should be either 'tv' or 'tvt'!".format(mode)
-    )
-
-
-# Decorators
+# Decorators on dataset generators
 
 # Careful here, since above functions are used as pre-processing steps,
 # (called before the wrapped function)
@@ -290,7 +272,10 @@ def split_dataset_(
 # ---------
 # @shuffle
 # @clip
-# def my_generator(dataset)
+# def my_generator(dataset):
+#   x, y = dataset
+#   for sx, sy in zip(x, y):
+#       yield sx, sy
 # -------------------------
 # will first shuffle, then clip the dataset...
 
@@ -305,7 +290,7 @@ def shuffle(data_generator: Callable) -> Callable:
         shuffle the dataset before the data_generator is applied.
 
     """
-    def shuffled_version(dataset: RefDataSet) -> Generator:
+    def shuffled_version(dataset: DataSet) -> Generator:
         """
         Wrap the data_generator in this function.
 
@@ -332,7 +317,7 @@ def balance(data_generator: Callable) -> Callable:
         balance the dataset before the data_generator is applied.
 
     """
-    def balanced_version(dataset: RefDataSet) -> Generator:
+    def balanced_version(dataset: DataSet) -> Generator:
         """
         Wrap the data_generator in this function.
 
@@ -348,6 +333,41 @@ def balance(data_generator: Callable) -> Callable:
     return balanced_version
 
 
+def split(sections: Sequence) -> Callable:
+    """Parameterize the decorator."""
+    def decorator(data_generator: Callable) -> Callable:
+        """
+        Decorate a data generator function with the clip function.
+
+        Args:
+            data_generator: a function that takes a dataset and yield samples.
+
+        Returns:
+            clip the dataset before the data_generator is applied.
+
+        """
+        def split_version(dataset: DataSet) -> Generator:
+            """
+            Wrap the data_generator in this function.
+
+            Args:
+                dataset: just a dataset.
+
+            Returns:
+                clipped version of the data generator.
+
+            """
+            new_dataset = split_dataset(dataset, sections)
+
+            @extend_to_split_datasets
+            def gen(ds):
+                return data_generator(ds)
+
+            return gen(new_dataset)
+        return split_version
+    return decorator
+
+
 def clip(max_spl: int) -> Callable:
     """Parameterize the decorator."""
     def decorator(data_generator: Callable) -> Callable:
@@ -361,7 +381,7 @@ def clip(max_spl: int) -> Callable:
             clip the dataset before the data_generator is applied.
 
         """
-        def clipped_version(dataset: RefDataSet) -> Generator:
+        def clipped_version(dataset: DataSet) -> Generator:
             """
             Wrap the data_generator in this function.
 
@@ -391,7 +411,7 @@ def batch(batch_size: int, keep_last: bool = False) -> Callable:
             batch the dataset before the data_generator is applied.
 
         """
-        def batched_version(dataset: RefDataSet) -> Generator:
+        def batched_version(dataset: DataSet) -> Generator:
             """
             Wrap the data_generator in this function.
 
@@ -432,7 +452,7 @@ def clean(dtype: type, rm: Sequence[Any]) -> Callable:
             clean the dataset before the data_generator is applied.
 
         """
-        def cleaned_version(dataset: RefDataSet) -> Generator:
+        def cleaned_version(dataset: DataSet) -> Generator:
             """
             Wrap the data_generator in this function.
 
@@ -462,7 +482,7 @@ def be_fair(dtype: type, rm: Sequence[Any]) -> Callable:
             clean the dataset before the data_generator is applied.
 
         """
-        def fair_version(dataset: RefDataSet) -> Generator:
+        def fair_version(dataset: DataSet) -> Generator:
             """
             Wrap the data_generator in this function.
 

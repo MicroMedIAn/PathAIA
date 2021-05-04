@@ -133,3 +133,5 @@ NDFloatImageBatch = Union[NDFloat32ImageBatch, NDFloat64ImageBatch]
 NDImageBatch = Union[NDByteImageBatch, NDFloatImageBatch]
 
 RefDataSet = Tuple[List, List]
+SplitDataSet = Dict[Union[int, str], RefDataSet]
+DataSet = Union[RefDataSet, SplitDataSet]
