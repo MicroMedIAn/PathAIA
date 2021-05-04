@@ -193,18 +193,19 @@ def read_patch_file(
                 "slide": slide_path,
                 "slide_name": os.path.basename(slide_path)
             }, None
-    for _, row in df.iterrows():
-        yield {
-            "x": row["x"],
-            "y": row["y"],
-            "dx": row["dx"],
-            "dy": row["dy"],
-            "id": row["id"],
-            "level": row["level"],
-            "slide_path": slide_path,
-            "slide": slide_path,
-            "slide_name": os.path.basename(slide_path)
-        }, row[column]
+    else:
+        for _, row in df.iterrows():
+            yield {
+                "x": row["x"],
+                "y": row["y"],
+                "dx": row["dx"],
+                "dy": row["dy"],
+                "id": row["id"],
+                "level": row["level"],
+                "slide_path": slide_path,
+                "slide": slide_path,
+                "slide_name": os.path.basename(slide_path)
+            }, row[column]
 
 
 def write_slide_predictions(
