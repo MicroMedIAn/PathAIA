@@ -26,7 +26,9 @@ def extend_to_split_datasets(processing: Callable) -> Callable:
         Function adapted to Dataset inputs.
 
     """
-    def extended_version(dataset: DataSet, *args, **kwargs) -> Union[Dict, DataSet]:
+    def extended_version(
+        dataset: DataSet, *args, **kwargs
+    ) -> Union[Dict, DataSet]:
         """
         Wrap the processing in this function.
 
@@ -166,7 +168,9 @@ def balance_dataset(dataset: RefDataSet) -> RefDataSet:
                 y += y_pad
         return x, y
     except ValueError as e:
-        raise InvalidDatasetError("{} check your dataset: {}".format(e, cat_count))
+        raise InvalidDatasetError(
+            "{} check your dataset: {}".format(e, cat_count)
+        )
 
 
 @extend_to_split_datasets
@@ -243,7 +247,7 @@ def split_dataset(
         )
 
     if isinstance(sections, list) or isinstance(sections, tuple):
-        if sum(sections.values()) == 1:
+        if sum(sections) == 1:
             offset = 0
             for set_name, set_ratio in enumerate(sections):
                 set_idx = int(set_ratio * size)
