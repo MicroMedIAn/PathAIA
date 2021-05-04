@@ -243,7 +243,7 @@ def descriptors_to_csv(
     columns = ['id', 'level', 'x', 'y']
     descriptors = np.asarray(descriptors)
     for i in range(descriptors.shape[1]):
-        columns.append(f'Feat_{i}')
+        columns.append(f'{i}')
     descriptor_df = pd.DataFrame([], columns=columns)
     for x in range(len(patch_list)):
         data = {'id': patch_list[x]['id'],
@@ -251,7 +251,7 @@ def descriptors_to_csv(
                 'x': patch_list[x]['x'],
                 'y': patch_list[x]['y']}
         for i in range(descriptors.shape[1]):
-            data[f'Feat_{i}'] = descriptors[x, i]
+            data[f'{i}'] = descriptors[x, i]
         descriptor_df = descriptor_df.append(data, ignore_index=True)
     descriptor_df.to_csv(filename, index=False)
 
@@ -342,7 +342,7 @@ class PathaiaHandler(object):
         return patch_list, labels
 
     def extract_features(
-        self, model: str = 'ResNet50', slides: Iterator = None,
+        self, model_name: str = 'ResNet50', slides: Iterator = None,
         patch_size: int = 224, level: int = None, layer: str = ''
     ):
         models = {
@@ -351,8 +351,8 @@ class PathaiaHandler(object):
                 'module': resnet50
             }
         }
-        preproc = models[model]['module'].preprocess_input
-        ModelClass = models[model]['model']
+        preproc = models[model_name]['module'].preprocess_input
+        ModelClass = models[model_name]['model']
         model = ModelClass(weights='imagenet', include_top=False,
                            pooling='avg',
                            input_shape=(patch_size, patch_size, 3))
@@ -385,5 +385,5 @@ class PathaiaHandler(object):
             patch_set = get_tf_dataset(patch_list, label_list, preproc,
                                        batch_size=1, patch_size=patch_size)
             descriptors = model.predict(patch_set, steps=len(patch_list))
-            descriptor_csv = os.path.join(os.path.dirname(patch_file), f'features_{model}.csv')
+            descriptor_csv = os.path.join(os.path.dirname(patch_file), f'features_{model_name}.csv')
             descriptors_to_csv(descriptors, descriptor_csv, patch_list)
