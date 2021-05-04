@@ -379,6 +379,7 @@ class PathaiaHandler(object):
                 warnings.warn(str(e))
             patch_set = get_tf_dataset(patch_list, label_list, preproc,
                                        batch_size=1, patch_size=patch_size)
-            descriptors = model.predict(patch_set)
+            descriptors = model.predict(patch_set, steps=len(patch_list))
+            descriptors = descriptors.flatten()
             descriptor_csv = os.path.join(os.path.dirname(patch_file), f'features_{model}.csv')
             descriptors_to_csv(descriptors, descriptor_csv, patch_list)
