@@ -16,6 +16,7 @@ from tensorflow.keras.applications import *
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import GlobalAveragePooling2D
 from ..deep.data import get_tf_dataset
+from tqdm import tqdm
 
 
 class Error(Exception):
@@ -364,7 +365,7 @@ class PathaiaHandler(object):
         slide_list = self._iter_slides()
         if slides is not None:
             slide_list = slides
-        for slide_path, patch_file in slide_list:
+        for slide_path, patch_file in tqdm(slide_list):
             try:
                 patch_list = []
                 label_list = []
@@ -380,6 +381,5 @@ class PathaiaHandler(object):
             patch_set = get_tf_dataset(patch_list, label_list, preproc,
                                        batch_size=1, patch_size=patch_size)
             descriptors = model.predict(patch_set, steps=len(patch_list))
-            descriptors = descriptors.flatten()
             descriptor_csv = os.path.join(os.path.dirname(patch_file), f'features_{model}.csv')
             descriptors_to_csv(descriptors, descriptor_csv, patch_list)
