@@ -331,7 +331,7 @@ class PathaiaHandler(object):
             try:
                 # read patch file and get the right level
                 for patch, label in read_patch_file(
-                    patch_file, level, slide_path, column
+                    patch_file, slide_path, column, level
                 ):
                     patch_list.append(patch)
                     labels.append(label)
