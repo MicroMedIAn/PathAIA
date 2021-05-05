@@ -67,12 +67,37 @@ def info(dataset: RefDataSet) -> Dict:
     """
     x, y = dataset
     info = dict()
-    for spl in y:
-        if spl not in info:
-            info[spl] = 1
+    for tag in y:
+        if tag not in info:
+            info[tag] = 1
         else:
-            info[spl] += 1
+            info[tag] += 1
     return info
+
+
+@extend_to_split_datasets
+def ratio_info(dataset: RefDataSet) -> Dict:
+    """
+    Produce ratios info on an unsplitted dataset.
+
+    Args:
+        dataset: samples of a dataset.
+
+    Returns:
+        Unique labels in the dataset with associated population.
+
+    """
+    x, y = dataset
+    populations = dict()
+    result = dict()
+    for tag in y:
+        if tag not in populations:
+            populations[tag] = 1
+        else:
+            populations[tag] += 1
+    for tag, population in populations.items():
+        result[tag] = float(population) / len(y)
+    return result
 
 
 @extend_to_split_datasets
@@ -214,7 +239,8 @@ def clip_dataset(dataset: RefDataSet, max_spl: int) -> RefDataSet:
 
 def split_dataset(
     dataset: RefDataSet,
-    sections: Sequence
+    sections: Sequence,
+    preserve_ratio: bool = True
 ) -> SplitDataSet:
     """
     Compute split of the dataset from ratios.
@@ -235,11 +261,11 @@ def split_dataset(
         if sum(sections.values()) == 1:
             offset = 0
             for set_name, set_ratio in sections.items():
-                set_idx = int(set_ratio * size)
-                x_set = x[offset:offset + set_idx]
-                y_set = y[offset:offset + set_idx]
+                set_size = int(set_ratio * size)
+                x_set = x[offset:offset + set_size]
+                y_set = y[offset:offset + set_size]
                 result[set_name] = (x_set, y_set)
-                offset += set_idx
+                offset += set_size
             return result
 
         raise InvalidSplitError(
@@ -250,11 +276,11 @@ def split_dataset(
         if sum(sections) == 1:
             offset = 0
             for set_name, set_ratio in enumerate(sections):
-                set_idx = int(set_ratio * size)
-                x_set = x[offset:offset + set_idx]
-                y_set = y[offset:offset + set_idx]
+                set_size = int(set_ratio * size)
+                x_set = x[offset:offset + set_size]
+                y_set = y[offset:offset + set_size]
                 result[set_name] = (x_set, y_set)
-                offset += set_idx
+                offset += set_size
             return result
 
         raise InvalidSplitError(
@@ -274,8 +300,12 @@ def split_dataset(
 # (called before the wrapped function)
 # the calling order of the decorators is reversed:
 # ---------
-# @shuffle
+# @clean   -|
+# @balance -|-----> @be_fair
+# @shuffle -|
 # @clip
+# @split
+# @batch
 # def my_generator(dataset):
 #   x, y = dataset
 #   for sx, sy in zip(x, y):

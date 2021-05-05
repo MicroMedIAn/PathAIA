@@ -9,7 +9,7 @@ import pandas as pd
 import os
 import warnings
 from typing import Sequence, Tuple, Iterator, List
-from .types import Patch
+from .types import Patch, PathLike
 from glob import glob
 import numpy as np
 
@@ -101,7 +101,7 @@ def get_patch_csv_from_patch_folder(patch_folder: str) -> str:
     )
 
 
-def get_patch_folders_in_project(project_folder: str) -> Iterator[str]:
+def get_patch_folders_in_project(project_folder: str) -> Iterator[PathLike]:
     """
     Give pathaia slide folders from a pathaia project folder (direct subfolders).
 
