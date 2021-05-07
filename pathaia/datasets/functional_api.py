@@ -11,7 +11,8 @@ from ..util.types import RefDataSet, SplitDataSet, DataSet
 import numpy as np
 from .errors import (
     InvalidDatasetError,
-    InvalidSplitError
+    InvalidSplitError,
+    TagNotFoundError
 )
 
 
@@ -98,6 +99,34 @@ def ratio_info(dataset: RefDataSet) -> Dict:
     for tag, population in populations.items():
         result[tag] = float(population) / len(y)
     return result
+
+
+@extend_to_split_datasets
+def class_data(dataset: RefDataSet, class_name: Union[str, int]) -> Dict:
+    """
+    Produce info on an unsplitted dataset.
+
+    Args:
+        dataset: samples of a dataset.
+
+    Returns:
+        Unique labels in the dataset with associated population.
+
+    """
+    x, y = dataset
+    res_x = []
+    res_y = []
+    if class_name in y:
+        for spl, tag in zip(x, y):
+            if tag == class_name:
+                res_x.append(spl)
+                res_y.append(tag)
+        return res_x, res_y
+    raise TagNotFoundError(
+        "Tag '{}' is not in dataset {}!".format(
+            class_name, info(dataset)
+        )
+    )
 
 
 @extend_to_split_datasets
@@ -254,18 +283,27 @@ def split_dataset(
 
     """
     x, y = dataset
-    size = len(x)
+    ratios = ratio_info(dataset)
+    population = info(dataset)
     result = dict()
 
     if isinstance(sections, dict):
         if sum(sections.values()) == 1:
-            offset = 0
+            offsets = {k: 0 for k in ratios.keys()}
             for set_name, set_ratio in sections.items():
-                set_size = int(set_ratio * size)
-                x_set = x[offset:offset + set_size]
-                y_set = y[offset:offset + set_size]
+                x_set = []
+                y_set = []
+                for class_name in offsets.keys():
+                    offset = offsets[class_name]
+                    class_size = population[class_name]
+                    class_set_size = int(set_ratio * class_size)
+                    cx, cy = class_data(dataset, class_name)
+                    cx_set = cx[offset:offset + class_set_size]
+                    cy_set = cy[offset:offset + class_set_size]
+                    x_set += cx_set
+                    y_set += cy_set
+                    offsets[class_name] += class_set_size
                 result[set_name] = (x_set, y_set)
-                offset += set_size
             return result
 
         raise InvalidSplitError(
@@ -274,13 +312,21 @@ def split_dataset(
 
     if isinstance(sections, list) or isinstance(sections, tuple):
         if sum(sections) == 1:
-            offset = 0
+            offsets = {k: 0 for k in ratios.keys()}
             for set_name, set_ratio in enumerate(sections):
-                set_size = int(set_ratio * size)
-                x_set = x[offset:offset + set_size]
-                y_set = y[offset:offset + set_size]
+                x_set = []
+                y_set = []
+                for class_name in offsets.keys():
+                    offset = offsets[class_name]
+                    class_size = population[class_name]
+                    class_set_size = int(set_ratio * class_size)
+                    cx, cy = class_data(dataset, class_name)
+                    cx_set = cx[offset:offset + class_set_size]
+                    cy_set = cy[offset:offset + class_set_size]
+                    x_set += cx_set
+                    y_set += cy_set
+                    offsets[class_name] += class_set_size
                 result[set_name] = (x_set, y_set)
-                offset += set_size
             return result
 
         raise InvalidSplitError(

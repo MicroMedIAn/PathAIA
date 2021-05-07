@@ -54,3 +54,13 @@ class InvalidSplitError(Error):
     """
 
     pass
+
+
+class TagNotFoundError(Error):
+    """
+    Raise when trying to reach a class not present in the dataset.
+
+    ************************************************************************
+    """
+
+    pass
