@@ -75,6 +75,7 @@ def apply_slide_filters(thumb: NDImage, filters: Sequence[Filter]) -> NDBoolMask
 
     Returns:
         Boolean mask where tissue pixels are True.
+
     """
     mask = numpy.ones(thumb.shape[:2], dtype=bool)
     for filt in filters:
@@ -98,6 +99,8 @@ def slide_rois(
     slide_filters: Optional[Sequence[Filter]] = None,
 ) -> Iterator[Tuple[Patch, NDImage]]:
     """
+    Get patches with coordinates.
+
     Given a slide, a pyramid level, a patchsize in pixels, an interval in pixels
     and an offset in pixels, get patches with its coordinates.
 
@@ -115,6 +118,7 @@ def slide_rois(
     Yields:
         A tuple containing a Patch object and the corresponding image as
         ndarray.
+
     """
     psize = convert_coords(psize)
     offset = convert_coords(offset)
@@ -200,6 +204,8 @@ def slide_rois_no_image(
     slide_filters: Optional[Sequence[Filter]] = None,
 ) -> Iterator[Tuple[Patch, NDImage]]:
     """
+    Get patches with coordinates.
+
     Given a slide, a pyramid level, a patchsize in pixels, an interval in pixels
     and an offset in pixels, get patches with its coordinates. Does not export image at
     any point.
@@ -217,6 +223,7 @@ def slide_rois_no_image(
     Yields:
         A tuple containing a Patch object and the corresponding image as
         ndarray.
+
     """
     psize = convert_coords(psize)
     offset = convert_coords(offset)
