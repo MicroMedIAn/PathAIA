@@ -5,7 +5,7 @@ A module to implement useful functions to apply to dataset.
 I still don't knwo exactly what we are putting into this module.
 """
 from typing import (
-    Sequence, Dict, Any, Callable, Generator, Union
+    Sequence, Dict, Any, Callable, Generator, Union, Iterable
 )
 from ..util.types import RefDataSet, SplitDataSet, DataSet
 import numpy as np
@@ -14,6 +14,8 @@ from .errors import (
     InvalidSplitError,
     TagNotFoundError
 )
+import openslide
+from .data import fast_slide_query
 
 
 def extend_to_split_datasets(processing: Callable) -> Callable:
@@ -370,7 +372,7 @@ def shuffle(data_generator: Callable) -> Callable:
         shuffle the dataset before the data_generator is applied.
 
     """
-    def shuffled_version(dataset: DataSet) -> Generator:
+    def shuffled_version(dataset: DataSet) -> Iterable:
         """
         Wrap the data_generator in this function.
 
@@ -397,7 +399,7 @@ def balance(data_generator: Callable) -> Callable:
         balance the dataset before the data_generator is applied.
 
     """
-    def balanced_version(dataset: DataSet) -> Generator:
+    def balanced_version(dataset: DataSet) -> Iterable:
         """
         Wrap the data_generator in this function.
 
@@ -423,10 +425,10 @@ def split(sections: Sequence) -> Callable:
             data_generator: a function that takes a dataset and yield samples.
 
         Returns:
-            clip the dataset before the data_generator is applied.
+            split the dataset before the data_generator is applied.
 
         """
-        def split_version(dataset: DataSet) -> Generator:
+        def split_version(dataset: DataSet) -> Iterable:
             """
             Wrap the data_generator in this function.
 
@@ -434,7 +436,7 @@ def split(sections: Sequence) -> Callable:
                 dataset: just a dataset.
 
             Returns:
-                clipped version of the data generator.
+                split version of the data generator.
 
             """
             new_dataset = split_dataset(dataset, sections)
@@ -461,7 +463,7 @@ def clip(max_spl: int) -> Callable:
             clip the dataset before the data_generator is applied.
 
         """
-        def clipped_version(dataset: DataSet) -> Generator:
+        def clipped_version(dataset: DataSet) -> Iterable:
             """
             Wrap the data_generator in this function.
 
@@ -491,7 +493,7 @@ def batch(batch_size: int, keep_last: bool = False) -> Callable:
             batch the dataset before the data_generator is applied.
 
         """
-        def batched_version(dataset: DataSet) -> Generator:
+        def batched_version(dataset: DataSet) -> Iterable:
             """
             Wrap the data_generator in this function.
 
@@ -532,7 +534,7 @@ def clean(dtype: type, rm: Sequence[Any]) -> Callable:
             clean the dataset before the data_generator is applied.
 
         """
-        def cleaned_version(dataset: DataSet) -> Generator:
+        def cleaned_version(dataset: DataSet) -> Iterable:
             """
             Wrap the data_generator in this function.
 
@@ -562,7 +564,7 @@ def be_fair(dtype: type, rm: Sequence[Any]) -> Callable:
             clean the dataset before the data_generator is applied.
 
         """
-        def fair_version(dataset: DataSet) -> Generator:
+        def fair_version(dataset: DataSet) -> Iterable:
             """
             Wrap the data_generator in this function.
 
@@ -576,4 +578,37 @@ def be_fair(dtype: type, rm: Sequence[Any]) -> Callable:
             new_dataset = fair_dataset(dataset, dtype, rm)
             return data_generator(new_dataset)
         return fair_version
+    return decorator
+
+
+def query_slide(
+    slides: Dict[str, openslide.OpenSlide],
+    patch_size: int
+) -> Callable:
+    """Parameterize the decorator."""
+    def decorator(data_generator: Callable) -> Callable:
+        """
+        Decorate a data generator function with the clean function.
+
+        Args:
+            data_generator: a function that takes a dataset and yield samples.
+
+        Returns:
+            clean the dataset before the data_generator is applied.
+
+        """
+        def query_version(dataset: DataSet) -> Generator:
+            """
+            Wrap the data_generator in this function.
+
+            Args:
+                dataset: just a dataset.
+
+            Returns:
+                cleaned version of the data generator.
+
+            """
+            for x, y in data_generator(dataset):
+                yield fast_slide_query(slides, x, patch_size), y
+        return query_version
     return decorator

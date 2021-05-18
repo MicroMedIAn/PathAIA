@@ -5,7 +5,7 @@ It uses the tf.data.Dataset object to enable parallel computing of batches.
 import numpy as np
 import openslide
 import tensorflow as tf
-from typing import Sequence, Callable, Iterator, Any, Tuple, Optional
+from typing import Sequence, Callable, Iterator, Any, Tuple, Optional, Dict, Union
 from ..util.types import Patch, NDByteImage
 
 
@@ -31,7 +31,9 @@ def slide_query(patch: Patch, patch_size: int) -> NDByteImage:
 
 
 def fast_slide_query(
-    slide: openslide.OpenSlide, patch: Patch, patch_size: int
+    slides: Dict[str, openslide.OpenSlide],
+    patch: Patch,
+    patch_size: int
 ) -> NDByteImage:
     """
     Query patch image in slide.
@@ -47,6 +49,7 @@ def fast_slide_query(
         Numpy array rgb image of the patch.
 
     """
+    slide = slides[patch["slide"]]
     pil_img = slide.read_region(
         (patch["x"], patch["y"]), patch["level"], (patch_size, patch_size)
     )
