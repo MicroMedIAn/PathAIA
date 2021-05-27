@@ -108,7 +108,7 @@ The lightning community is maintained by 4 core contributors from [Institut Univ
 
 ### Asking for help
 If you have any questions please:
-1. [Read the docs](https://pytorch-lightning.rtfd.io/en/latest).
+1. [Read the docs](https://pathaia.readthedocs.io/en/latest/index.html).
 2. [Check existing issues](https://github.com/ArnaudAbreu/PathAIA/issues), or [add a new issue](https://github.com/ArnaudAbreu/PathAIA/issues/new)
 
 ## License
