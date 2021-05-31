@@ -19,7 +19,7 @@ from .filters import (
     filter_has_tissue_he,
     standardize_filters,
 )
-from .slide_filters import filter_thumbnail
+from .slide_filters import filter_thumbnail, filter_fluo_thumbnail
 from .compat import convert_coords
 import os
 import csv
@@ -35,7 +35,10 @@ izi_filters = {
     "has-tissue-he": filter_has_tissue_he,
 }
 
-slide_filters = {"full": filter_thumbnail}
+slide_filters = {
+    "full": filter_thumbnail,
+    "fluo": filter_fluo_thumbnail
+}
 
 
 def filter_image(image: NDImage, filters: Sequence[Filter]) -> bool:
