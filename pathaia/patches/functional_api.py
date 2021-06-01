@@ -25,7 +25,7 @@ import os
 import csv
 from skimage.io import imsave
 from tqdm import tqdm
-from .errors import UnknownFilterError
+from .errors import UnknownFilterError, InvalidArgument
 from typing import Optional, Sequence, Tuple, Iterator
 
 
@@ -287,6 +287,7 @@ def patchify_slide(
     thumb_size: int = 512,
     slide_filters: Optional[Sequence[Filter]] = None,
     verbose: int = 2,
+    silence: int = 0
 ):
     """
     Save patches of a given wsi.
@@ -304,8 +305,10 @@ def patchify_slide(
         thumb_size: size of thumbnail's longest side. Always preserves aspect ratio.
         slide_filters: list of filters to apply to thumbnail. Should output boolean
             mask.
-        verbose (int: 0 => nada, 1 => patchifying parameters, 2 => start-end of
+        verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of
             processes, thumbnail export.
+        silence: 0 => write images, 1 => use images, but do not write, 2 => not even
+            using images for filtering.
 
     """
     # Get name of the slide
@@ -341,21 +344,53 @@ def patchify_slide(
     ########################
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        for patch, img in slide_rois(
-            slide,
-            level,
-            psize,
-            interval,
-            offset=offset,
-            filters=filters,
-            thumb_size=thumb_size,
-            slide_filters=slide_filters,
-        ):
-            outfile = os.path.join(
-                outleveldir, "{}_{}_{}.png".format(*patch.position, patch.level)
+        if silence == 0:
+            # Write images
+            for patch, img in slide_rois(
+                slide,
+                level,
+                psize,
+                interval,
+                offset=offset,
+                filters=filters,
+                thumb_size=thumb_size,
+                slide_filters=slide_filters,
+            ):
+                outfile = os.path.join(
+                    outleveldir, "{}_{}_{}.png".format(*patch.position, patch.level)
+                )
+                imsave(outfile, img)
+                plist.append(patch)
+        elif silence == 1:
+            # Do not write patches (but use images to filter)
+            for patch, img in slide_rois(
+                slide,
+                level,
+                psize,
+                interval,
+                offset=offset,
+                filters=filters,
+                thumb_size=thumb_size,
+                slide_filters=slide_filters,
+            ):
+                plist.append(patch)
+        elif silence == 2:
+            # Do not write images and do not even use them to filter patches
+            for patch in slide_rois_no_image(
+                slide,
+                level,
+                psize,
+                interval,
+                offset=offset,
+                thumb_size=thumb_size,
+                slide_filters=slide_filters
+            ):
+                plist.append(patch)
+        else:
+            raise InvalidArgument(
+                "Invalid 'silence' parameter: '{}',"
+                " should be one of [0, 1, 2]".format(silence)
             )
-            imsave(outfile, img)
-            plist.append(patch)
     if verbose > 1:
         print("end of patchification.")
         print("starting metadata csv export...")
@@ -503,6 +538,7 @@ def patchify_folder(
     thumb_size: int = 512,
     slide_filters: Optional[Sequence[Filter]] = None,
     verbose: int = 2,
+    silence: int = 0
 ):
     """
     Save patches of all wsi inside a folder.
@@ -525,6 +561,8 @@ def patchify_folder(
             mask.
         verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes,
             thumbnail export.
+        silence: 0 => write images, 1 => use images, but do not write, 2 => not even
+            using images for filtering.
 
     """
     if os.path.isdir(outfolder):
@@ -558,6 +596,7 @@ def patchify_folder(
                 thumb_size=thumb_size,
                 slide_filters=slide_filters,
                 verbose=verbose,
+                silence=silence
             )
         except (
             openslide.OpenSlideUnsupportedFormatError,
