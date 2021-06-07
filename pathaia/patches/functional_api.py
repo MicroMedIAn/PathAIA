@@ -26,7 +26,17 @@ import csv
 from skimage.io import imsave
 from tqdm import tqdm
 from .errors import UnknownFilterError, InvalidArgument
-from typing import Optional, Sequence, Tuple, Iterator
+from typing import Optional, Sequence, Tuple, Iterator, Dict
+from ..util.convert import (
+    get_categorical_segments_from_edges,
+    get_categorical_layer_edges,
+    layer_segment_to_json_struct,
+    get_category,
+    gen_categorical_from_floatpreds,
+    colorCycle
+)
+import glob
+import json
 
 
 izi_filters = {
@@ -682,3 +692,74 @@ def patchify_folder_hierarchically(
             openslide.lowlevel.OpenSlideError,
         ) as e:
             warnings.warn(str(e))
+
+
+def export_floatpred_to_categorical_micromap_json(
+    pathaiafolder: PathLike,
+    slidefolder: PathLike,
+    jsonfolder: PathLike,
+    level: int,
+    task: str,
+    thresholds: Dict[int, Tuple[float, float]],
+    classnames: Dict[int, str],
+    extension: str = ".mrxs",
+):
+    """
+    Export pathaia csv to a json annotation file compatible with MicroMap.
+
+    For each predicted category, a layer is created and connected components
+    are computed.
+
+    Args:
+        infolder: abs path to a folder of pathaia csv.
+        slidefolder: abs path to a folder of slides.
+        jsonfolder: abs path to a folder of json annotations.
+        level: level of patches to export.
+        task: prediction task to export (csv column).
+        thresholds: histogram bins for each category.
+        classnames: class names for each category.
+        extensions: slide extension.
+
+    """
+    patches = pathaiafolder
+    slides = slidefolder
+    color_dict = {k: colorCycle[k] for k in classnames}
+    for slide_folder in tqdm(glob.glob(os.path.join(patches, '*'))):
+        slide_prefix = slide_folder.replace(patches, slides)
+        slidename = os.path.basename(slide_prefix)
+        slide_path = slide_prefix + extension
+        pathaiajson = os.path.join(jsonfolder, "{}.json".format(slidename))
+        pathaiacsv = os.path.join(slide_folder, 'patches.csv')
+        try:
+            slide = openslide.OpenSlide(slide_path)
+            # print(f'Saving to json {pathaiajson} from {pathaiacsv}')
+            gen = gen_categorical_from_floatpreds(
+                pathaiacsv,
+                level,
+                task,
+                thresholds
+            )
+            layer_edges, layer_meta, interval = get_categorical_layer_edges(
+                gen,
+                color_dict,
+                classnames
+            )
+            layer_segments = get_categorical_segments_from_edges(layer_edges)
+            annotations = layer_segment_to_json_struct(
+                interval,
+                layer_segments,
+                layer_meta,
+                slide
+            )
+            with open(pathaiajson, "w") as f:
+                json.dump(annotations, f)
+        except Exception as e:
+            warnings.warn(
+                "slide '{}'"
+                " with patch file '{}'"
+                " failed with error: '{}'".format(
+                    slide_path,
+                    pathaiacsv,
+                    str(e)
+                )
+            )
