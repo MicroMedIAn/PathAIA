@@ -53,3 +53,13 @@ class HasNoDataFolder(PathaiaWarning):
     """
 
     pass
+
+
+class InvalidArgument(Error):
+    """
+    Raise when trying to read mrxs with no data folder.
+
+    ***************************************************
+    """
+
+    pass

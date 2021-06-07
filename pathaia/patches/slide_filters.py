@@ -2,6 +2,7 @@ import cv2
 import json
 import numpy as np
 from skimage.morphology import remove_small_objects
+from skimage.filters import threshold_otsu
 from skimage.draw import polygon2mask
 from ..util.types import NDBoolMask, NDByteImage, NDImage, PathLike
 
@@ -46,14 +47,16 @@ def filter_remove_small_objects(
 
 def filter_thumbnail(x: NDByteImage) -> NDBoolMask:
     """
-    Computes a tissue mask from a slide thumbnail. Filters background, red pen, blue pen
-    using La*b* space.
+    Compute a tissue mask from a slide thumbnail.
+
+    Filters background, red pen, blue pen using La*b* space.
 
     Args:
         x: input thumbnail as a numpy byte array.
 
     Returns:
         Numpy binary mask where usable tissue is marked as True.
+
     """
     x = cv2.cvtColor(x.astype(np.float32) / 255, cv2.COLOR_RGB2Lab)
     l, a, b = x.transpose(2, 0, 1)
@@ -63,6 +66,30 @@ def filter_thumbnail(x: NDByteImage) -> NDBoolMask:
         & (l < 95)
         & (l > 10)
     )
+    return filter_remove_small_objects(mask)
+
+
+def filter_fluo_thumbnail(x: NDByteImage, channel: int = 2) -> NDBoolMask:
+    """
+    Compute a tissue mask from a fluorescent slide thumbnail.
+
+    Filters empty regions using otsu operator.
+
+    Args:
+        x: input thumbnail as a numpy byte array.
+        channel: fluorescent channel to perform threshold on, default is 2 for blue <=> dapi.
+
+    Returns:
+        Numpy binary mask where usable tissue is marked as True.
+
+    """
+    dapi_channel = x[:, :, channel]
+    # first get scanned mask
+    unscanned_t = threshold_otsu(dapi_channel)
+    scanned_mask = dapi_channel > unscanned_t
+    dapi_channel[scanned_mask] = 0
+    dapi_t = threshold_otsu(dapi_channel)
+    mask = dapi_channel > dapi_t
     return filter_remove_small_objects(mask)
 
 
