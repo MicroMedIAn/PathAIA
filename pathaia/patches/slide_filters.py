@@ -1,8 +1,10 @@
 import cv2
+import json
 import numpy as np
 from skimage.morphology import remove_small_objects
 from skimage.filters import threshold_otsu
-from ..util.types import NDBoolMask, NDByteImage
+from skimage.draw import polygon2mask
+from ..util.types import NDBoolMask, NDByteImage, NDImage, PathLike
 
 
 def filter_remove_small_objects(
@@ -89,3 +91,40 @@ def filter_fluo_thumbnail(x: NDByteImage, channel: int = 2) -> NDBoolMask:
     dapi_t = threshold_otsu(dapi_channel)
     mask = dapi_channel > dapi_t
     return filter_remove_small_objects(mask)
+
+
+def get_json2pathaia_filter(annotfile: PathLike, label: str):
+    """
+    Get a slide_filter corresponding to annotations in Micromap format for a specific
+    class. This filter will only keep patches that have the corresponding label.
+
+    Args:
+        annotfile: Path to annotation file for this slide.
+        label: annotation label that is supposed to be positive.
+
+    Returns:
+        Numpy binary mask where annotated tissue is marked as True.
+    """
+    with open(annotfile, "r") as f:
+        annot_dict = json.load(f)
+
+    polygons = []
+    for layer in annot_dict["layers"]:
+        if layer["id"].lower() == label.lower():
+            for shape in layer["shapes"]:
+                polygon = []
+                for point in shape["points"]:
+                    x = point["x"]
+                    y = point["y"]
+                    polygon.append((y, x))
+                polygons.append(np.array(polygon))
+
+    def _filter(x: NDImage) -> NDBoolMask:
+        shape = x.shape[:2]
+        mask = np.zeros(shape, dtype=bool)
+        for polygon in polygons:
+            polygon = polygon / 100 * np.array(shape)
+            mask = mask | polygon2mask(shape, polygon)
+        return mask
+
+    return _filter
