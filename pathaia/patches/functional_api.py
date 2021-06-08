@@ -702,7 +702,8 @@ def export_floatpred_to_categorical_micromap_json(
     task: str,
     thresholds: Dict[int, Tuple[float, float]],
     classnames: Dict[int, str],
-    extension: str = ".mrxs",
+    extensions: Sequence[str] = (".mrxs",),
+    recurse: bool = True,
 ):
     """
     Export pathaia csv to a json annotation file compatible with MicroMap.
@@ -721,17 +722,16 @@ def export_floatpred_to_categorical_micromap_json(
         extensions: slide extension.
 
     """
-    patches = pathaiafolder
-    slides = slidefolder
     color_dict = {k: colorCycle[k] for k in classnames}
-    for slide_folder in tqdm(glob.glob(os.path.join(patches, '*'))):
-        slide_prefix = slide_folder.replace(patches, slides)
-        slidename = os.path.basename(slide_prefix)
-        slide_path = slide_prefix + extension
+    slidefiles = get_files(
+        slidefolder, extensions=extensions, recurse=recurse
+    ).map(str)
+    for slidefile in tqdm(slidefiles):
+        slidename, _ = os.path.splitext(os.path.basename(slidefile))
+        pathaiacsv = os.path.join(pathaiafolder, slidename, "patches.csv")
         pathaiajson = os.path.join(jsonfolder, "{}.json".format(slidename))
-        pathaiacsv = os.path.join(slide_folder, 'patches.csv')
         try:
-            slide = openslide.OpenSlide(slide_path)
+            slide = openslide.OpenSlide(slidefile)
             # print(f'Saving to json {pathaiajson} from {pathaiacsv}')
             gen = gen_categorical_from_floatpreds(
                 pathaiacsv,
@@ -758,7 +758,7 @@ def export_floatpred_to_categorical_micromap_json(
                 "slide '{}'"
                 " with patch file '{}'"
                 " failed with error: '{}'".format(
-                    slide_path,
+                    slidefile,
                     pathaiacsv,
                     str(e)
                 )
