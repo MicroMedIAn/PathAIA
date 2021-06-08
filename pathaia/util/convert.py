@@ -126,7 +126,10 @@ def gen_categorical_from_floatpreds(
         patch_file, level, column
     ):
         x, y, d, val, author = patch
-        yield x, y, d, get_category(val, thresholds), author
+        try:
+            yield x, y, d, get_category(val, thresholds), author
+        except OutOfBound:
+            pass
 
 
 def get_categorical_layer_edges(
