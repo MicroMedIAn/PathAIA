@@ -728,8 +728,11 @@ def export_floatpred_to_categorical_micromap_json(
     ).map(str)
     for slidefile in tqdm(slidefiles):
         slidename, _ = os.path.splitext(os.path.basename(slidefile))
-        pathaiacsv = os.path.join(pathaiafolder, slidename, "patches.csv")
-        pathaiajson = os.path.join(jsonfolder, "{}.json".format(slidename))
+        slidedir = os.path.dirname(slidefile)
+        pathaia_slidedir = slidedir.replace(slidefolder, pathaiafolder)
+        pathaiacsv = os.path.join(pathaia_slidedir, slidename, "patches.csv")
+        json_slidedir = slidedir.replace(slidefolder, jsonfolder)
+        pathaiajson = os.path.join(json_slidedir, "{}.json".format(slidename))
         try:
             slide = openslide.OpenSlide(slidefile)
             # print(f'Saving to json {pathaiajson} from {pathaiacsv}')
