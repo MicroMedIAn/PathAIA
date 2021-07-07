@@ -8,7 +8,7 @@ Draft for hierarchical patch extraction and representation is proposed.
 import warnings
 import numpy
 import openslide
-from kill_openslide_fluo.choice import choice
+from fluopenslide.choice import choice
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid, get_coords_from_mask
 from ..util.basic import ifnone
@@ -54,7 +54,7 @@ slide_filters = {
 
 def define(file):
     """
-    Decide whether the file have to be opened with OpenSlide or KillOpenSlide.
+    Decide whether the file have to be opened with OpenSlide or FluOpenSlide.
 
     Creates the object.
     """
@@ -113,7 +113,7 @@ def apply_slide_filters(thumb: NDImage, filters: Sequence[Filter]) -> NDBoolMask
 
 
 def slide_rois(
-    slide: openslide.OpenSlide or kill_openslide_fluo.KillOpenSlide,
+    slide: openslide.OpenSlide or fluopenslide.FluOpenSlide,
     level: int,
     psize: Coord,
     interval: Coord = (0, 0),
@@ -188,7 +188,7 @@ def slide_rois(
                     )
                 )
     else:
-        if slide.kill is True:
+        if slide.fluo is True:
             shape = Coord(*slide.level_dimensions(offset, psize)[level])
             mag = slide.level_downsamples()[level]
             thumb = slide.read_region(offset, 1, psize)
@@ -224,7 +224,7 @@ def slide_rois(
 
 
 def slide_rois_no_image(
-    slide: openslide.OpenSlide or kill_openslide_fluo.KillOpenSlidef,
+    slide: openslide.OpenSlide or fluopenslide.FluoOpenSlide,
     level: int,
     psize: Coord,
     interval: Coord = (0, 0),
@@ -282,7 +282,7 @@ def slide_rois_no_image(
                     parent=ancestor,
                 )
     else:
-        if slide.kill is True :
+        if slide.fluo is True :
             shape = Coord(*slide.level_dimensions(offset, psize)[level])
             mag = slide.level_downsamples()[level]
             thumb = slide.read_region(offset, 1, psize)
