@@ -8,6 +8,7 @@ Draft for hierarchical patch extraction and representation is proposed.
 import warnings
 import numpy
 import openslide
+from kill_openslide_fluo.choice import choice
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid, get_coords_from_mask
 from ..util.basic import ifnone
@@ -49,6 +50,17 @@ slide_filters = {
     "full": filter_thumbnail,
     "fluo": filter_fluo_thumbnail
 }
+
+
+def define(file):
+    """
+    Decide whether the file have to be opened with OpenSlide or KillOpenSlide.
+
+    Creates the object.
+    """
+
+    slide = choice(file)
+    return(slide)
 
 
 def filter_image(image: NDImage, filters: Sequence[Filter]) -> bool:
@@ -101,7 +113,7 @@ def apply_slide_filters(thumb: NDImage, filters: Sequence[Filter]) -> NDBoolMask
 
 
 def slide_rois(
-    slide: openslide.OpenSlide,
+    slide: openslide.OpenSlide or kill_openslide_fluo.KillOpenSlide,
     level: int,
     psize: Coord,
     interval: Coord = (0, 0),
@@ -176,9 +188,14 @@ def slide_rois(
                     )
                 )
     else:
-        shape = Coord(*slide.level_dimensions[level])
-        mag = slide.level_downsamples[level]
-        thumb = numpy.array(slide.get_thumbnail((thumb_size, thumb_size)))
+        if slide.kill is True:
+            shape = Coord(*slide.level_dimensions(offset, psize)[level])
+            mag = slide.level_downsamples()[level]
+            thumb = slide.read_region(offset, 1, psize)
+        else:
+            shape = Coord(*slide.level_dimensions[level])
+            mag = slide.level_downsamples[level]
+            thumb = numpy.array(slide.get_thumbnail((thumb_size, thumb_size)))
         mask = apply_slide_filters(thumb, slide_filters)
         k = 0
         for patch_coord in get_coords_from_mask(mask, shape, interval, psize):
@@ -189,15 +206,15 @@ def slide_rois(
             try:
                 image = slide.read_region(position, level, psize)
                 image = numpy.array(image)[:, :, 0:3]
-                if filter_image(image, filters):
-                    yield Patch(
-                        id=idx,
-                        slidename=slide._filename.split("/")[-1],
-                        position=position,
-                        level=level,
-                        size=psize,
-                        size_0=size_0,
-                    ), image
+                #if filter_image(image, filters):
+                yield Patch(
+                    id=idx,
+                    slidename=slide._filename.split("/")[-1],
+                    position=position,
+                    level=level,
+                    size=psize,
+                    size_0=size_0,
+                ), image
             except openslide.lowlevel.OpenSlideError:
                 print(
                     "small failure while reading tile x={}, y={} in {}".format(
@@ -207,7 +224,7 @@ def slide_rois(
 
 
 def slide_rois_no_image(
-    slide: openslide.OpenSlide,
+    slide: openslide.OpenSlide or kill_openslide_fluo.KillOpenSlidef,
     level: int,
     psize: Coord,
     interval: Coord = (0, 0),
@@ -265,9 +282,14 @@ def slide_rois_no_image(
                     parent=ancestor,
                 )
     else:
-        shape = Coord(*slide.level_dimensions[level])
-        mag = slide.level_downsamples[level]
-        thumb = numpy.array(slide.get_thumbnail((thumb_size, thumb_size)))
+        if slide.kill is True :
+            shape = Coord(*slide.level_dimensions(offset, psize)[level])
+            mag = slide.level_downsamples()[level]
+            thumb = slide.read_region(offset, 1, psize)
+        else :
+            shape = Coord(*slide.level_dimensions[level])
+            mag = slide.level_downsamples[level]
+            thumb = numpy.array(slide.get_thumbnail((thumb_size, thumb_size)))
         mask = apply_slide_filters(thumb, slide_filters)
         k = 0
         for patch_coord in get_coords_from_mask(mask, shape, interval, psize):

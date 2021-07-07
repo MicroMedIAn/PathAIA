@@ -135,7 +135,9 @@ class HierarchicalPatchifier(object):
         self.psize = psize
         self.interval = convert_coords(interval)
         self.offset = convert_coords(offset)
-        self.filters = standardize_filters(ifnone(filters, {}), top_level, low_level)
+        self.filters = standardize_filters(
+            ifnone(filters, {}), top_level, low_level
+        )
         self.verbose = verbose
         self.silent = ifnone(silent, [])
         self.extensions = ifnone(extensions, (".mrxs",))
@@ -192,7 +194,9 @@ class HierarchicalPatchifier(object):
         elif type(level) == int:
             if level not in self.filters:
                 raise UnknownLevelError(
-                    "Level {} is not in {} !!!".format(level, list(self.filters.keys()))
+                    "Level {} is not in {} !!!".format(
+                        level, list(self.filters.keys())
+                    )
                 )
             self.filters[level].append(filter_func)
         elif type(level) == list:
