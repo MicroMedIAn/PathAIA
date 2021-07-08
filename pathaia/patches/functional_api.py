@@ -8,7 +8,7 @@ Draft for hierarchical patch extraction and representation is proposed.
 import warnings
 import numpy
 import openslide
-from fluopenslide.choice import choice
+from fluopenslide1.choice import choice
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid, get_coords_from_mask
 from ..util.basic import ifnone

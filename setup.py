@@ -24,7 +24,8 @@ setup(
         "matplotlib",
         "nptyping",
         "pandas",
-        "dataclasses"
+        "dataclasses",
+        "fluopenslide1"
     ],
     include_package_data=True,
     long_description=long_description,
