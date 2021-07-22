@@ -25,7 +25,8 @@ setup(
         "nptyping",
         "pandas",
         "dataclasses",
-        "sortedcontainers"
+        "sortedcontainers",
+        "ordered-set"
     ],
     include_package_data=True,
     long_description=long_description,

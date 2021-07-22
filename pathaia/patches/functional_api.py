@@ -31,11 +31,9 @@ from ..util.convert import (
     get_categorical_segments_from_edges,
     get_categorical_layer_edges,
     layer_segment_to_json_struct,
-    get_category,
     gen_categorical_from_floatpreds,
     colorCycle
 )
-import glob
 import json
 
 
