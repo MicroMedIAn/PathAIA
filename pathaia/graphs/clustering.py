@@ -25,6 +25,48 @@ class AgglomerativeClustering:
     def __init__(self, compute_all: bool = False):
         self.compute_all = compute_all
 
+    def init_graph(
+        self,
+        G: UGraph,
+        feats: Union[Dict[Node, NDArray[(Any,), Any]], Sequence[str]],
+        weights: Optional[Union[Dict[Edge, float], str]] = None,
+    ):
+        r"""
+        Initialize main graph attributes (adjacency matrix, n_nodes and features) using
+        a graph object, a list of features and a list of weights.
+
+        Args:
+            G: graph to cluster nodes on.
+            feats: either a dictionary that maps nodes to their corresponding feature
+                vectors or a sequence of property names that will be used as features.
+            weights: either a dictionary that maps edges to their corresponding weight
+                or a property name that will be used as weight. If `None` is passed,
+                weights are computed using euclidian distances between feature vectors.
+        """
+        self.A = triu(G.A, format="csr").astype(np.float32)
+        self.n_nodes = G.n_nodes
+        if isinstance(feats, dict):
+            feats = [feats[node] for node in G.nodes]
+            self.feats = np.stack(feats)
+        else:
+            self.feats = []
+            for node in G.nodes:
+                self.feats.append([G.nodeprops[feat][node] for feat in feats])
+            self.feats = np.array(self.feats)
+
+        if weights is None:
+            ii, jj = self.A.nonzero()
+            dists = ((feats[ii] - feats[jj]) ** 2).sum(1)
+            self.A[ii, jj] = dists
+        elif isinstance(weights, dict):
+            for (n1, n2) in weights:
+                i, j = sorted((G.nodes.index(n1), G.nodes.index(n2)))
+                self.A[i, j] = weights[n1, n2] ** 2
+        else:
+            for (n1, n2) in G.edges:
+                i, j = sorted((G.nodes.index(n1), G.nodes.index(n2)))
+                self.A[i, j] = G.edgeprops[str][(n1, n2)] ** 2
+
     def reset(self):
         """
         Reset the algorithm attributes. Populations are initiated to 1 for every node,
@@ -170,31 +212,9 @@ class AgglomerativeClustering:
                 or a property name that will be used as weight. If `None` is passed,
                 weights are computed using euclidian distances between feature vectors.
         """
-        self.A = triu(G.A, format="csr").astype(np.float32)
-        self.n_nodes = G.n_nodes
-        if isinstance(feats, dict):
-            feats = [feats[node] for node in G.nodes]
-            self.feats = np.stack(feats)
-        else:
-            self.feats = []
-            for node in G.nodes:
-                self.feats.append([G.nodeprops[feat][node] for feat in feats])
-            self.feats = np.array(self.feats)
-
-        if weights is None:
-            ii, jj = self.A.nonzero()
-            dists = ((feats[ii] - feats[jj]) ** 2).sum(1)
-            self.A[ii, jj] = dists
-        elif isinstance(weights, dict):
-            for (n1, n2) in weights:
-                i, j = sorted((G.nodes.index(n1), G.nodes.index(n2)))
-                self.A[i, j] = weights[n1, n2] ** 2
-        else:
-            for (n1, n2) in G.edges:
-                i, j = sorted((G.nodes.index(n1), G.nodes.index(n2)))
-                self.A[i, j] = G.edgeprops[str][(n1, n2)] ** 2
-
+        self.init_graph(G, feats, weights)
         self.reset()
+
         c = self.n_nodes
         for n in tqdm(range(self.n_nodes - 1), total=self.n_nodes - 1):
             if not self.edges_:
@@ -253,6 +273,7 @@ class AgglomerativeClustering:
             The tree that describes the hierarchical clustering procedure.
         """
         self.fit(G, feats, weights)
+
         children = []
         parents = []
         nodes = list(range(G.n_nodes))

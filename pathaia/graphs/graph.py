@@ -1,7 +1,7 @@
 """Classes used to represent graphs."""
 from typing import List, Sequence, Optional, Union
 import json
-from scipy.sparse import csr_matrix
+from scipy.sparse import spmatrix, dok_matrix
 import numpy as np
 from ordered_set import OrderedSet
 from .types import (
@@ -35,6 +35,8 @@ from .functional_api import (
 from ..util.basic import ifnone
 import ast
 
+MAX_N_NODES = int(10e7)
+
 
 class Graph:
     """Object to represent a directed graph."""
@@ -43,59 +45,49 @@ class Graph:
         self,
         nodes: Optional[Sequence[Node]] = None,
         edges: Optional[Sequence[Edge]] = None,
-        A: Optional[csr_matrix] = None,
+        A: Optional[spmatrix] = None,
         nodeprops: Optional[NodeProperties] = None,
         edgeprops: Optional[EdgeProperties] = None,
     ):
+        self.A_ = dok_matrix((MAX_N_NODES, MAX_N_NODES), dtype=bool)
         if nodes is None:
             self.nodes_ = OrderedSet()
             if edges is not None:
                 self.edges_ = list(edges)
-                row_ind = []
-                col_ind = []
                 for x, y in edges:
                     i = self.nodes_.add(x)
                     j = self.nodes_.add(y)
-                    row_ind.append(i)
-                    col_ind.append(j)
-                self.n_nodes = len(self.nodes_)
-                self.A_ = csr_matrix(
-                    (np.ones(len(row_ind), dtype=bool), (row_ind, col_ind)),
-                    shape=(self.n_nodes, self.n_nodes),
-                )
+                    self.A_[i, j] = True
             elif A is not None:
                 self.nodes_ = OrderedSet(np.arange(A.shape[0]))
-                self.n_nodes = len(self.nodes_)
-                self.edges_ = [(i, j) for i, j in zip(*A.nonzero())]
-                self.A_ = A.astype(bool)
+                self.edges_ = []
+                for i, j in zip(*A.nonzero()):
+                    self.edges_.appends((i, j))
+                    self.A_[i, j] = True
             else:
                 self.edges_ = []
-                self.A_ = csr_matrix((0, 0), dtype=bool)
         else:
             self.nodes_ = OrderedSet(nodes)
-            self.n_nodes = len(self.nodes_)
             if edges is not None:
                 self.edges_ = list(edges)
-                row_ind = []
-                col_ind = []
                 for x, y in edges:
                     i = self.nodes_.index(x)
                     j = self.nodes_.index(y)
-                    row_ind.append(i)
-                    col_ind.append(j)
-                self.A_ = csr_matrix(
-                    (np.ones(len(row_ind), dtype=bool), (row_ind, col_ind)),
-                    shape=(self.n_nodes, self.n_nodes),
-                )
+                    self.A_[i, j] = True
             elif A is not None:
-                self.edges_ = [(i, j) for i, j in zip(*A.nonzero())]
-                self.A_ = A.astype(bool)
+                self.edges_ = []
+                for i, j in zip(*A.nonzero()):
+                    self.edges_.appends((i, j))
+                    self.A_[i, j] = True
             else:
                 self.edges_ = []
-                self.A_ = csr_matrix((self.n_nodes, self.n_nodes), dtype=bool)
 
         self.nodeprops = ifnone(nodeprops, {})
         self.edgeprops = ifnone(edgeprops, {})
+
+    @property
+    def n_nodes(self):
+        return self.nodes_
 
     @property
     def nodes(self):
@@ -107,69 +99,43 @@ class Graph:
 
     @property
     def A(self):
-        return self.A_
+        return self.A_.tocsr()[: self.n_nodes, : self.n_nodes]
 
-    def add_node(self, node: Node, update_A: bool = True):
-        i = self.nodes_.add(node)
-        if i == self.n_nodes:
-            self.n_nodes += 1
-            if update_A:
-                ii, jj = self.A_.nonzero()
-                self.A_ = csr_matrix(
-                    (self.A_[ii, jj].A1, (ii, jj)),
-                    shape=(self.n_nodes, self.n_nodes),
-                    dtype=bool,
-                )
+    def add_node(self, node: Node):
+        self.nodes_.add(node)
 
-    def add_nodes(self, nodes: Sequence[Node], update_A: bool = True):
+    def add_nodes(self, nodes: Sequence[Node]):
         for node in nodes:
-            self.add_node(node, update_A=False)
-        if update_A:
-            ii, jj = self.A_.nonzero()
-            self.A_ = csr_matrix(
-                (self.A_[ii, jj].A1, (ii, jj)),
-                shape=(self.n_nodes, self.n_nodes),
-                dtype=bool,
-            )
+            self.add_node(node)
 
-    def add_edge(self, edge: Edge, update_A: bool = True):
-        self.add_nodes(edge, update_A=update_A)
+    def add_edge(self, edge: Edge):
+        self.add_nodes(edge)
         self.edges_.append(edge)
-        if update_A:
-            n1, n2 = edge
-            i = self.nodes_.index(n1)
-            j = self.nodes_.index(n2)
-            self.A_[i, j] = True
+        n1, n2 = edge
+        i = self.nodes_.index(n1)
+        j = self.nodes_.index(n2)
+        self.A_[i, j] = True
 
-    def add_edges(self, edges: Sequence[Edge], update_A: bool = True):
-        row_ind = []
-        col_ind = []
+    def add_edges(self, edges: Sequence[Edge]):
         for edge in edges:
-            self.add_edge(edge, update_A=False)
-            if update_A:
-                n1, n2 = edge
-                i = self.nodes_.index(n1)
-                j = self.nodes_.index(n2)
-                row_ind.append(i)
-                col_ind.append(j)
-        if update_A:
-            ii, jj = self.A_.nonzero()
-            data = np.ones((len(ii) + len(row_ind)))
-            row_ind = np.concatenate((ii, row_ind))
-            col_ind = np.concatenate((jj, col_ind))
-            self.A_ = csr_matrix(
-                (data, (row_ind, col_ind)),
-                shape=(self.n_nodes, self.n_nodes),
-                dtype=bool,
-            )
+            self.add_edge(edge)
+
+    def remove_edge(self, edge: Edge):
+        try:
+            self.edges_.remove(edge)
+        except ValueError:
+            print(f"Edge {edge} was not found in graph")
+        n1, n2 = edge
+        i = self.nodes_.index(n1)
+        j = self.nodes_.index(n2)
+        self.A_[i, j] = False
 
     def reset(self):
         self.nodes_ = OrderedSet()
         self.edges_ = []
-        self.A_ = csr_matrix((0, 0), dtype=bool)
+        self.A_ = dok_matrix((MAX_N_NODES, MAX_N_NODES), dtype=bool)
         self.nodeprops = {}
         self.edgeprops = {}
-        self.n_nodes = 0
 
 
 class UGraph(Graph):
@@ -179,23 +145,27 @@ class UGraph(Graph):
         self,
         nodes: Optional[Sequence[Node]] = None,
         edges: Optional[Sequence[Edge]] = None,
-        A: Optional[csr_matrix] = None,
+        A: Optional[spmatrix] = None,
         nodeprops: Optional[NodeProperties] = None,
         edgeprops: Optional[EdgeProperties] = None,
     ):
         super().__init__(self, nodes, edges, A, nodeprops, edgeprops)
-        self.A_ = A.maximum(A.T)
         self.edges_ = [sorted(edge) for edge in self.edges_]
 
-    def add_edge(self, edge: Edge, update_A: bool = True):
-        super().add_edge(sorted(edge), update_A=update_A)
-        if update_A:
-            self.A_ = self.A_.maximum(self.A_.T)
+    @property
+    def A(self):
+        A = self.A_.tocsr()[: self.n_nodes, : self.n_nodes]
+        return A + A.T
 
-    def add_edges(self, edges: Sequence[Edge], update_A: bool = True):
-        super().add_edges(edges, update_A=update_A)
-        if update_A:
-            self.A_ = self.A_.maximum(self.A_.T)
+    def add_edge(self, edge: Edge):
+        super().add_edge(sorted(edge, key=self.nodes_.index))
+
+    def remove_edge(self, edge: Edge):
+        super().remove_edge(sorted(edge, key=self.nodes_.index))
+        n1, n2 = edge
+        i = self.nodes_.index(n1)
+        j = self.nodes_.index(n2)
+        self.A_[j, i] = False
 
 
 class Tree(Graph):
@@ -232,17 +202,15 @@ class Tree(Graph):
     def children(self) -> Childhood:
         return self.children_
 
-    def add_edge(self, parent: Node, child: Node, update_A: bool = True):
+    def add_edge(self, parent: Node, child: Node):
         self.parents_[child] = parent
         try:
             self.children_[parent].add(child)
         except KeyError:
             self.children_[parent] = {child}
-        super().add_edge((parent, child), update_A=update_A)
+        super().add_edge((parent, child))
 
-    def add_children(
-        self, parent: Node, children: Sequence[Node], update_A: bool = True
-    ):
+    def add_children(self, parent: Node, children: Sequence[Node]):
         edges = []
         for child in children:
             self.parents_[child] = parent
@@ -251,16 +219,14 @@ class Tree(Graph):
             self.children_[parent] |= set(children)
         except KeyError:
             self.children_[parent] = set(children)
-        super().add_edges(edges, update_A=update_A)
+        super().add_edges(edges)
 
-    def add_edges(
-        self, edges: Sequence[Node, Union[Node, Sequence[Node]]], update_A: bool = True
-    ):
+    def add_edges(self, edges: Sequence[Node, Union[Node, Sequence[Node]]]):
         for p, c in edges:
             if isinstance(c, Node):
-                self.add_edge(p, c, update_A=update_A)
+                self.add_edge(p, c)
             else:
-                self.add_children(p, c, update_A=update_A)
+                self.add_children(p, c)
 
     def reset(self):
         super().reset()
