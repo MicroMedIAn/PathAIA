@@ -215,22 +215,21 @@ class Tree(Graph):
             self.from_json(jsonfile)
         else:
             edges = []
-            for node in children:
-                edges.extend([(node, child) for child in children[node]])
+            self.parents_ = ifnone(parents, {})
+            self.children_ = ifnone(children, {})
+            for node in self.children_:
+                self.children_[node] = set(self.children_[node])
+                edges.extend([(node, child) for child in self.children_[node]])
             super().__init__(
                 self, nodes=nodes, edges=edges, nodeprops=nodeprops, edgeprops=edgeprops
             )
-            self.parents_ = ifnone(parents, {})
-            self.children_ = ifnone(
-                {parent: set(children[parent]) for parent in children}, {}
-            )
 
     @property
-    def parents(self):
+    def parents(self) -> Parenthood:
         return self.parents_
 
     @property
-    def children(self):
+    def children(self) -> Childhood:
         return self.children_
 
     def add_edge(self, parent: Node, child: Node, update_A: bool = True):
