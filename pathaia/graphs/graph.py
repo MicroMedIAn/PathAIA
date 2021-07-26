@@ -32,6 +32,7 @@ from .functional_api import (
     edge_dist as _edge_dist,
     weighted_dist as _weighted_dist,
 )
+from ..util.basic import ifnone
 import ast
 
 
@@ -47,63 +48,75 @@ class Graph:
         edgeprops: Optional[EdgeProperties] = None,
     ):
         if nodes is None:
-            self.nodes = OrderedSet()
+            self.nodes_ = OrderedSet()
             if edges is not None:
-                self.edges = list(edges)
+                self.edges_ = list(edges)
                 row_ind = []
                 col_ind = []
                 for x, y in edges:
-                    i = self.nodes.add(x)
-                    j = self.nodes.add(y)
+                    i = self.nodes_.add(x)
+                    j = self.nodes_.add(y)
                     row_ind.append(i)
                     col_ind.append(j)
-                self.n_nodes = len(self.nodes)
-                self.A = csr_matrix(
+                self.n_nodes = len(self.nodes_)
+                self.A_ = csr_matrix(
                     (np.ones(len(row_ind), dtype=bool), (row_ind, col_ind)),
                     shape=(self.n_nodes, self.n_nodes),
                 )
             elif A is not None:
-                self.nodes = OrderedSet(np.arange(A.shape[0]))
-                self.n_nodes = len(self.nodes)
-                self.edges = [(i, j) for i, j in zip(*A.nonzero())]
-                self.A = A.astype(bool)
+                self.nodes_ = OrderedSet(np.arange(A.shape[0]))
+                self.n_nodes = len(self.nodes_)
+                self.edges_ = [(i, j) for i, j in zip(*A.nonzero())]
+                self.A_ = A.astype(bool)
             else:
-                self.edges = []
-                self.A = csr_matrix((0, 0), dtype=bool)
+                self.edges_ = []
+                self.A_ = csr_matrix((0, 0), dtype=bool)
         else:
-            self.nodes = OrderedSet(nodes)
-            self.n_nodes = len(self.nodes)
+            self.nodes_ = OrderedSet(nodes)
+            self.n_nodes = len(self.nodes_)
             if edges is not None:
-                self.edges = list(edges)
+                self.edges_ = list(edges)
                 row_ind = []
                 col_ind = []
                 for x, y in edges:
-                    i = self.nodes.index(x)
-                    j = self.nodes.index(y)
+                    i = self.nodes_.index(x)
+                    j = self.nodes_.index(y)
                     row_ind.append(i)
                     col_ind.append(j)
-                self.A = csr_matrix(
+                self.A_ = csr_matrix(
                     (np.ones(len(row_ind), dtype=bool), (row_ind, col_ind)),
                     shape=(self.n_nodes, self.n_nodes),
                 )
             elif A is not None:
-                self.edges = [(i, j) for i, j in zip(*A.nonzero())]
-                self.A = A.astype(bool)
+                self.edges_ = [(i, j) for i, j in zip(*A.nonzero())]
+                self.A_ = A.astype(bool)
             else:
-                self.edges = []
-                self.A = csr_matrix((self.n_nodes, self.n_nodes), dtype=bool)
+                self.edges_ = []
+                self.A_ = csr_matrix((self.n_nodes, self.n_nodes), dtype=bool)
 
-        self.nodeprops = nodeprops
-        self.edgeprops = edgeprops
+        self.nodeprops = ifnone(nodeprops, {})
+        self.edgeprops = ifnone(edgeprops, {})
+
+    @property
+    def nodes(self):
+        return self.nodes_
+
+    @property
+    def edges(self):
+        return self.edges_
+
+    @property
+    def A(self):
+        return self.A_
 
     def add_node(self, node: Node, update_A: bool = True):
-        i = self.nodes.add(node)
+        i = self.nodes_.add(node)
         if i == self.n_nodes:
             self.n_nodes += 1
             if update_A:
-                ii, jj = self.A.nonzero()
-                self.A = csr_matrix(
-                    (self.A[ii, jj].A1, (ii, jj)),
+                ii, jj = self.A_.nonzero()
+                self.A_ = csr_matrix(
+                    (self.A_[ii, jj].A1, (ii, jj)),
                     shape=(self.n_nodes, self.n_nodes),
                     dtype=bool,
                 )
@@ -112,21 +125,21 @@ class Graph:
         for node in nodes:
             self.add_node(node, update_A=False)
         if update_A:
-            ii, jj = self.A.nonzero()
-            self.A = csr_matrix(
-                (self.A[ii, jj].A1, (ii, jj)),
+            ii, jj = self.A_.nonzero()
+            self.A_ = csr_matrix(
+                (self.A_[ii, jj].A1, (ii, jj)),
                 shape=(self.n_nodes, self.n_nodes),
                 dtype=bool,
             )
 
     def add_edge(self, edge: Edge, update_A: bool = True):
         self.add_nodes(edge, update_A=update_A)
-        self.edges.append(edge)
+        self.edges_.append(edge)
         if update_A:
             n1, n2 = edge
-            i = self.nodes.index(n1)
-            j = self.nodes.index(n2)
-            self.A[i, j] = True
+            i = self.nodes_.index(n1)
+            j = self.nodes_.index(n2)
+            self.A_[i, j] = True
 
     def add_edges(self, edges: Sequence[Edge], update_A: bool = True):
         row_ind = []
@@ -135,20 +148,28 @@ class Graph:
             self.add_edge(edge, update_A=False)
             if update_A:
                 n1, n2 = edge
-                i = self.nodes.index(n1)
-                j = self.nodes.index(n2)
+                i = self.nodes_.index(n1)
+                j = self.nodes_.index(n2)
                 row_ind.append(i)
                 col_ind.append(j)
         if update_A:
-            ii, jj = self.A.nonzero()
+            ii, jj = self.A_.nonzero()
             data = np.ones((len(ii) + len(row_ind)))
             row_ind = np.concatenate((ii, row_ind))
             col_ind = np.concatenate((jj, col_ind))
-            self.A = csr_matrix(
+            self.A_ = csr_matrix(
                 (data, (row_ind, col_ind)),
                 shape=(self.n_nodes, self.n_nodes),
                 dtype=bool,
             )
+
+    def reset(self):
+        self.nodes_ = OrderedSet()
+        self.edges_ = []
+        self.A_ = csr_matrix((0, 0), dtype=bool)
+        self.nodeprops = {}
+        self.edgeprops = {}
+        self.n_nodes = 0
 
 
 class UGraph(Graph):
@@ -163,18 +184,18 @@ class UGraph(Graph):
         edgeprops: Optional[EdgeProperties] = None,
     ):
         super().__init__(self, nodes, edges, A, nodeprops, edgeprops)
-        self.A = A.maximum(A.T)
-        self.edges = [sorted(edge) for edge in self.edges]
+        self.A_ = A.maximum(A.T)
+        self.edges_ = [sorted(edge) for edge in self.edges_]
 
     def add_edge(self, edge: Edge, update_A: bool = True):
         super().add_edge(sorted(edge), update_A=update_A)
         if update_A:
-            self.A = self.A.maximum(self.A.T)
+            self.A_ = self.A_.maximum(self.A_.T)
 
     def add_edges(self, edges: Sequence[Edge], update_A: bool = True):
         super().add_edges(edges, update_A=update_A)
         if update_A:
-            self.A = self.A.maximum(self.A.T)
+            self.A_ = self.A_.maximum(self.A_.T)
 
 
 class Tree(Graph):
@@ -190,21 +211,67 @@ class Tree(Graph):
         jsonfile: Optional[str] = None,
     ):
         """Init tree object."""
-        edges = []
-        for node in children:
-            edges.extend([(node, child) for child in children[node]])
-        super().__init__(
-            self, nodes=nodes, edges=edges, nodeprops=nodeprops, edgeprops=edgeprops
-        )
-        self.parents = parents
-        self.children = children
         if jsonfile is not None:
             self.from_json(jsonfile)
+        else:
+            edges = []
+            for node in children:
+                edges.extend([(node, child) for child in children[node]])
+            super().__init__(
+                self, nodes=nodes, edges=edges, nodeprops=nodeprops, edgeprops=edgeprops
+            )
+            self.parents_ = ifnone(parents, {})
+            self.children_ = ifnone(
+                {parent: set(children[parent]) for parent in children}, {}
+            )
+
+    @property
+    def parents(self):
+        return self.parents_
+
+    @property
+    def children(self):
+        return self.children_
+
+    def add_edge(self, parent: Node, child: Node, update_A: bool = True):
+        self.parents_[child] = parent
+        try:
+            self.children_[parent].add(child)
+        except KeyError:
+            self.children_[parent] = {child}
+        super().add_edge((parent, child), update_A=update_A)
+
+    def add_children(
+        self, parent: Node, children: Sequence[Node], update_A: bool = True
+    ):
+        edges = []
+        for child in children:
+            self.parents_[child] = parent
+            edges.append((parent, child))
+        try:
+            self.children_[parent].extend(children)
+        except KeyError:
+            self.children_[parent] = set(children)
+        super().add_edges(edges, update_A=update_A)
+
+    def add_edges(
+        self, edges: Sequence[Node, Union[Node, Sequence[Node]]], update_A: bool = True
+    ):
+        for p, c in edges:
+            if isinstance(c, Node):
+                self.add_edge(p, c, update_A=update_A)
+            else:
+                self.add_children(p, c, update_A=update_A)
+
+    def reset(self):
+        super().reset()
+        self.parents_ = {}
+        self.children_ = {}
 
     def get_root(self, node: Node = None) -> Node:
         """Give root of the tree."""
-        if self.parents is not None:
-            return _get_root(self.parents, node)
+        if self.parents_ is not None:
+            return _get_root(self.parents_, node)
         raise UndefinedParenthood(
             "Parenthood of the tree was not defined, "
             "please build the tree before use."
@@ -212,8 +279,8 @@ class Tree(Graph):
 
     def get_root_path(self, node: Node) -> List[Node]:
         """Get path to root of the tree."""
-        if self.parents is not None:
-            return _get_root_path(self.parents, node)
+        if self.parents_ is not None:
+            return _get_root_path(self.parents_, node)
         raise UndefinedParenthood(
             "Parenthood of the tree was not defined, "
             "please build the tree before use."
@@ -223,8 +290,8 @@ class Tree(Graph):
         self, node: Node, prop: Optional[BinaryNodeProperty] = None
     ) -> List[Node]:
         """Get leaves of a node."""
-        if self.children is not None:
-            return _get_leaves(self.children, node, prop)
+        if self.children_ is not None:
+            return _get_leaves(self.children_, node, prop)
         raise UndefinedChildhood(
             "Childhood of the tree was not defined, "
             "please build the tree before use."
@@ -233,9 +300,9 @@ class Tree(Graph):
     def to_json(self, jsonfile):
         """Store the tree to json file."""
         _tree_to_json(
-            self.nodes,
-            self.parents,
-            self.children,
+            self.nodes_,
+            self.parents_,
+            self.children_,
             jsonfile,
             self.nodeprops,
             self.edgeprops,
@@ -251,49 +318,29 @@ class Tree(Graph):
         # parenthood/childhood/props keys when using treez...
         with open(jsonfile, "r") as jf:
             json_dict = json.load(jf)
-        for k, v in json_dict.items():
-            if k == "nodes":
-                self.nodes = v
-            if k == "parents":
-                # Dict[Node, Node]
-                self.parents = dict()
-                for nodein, nodeout in v.items():
-                    try:
-                        nodekey = ast.literal_eval(nodein)
-                        self.parents[nodekey] = nodeout
-                    except (ValueError, SyntaxError):
-                        self.parents[nodein] = nodeout
-            if k == "children":
-                # Dict[Node, List[Node]]
-                self.children = dict()
-                for nodein, nodeout in v.items():
-                    try:
-                        nodekey = ast.literal_eval(nodein)
-                        self.children[nodekey] = nodeout
-                    except (ValueError, SyntaxError):
-                        self.children[nodein] = nodeout
-                    # nodekey = ast.literal_eval(nodein)
-                    # self.children[nodekey] = nodeout
-            if k == "edgeprops":
-                self.edgeprops = dict()
-                for name, edgeprop in v.items():
-                    self.edgeprops[name] = dict()
-                    for edgein, edgeout in edgeprop.items():
-                        try:
-                            edgekey = ast.literal_eval(edgein)
-                            self.edgeprops[name][edgekey] = edgeout
-                        except (ValueError, SyntaxError):
-                            self.edgeprops[name][edgein] = edgeout
-            if k == "nodeprops":
-                self.nodeprops = dict()
-                for name, nodeprop in v.items():
-                    self.nodeprops[name] = dict()
-                    for nodein, nodeout in nodeprop.items():
-                        try:
-                            nodekey = ast.literal_eval(nodein)
-                            self.nodeprops[name][nodekey] = nodeout
-                        except (ValueError, SyntaxError):
-                            self.nodeprops[name][nodein] = nodeout
+        self.reset()
+        for parent, children in json_dict["children"].items():
+            try:
+                parentkey = ast.literal_eval(parent)
+                self.add_children(parentkey, children)
+            except (ValueError, SyntaxError):
+                self.add_children(parent, children)
+        self.edgeprops = dict()
+        for name, edgeprop in json_dict["edgeprops"].item():
+            self.edgeprops[name] = dict()
+            for edgein, edgeout in edgeprop.items():
+                try:
+                    edgekey = ast.literal_eval(edgein)
+                    self.edgeprops[name][edgekey] = edgeout
+                except (ValueError, SyntaxError):
+                    self.edgeprops[name][edgein] = edgeout
+        for name, nodeprop in json_dict["nodeprops"].items():
+            for nodein, nodeout in nodeprop.items():
+                try:
+                    nodekey = ast.literal_eval(nodein)
+                    self.nodeprops[name][nodekey] = nodeout
+                except (ValueError, SyntaxError):
+                    self.nodeprops[name][nodein] = nodeout
 
     def build_kruskal(
         self,
@@ -302,13 +349,9 @@ class Tree(Graph):
         size: NumericalNodeProperty,
     ):
         """Build tree with kruskal algorithm from graph edges."""
-        k_parents, k_children, k_props = _kruskal_tree(edges, weights, size)
-        self.parents = k_parents
-        self.children = k_children
-        k_nodes = set(k_parents.keys())
-        # root can be missing
-        k_nodes.add(self.get_root())
-        self.nodes = list(k_nodes)
+        _, k_children, k_props = _kruskal_tree(edges, weights, size)
+        for parent in k_children:
+            self.add_children(parent, k_children)
         self.nodeprops = k_props
 
     def cut_on_property(self, cut_name: str, prop: str, threshold: Union[int, float]):
@@ -318,7 +361,7 @@ class Tree(Graph):
         """
         if prop in self.nodeprops:
             node_of_interest = _cut_on_property(
-                self.parents, self.children, self.nodeprops[prop], threshold
+                self.parents_, self.children_, self.nodeprops[prop], threshold
             )
             cut = dict()
             for node in self.nodes:
@@ -338,11 +381,11 @@ class Tree(Graph):
 
     def common_ancestor(self, node1: Node, node2: Node) -> Node:
         """Return the common ancestor of node1 and node2."""
-        return _common_ancestor(self.parents, node1, node2)
+        return _common_ancestor(self.parents_, node1, node2)
 
     def edge_dist(self, node1: Node, node2: Node) -> int:
         """Return the number of edges to go from node1 to node2 (by common ancestor)."""
-        return _edge_dist(self.parents, node1, node2)
+        return _edge_dist(self.parents_, node1, node2)
 
     def weighted_dist(
         self, weights: Union[NumericalNodeProperty, str], node1: Node, node2: Node
@@ -351,7 +394,7 @@ class Tree(Graph):
         if isinstance(weights, str):
             if weights in self.nodeprops:
                 return _weighted_dist(
-                    self.parents, self.nodeprops[weights], node1, node2
+                    self.parents_, self.nodeprops[weights], node1, node2
                 )
             raise InvalidNodeProps(
                 "Property {} is not in tree properties: {}".format(
@@ -359,7 +402,7 @@ class Tree(Graph):
                 )
             )
         if isinstance(weights, dict):
-            return _weighted_dist(self.parents, weights, node1, node2)
+            return _weighted_dist(self.parents_, weights, node1, node2)
         raise InvalidNodeProps(
             "Provided property is not a valid property. "
             "Expected {} or {}, got {}".format(dict, str, type(weights))

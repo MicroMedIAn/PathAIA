@@ -30,26 +30,26 @@ class AgglomerativeClustering:
         Reset the algorithm attributes. Populations are initiated to 1 for every node,
         strengths are initiated to 1 for every edge, dendrogram is emptied.
         """
-        self.populations = {k: 1 for k in range(self.n_nodes)}
+        self.populations_ = {k: 1 for k in range(self.n_nodes)}
         ii, jj = self.A.nonzero()
-        self.centroids = {k: self.feats[k] for k in range(self.n_nodes)}
-        self.links = {
+        self.centroids_ = {k: self.feats[k] for k in range(self.n_nodes)}
+        self.links_ = {
             k: set(jj[ii == k].tolist() + ii[jj == k].tolist())
             for k in range(self.n_nodes)
         }
-        self.strengths = {(i, j): 1 for i, j in zip(ii, jj)}
+        self.strengths_ = {(i, j): 1 for i, j in zip(ii, jj)}
         if self.compute_all:
-            self.distances = {
+            self.distances_ = {
                 (i, j): self.distance(i, j)
                 for i in range(self.n_nodes)
                 for j in range(i + 1, self.n_nodes)
             }
         else:
-            self.distances = {(i, j): self.distance(i, j) for i, j in zip(ii, jj)}
-        self.edges = SortedDict(
-            self.criterion, {(i, j): self.distances[i, j] for i, j in zip(ii, jj)}
+            self.distances_ = {(i, j): self.distance(i, j) for i, j in zip(ii, jj)}
+        self.edges_ = SortedDict(
+            self.criterion, {(i, j): self.distances_[i, j] for i, j in zip(ii, jj)}
         )
-        self.dendrogram = np.zeros((self.n_nodes - 1, 4))
+        self.dendrogram_ = np.zeros((self.n_nodes - 1, 4))
 
     def distance(self, i: int, j: int) -> float:
         """
@@ -67,9 +67,9 @@ class AgglomerativeClustering:
         try:
             d = self.A[i, j]
         except IndexError:
-            d = self.distances.get((i, j), 0)
+            d = self.distances_.get((i, j), 0)
         if not d:
-            d = ((self.centroids[i] - self.centroids[j]) ** 2).sum()
+            d = ((self.centroids_[i] - self.centroids_[j]) ** 2).sum()
         return d
 
     def criterion(self, x: Tuple[int, int]) -> float:
@@ -84,7 +84,7 @@ class AgglomerativeClustering:
             Squared distance between the 2 nodes divided by link strength.
         """
         i, j = x
-        return self.distances[i, j] / self.strengths[i, j]
+        return self.distances_[i, j] / self.strengths_[i, j]
 
     def create_centroid_link(self, i, j, c, k):
         """
@@ -104,33 +104,33 @@ class AgglomerativeClustering:
         ck, kc = sorted((c, k))
         ij, ji = sorted((i, j))
 
-        pi = self.populations[i]
-        pj = self.populations[j]
+        pi = self.populations_[i]
+        pj = self.populations_[j]
         ri = pi / (pi + pj)
         rj = pj / (pi + pj)
         try:
-            dik = self.distances[ik, ki]
-            djk = self.distances[jk, kj]
-            dij = self.distances[ij, ji]
+            dik = self.distances_[ik, ki]
+            djk = self.distances_[jk, kj]
+            dij = self.distances_[ij, ji]
             dck = ri * dik + rj * djk - ri * rj * dij
         except KeyError:
             dck = self.distance(c, k)
 
-        self.distances[ck, kc] = dck
+        self.distances_[ck, kc] = dck
 
-        self.edges.pop((ik, ki), 0)
-        self.edges.pop((jk, kj), 0)
-        sik = self.strengths.get((ik, ki), 0)
-        sjk = self.strengths.get((jk, kj), 0)
+        self.edges_.pop((ik, ki), 0)
+        self.edges_.pop((jk, kj), 0)
+        sik = self.strengths_.get((ik, ki), 0)
+        sjk = self.strengths_.get((jk, kj), 0)
         if sik or sjk:
-            self.strengths[ck, kc] = ri * sik + rj * sjk
-            self.edges[ck, kc] = dck
+            self.strengths_[ck, kc] = ri * sik + rj * sjk
+            self.edges_[ck, kc] = dck
 
-        self.links[k].discard(i)
-        self.links[k].discard(j)
-        self.links[k].add(c)
-        self.links[j].discard(k)
-        self.links[c].add(k)
+        self.links_[k].discard(i)
+        self.links_[k].discard(j)
+        self.links_[k].add(c)
+        self.links_[j].discard(k)
+        self.links_[c].add(k)
 
     def add_link(self, i: int, j: int):
         """
@@ -142,11 +142,11 @@ class AgglomerativeClustering:
         """
         i, j = sorted((i, j))
         dij = self.distance(i, j)
-        self.distances[i, j] = dij
-        self.strengths[i, j] = 1
-        self.edges[i, j] = dij
-        self.links[i].add(j)
-        self.links[j].add(i)
+        self.distances_[i, j] = dij
+        self.strengths_[i, j] = 1
+        self.edges_[i, j] = dij
+        self.links_[i].add(j)
+        self.links_[j].add(i)
 
     def fit(
         self,
@@ -168,7 +168,7 @@ class AgglomerativeClustering:
                 vectors or a sequence of property names that will be used as features.
             weights: either a dictionary that maps edges to their corresponding weight
                 or a property name that will be used as weight. If `None` is passed,
-                weights are computed using euclidian distances between feature vectors.            
+                weights are computed using euclidian distances between feature vectors.
         """
         self.A = triu(G.A, format="csr").astype(np.float32)
         self.n_nodes = G.n_nodes
@@ -197,8 +197,8 @@ class AgglomerativeClustering:
         self.reset()
         c = self.n_nodes
         for n in tqdm(range(self.n_nodes - 1), total=self.n_nodes - 1):
-            if not self.edges:
-                cur_dendrogram = self.dendrogram[:n]
+            if not self.edges_:
+                cur_dendrogram = self.dendrogram_[:n]
                 missing = sorted(
                     [
                         k
@@ -210,26 +210,26 @@ class AgglomerativeClustering:
                 for k, i in enumerate(missing):
                     for j in missing[k + 1 :]:
                         self.add_link(i, j)
-            (i, j), _ = self.edges.popitem(0)
+            (i, j), _ = self.edges_.popitem(0)
 
-            pi = self.populations[i]
-            pj = self.populations[j]
+            pi = self.populations_[i]
+            pj = self.populations_[j]
             ri = pi / (pi + pj)
             rj = pj / (pi + pj)
-            self.dendrogram[n] = [i, j, self.criterion((i, j)), pi + pj]
+            self.dendrogram_[n] = [i, j, self.criterion((i, j)), pi + pj]
 
-            self.centroids[c] = ri * self.centroids[i] + rj * self.centroids[j]
-            self.populations[c] = pi + pj
-            self.links[c] = set()
+            self.centroids_[c] = ri * self.centroids_[i] + rj * self.centroids_[j]
+            self.populations_[c] = pi + pj
+            self.links_[c] = set()
 
-            while self.links[i]:
-                k = self.links[i].pop()
+            while self.links_[i]:
+                k = self.links_[i].pop()
                 self.create_centroid_link(i, j, c, k)
-            while self.links[j]:
-                k = self.links[j].pop()
+            while self.links_[j]:
+                k = self.links_[j].pop()
                 self.create_centroid_link(j, i, c, k)
-            self.links.pop(i)
-            self.links.pop(j)
+            self.links_.pop(i)
+            self.links_.pop(j)
             c += 1
 
     def fit_transform(
@@ -276,7 +276,7 @@ class AgglomerativeClustering:
             }
         nodeprops["population"] = {n: 1 for n in range(G.n_nodes)}
 
-        for k, row in enumerate(self.dendrogram):
+        for k, row in enumerate(self.dendrogram_):
             n = k + self.n_nodes
             n1, n2 = row[:2]
             children[n] = [n1, n2]
@@ -284,14 +284,14 @@ class AgglomerativeClustering:
             parents[n2] = n
             nodes.append(n)
             if isinstance(feats, dict):
-                for k, centroid in enumerate(self.centroids[n]):
+                for k, centroid in enumerate(self.centroids_[n]):
                     nodeprops[k][n] = centroid
             else:
                 for k, feat in enumerate(feats):
-                    nodeprops[feat][n] = self.centroids[n, k]
+                    nodeprops[feat][n] = self.centroids_[n, k]
             edgeprops[key][n, n1] = self.distance(n, n1) ** 0.5
             edgeprops[key][n, n2] = self.distance(n, n2) ** 0.5
-            nodeprops["population"][n] = self.populations[n]
+            nodeprops["population"][n] = self.populations_[n]
 
         return Tree(nodes, parents, children, nodeprops, edgeprops)
 
