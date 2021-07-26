@@ -248,7 +248,7 @@ class Tree(Graph):
             self.parents_[child] = parent
             edges.append((parent, child))
         try:
-            self.children_[parent] |= children
+            self.children_[parent] |= set(children)
         except KeyError:
             self.children_[parent] = set(children)
         super().add_edges(edges, update_A=update_A)
