@@ -7,7 +7,6 @@ from re import M
 from typing import (Sequence, Callable, Iterator, Any, Tuple, Optional, Dict,
                     Union, List, Generator)
 from functools import lru_cache, partial
-from itertools import repeat
 import multiprocessing
 import numpy as np
 import openslide
@@ -86,6 +85,7 @@ def generator_fn(
     patch_list: Sequence[Patch],
     label_list: Sequence[Any],
     patch_size: int,
+    cache: bool,
     preproc: Callable,
 ) -> Callable[[], Generator[Tuple[Any, Any], None, None]]:
     """
@@ -104,7 +104,7 @@ def generator_fn(
     """
     def generator():
         for patch, y in zip(patch_list, label_list):
-            x = slide_query(patch, patch_size)
+            x = slide_query(patch, patch_size, cache)
 
             yield preproc(x), y
 
@@ -115,19 +115,21 @@ def gen(
     patch: Patch,
     y: Any,
     patch_size: int,
+    cache: bool,
 ) -> Tuple[Any, Any]:
-    x = slide_query(patch, patch_size)
+    x = slide_query(patch, patch_size, cache)
     return x, y
 
 
-def gen_wrapper(args, patch_size: int):
-    return gen(*args, patch_size=patch_size)
+def gen_wrapper(args, patch_size: int, cache: bool):
+    return gen(*args, patch_size=patch_size, cache=cache)
 
 
 def generator_fn_multi(
     patch_list: Sequence[Patch],
     label_list: Sequence[Any],
     patch_size: int,
+    cache: bool,
     preproc: Callable,
 ) -> Callable[[], Generator[Tuple[Any, Any], None, None]]:
     """
@@ -148,11 +150,12 @@ def generator_fn_multi(
         with multiprocessing.Pool(processes=multiprocessing.cpu_count() //
                                   2) as pool:
             s = list()
-            for x, y in pool.imap(partial(gen_wrapper, patch_size=patch_size),
-                                  zip(
-                                      patch_list,
-                                      label_list,
-                                  )):
+            for x, y in pool.imap(
+                    partial(gen_wrapper, patch_size=patch_size, cache=cache),
+                    zip(
+                        patch_list,
+                        label_list,
+                    )):
                 yield preproc(x), y
 
     return generator
@@ -164,6 +167,7 @@ def get_tf_dataset(
     preproc: Callable,
     batch_size: int,
     patch_size: int,
+    cache: Optional[bool] = True,
     prefetch: Optional[int] = None,
     training: Optional[bool] = True,
     parallel: Optional[bool] = False,
@@ -188,9 +192,17 @@ def get_tf_dataset(
 
     """
     if parallel:
-        gen = generator_fn_multi(patch_list, label_list, patch_size, preproc)
+        gen = generator_fn_multi(patch_list=patch_list,
+                                 label_list=label_list,
+                                 patch_size=patch_size,
+                                 cache=cache,
+                                 preproc=preproc)
     else:
-        gen = generator_fn(patch_list, label_list, patch_size, preproc)
+        gen = generator_fn(patch_list=patch_list,
+                           label_list=label_list,
+                           patch_size=patch_size,
+                           cache=cache,
+                           preproc=preproc)
     try:
         shape_label = label_list[0].shape
     except AttributeError:
@@ -220,6 +232,7 @@ def get_pt_dataset(
     preproc: Callable,
     batch_size: int,
     patch_size: int,
+    cache: Optional[bool] = True,
     training: Optional[bool] = True,
     parallel: Optional[bool] = False,
 ) -> DataLoader:
@@ -241,8 +254,12 @@ def get_pt_dataset(
         torch.utils.data.Dataloader: a proper pytorch dataset to fit on.
 
     """
-    dataset = TorchDataset(patch_list, label_list, patch_size, preproc,
-                           parallel)
+    dataset = TorchDataset(patch_list=patch_list,
+                           label_list=label_list,
+                           patch_size=patch_size,
+                           cache=cache,
+                           preproc=preproc,
+                           parallel=parallel)
     if training:
         dataloader = InfiniteDataLoader(dataset=dataset,
                                         batch_size=batch_size,
@@ -261,30 +278,49 @@ def get_dataset(
     batch_size: int,
     patch_size: int,
     backend: str,
+    cache: Optional[bool] = True,
     prefetch: Optional[int] = None,
     training: Optional[bool] = True,
     parallel: Optional[bool] = False,
 ) -> Union[tf.data.Dataset, DataLoader]:
+    """
+    Create either a pytorch dataset or a tf one.
+
+    Args:
+        patch_list: patch list to query.
+        label_list: label of patches.
+        preproc: a preprocessing function for images.
+        batch_size: number of samples per batch.
+        patch_size: size (pixel) of the side of a square patch.
+        backend: either pt or tf.
+        prefetch: Prefetching parameter (only on tensorflow).
+        training: whether the dataset will be used for training or not,
+        parallel: wheter to use parallelism or not
+    Returns:
+        Union[tf.data.Dataset, torch.util.data.DataLoader]
+    """
     if backend in ['tf', 'tensorflow']:
         return get_tf_dataset(
-            patch_list,
-            label_list,
-            preproc,
-            batch_size,
-            patch_size,
-            prefetch,
-            training,
-            parallel,
+            patch_list=patch_list,
+            label_list=label_list,
+            preproc=preproc,
+            batch_size=batch_size,
+            patch_size=patch_size,
+            cache=cache,
+            prefetch=prefetch,
+            training=training,
+            parallel=parallel,
         )
     elif backend in ['pt', 'pytorch']:
         return get_pt_dataset(
-            patch_list,
-            label_list,
-            preproc,
-            batch_size,
-            patch_size,
-            training,
-            parallel,
+            patch_list=patch_list,
+            label_list=label_list,
+            preproc=preproc,
+            batch_size=batch_size,
+            patch_size=patch_size,
+            cache=cache,
+            training=training,
+            parallel=parallel,
         )
     else:
         raise ValueError('backend should be either pt or tf')
@@ -296,21 +332,29 @@ class TorchDataset(IterableDataset):
         patch_list: Sequence[Patch],
         label_list: Sequence[Any],
         patch_size: int,
+        cache: bool,
         preproc: Callable,
         parallel: bool,
     ):
         self.patch_list = patch_list
         self.label_list = label_list
         self.patch_size = patch_size
+        self.cache = cache
         self.preproc = preproc
         self.parallel = parallel
 
         if self.parallel:
-            self.gen = generator_fn_multi(self.patch_list, self.label_list,
-                                          self.patch_size, self.preproc)()
+            self.gen = generator_fn_multi(patch_list=self.patch_list,
+                                          label_list=self.label_list,
+                                          patch_size=self.patch_size,
+                                          cache=self.cache,
+                                          preproc=self.preproc)()
         else:
-            self.gen = generator_fn(self.patch_list, self.label_list,
-                                    self.patch_size, self.preproc)()
+            self.gen = generator_fn(patch_list=self.patch_list,
+                                    label_list=self.label_list,
+                                    patch_size=self.patch_size,
+                                    cache=self.cache,
+                                    preproc=self.preproc)()
 
     def __iter__(self):
         return iter(self.gen)
