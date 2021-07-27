@@ -12,6 +12,7 @@ from .types import (
     Parenthood,
     Childhood,
     Edge,
+    UEdge,
     EdgeProperties,
     NumericalEdgeProperty,
 )
@@ -53,34 +54,34 @@ class Graph:
         if nodes is None:
             self.nodes_ = OrderedSet()
             if edges is not None:
-                self.edges_ = list(edges)
+                self.edges_ = set(edges)
                 for x, y in edges:
                     i = self.nodes_.add(x)
                     j = self.nodes_.add(y)
                     self.A_[i, j] = True
             elif A is not None:
                 self.nodes_ = OrderedSet(np.arange(A.shape[0]))
-                self.edges_ = []
+                self.edges_ = set()
                 for i, j in zip(*A.nonzero()):
-                    self.edges_.append((i, j))
+                    self.edges_.add((i, j))
                     self.A_[i, j] = True
             else:
-                self.edges_ = []
+                self.edges_ = set()
         else:
             self.nodes_ = OrderedSet(nodes)
             if edges is not None:
-                self.edges_ = list(edges)
+                self.edges_ = set(edges)
                 for x, y in edges:
                     i = self.nodes_.index(x)
                     j = self.nodes_.index(y)
                     self.A_[i, j] = True
             elif A is not None:
-                self.edges_ = []
+                self.edges_ = set()
                 for i, j in zip(*A.nonzero()):
-                    self.edges_.append((self.nodes_[i], self.nodes_[j]))
+                    self.edges_.add((self.nodes_[i], self.nodes_[j]))
                     self.A_[i, j] = True
             else:
-                self.edges_ = []
+                self.edges_ = set()
 
         self.nodeprops = ifnone(nodeprops, {})
         self.edgeprops = ifnone(edgeprops, {})
@@ -110,7 +111,7 @@ class Graph:
 
     def add_edge(self, edge: Edge):
         self.add_nodes(edge)
-        self.edges_.append(edge)
+        self.edges_.add(edge)
         n1, n2 = edge
         i = self.nodes_.index(n1)
         j = self.nodes_.index(n2)
@@ -123,7 +124,7 @@ class Graph:
     def remove_edge(self, edge: Edge):
         try:
             self.edges_.remove(edge)
-        except ValueError:
+        except KeyError:
             print(f"Edge {edge} was not found in graph")
         n1, n2 = edge
         i = self.nodes_.index(n1)
@@ -132,7 +133,7 @@ class Graph:
 
     def reset(self):
         self.nodes_ = OrderedSet()
-        self.edges_ = []
+        self.edges_ = set()
         self.A_ = dok_matrix((MAX_N_NODES, MAX_N_NODES), dtype=bool)
         self.nodeprops = {}
         self.edgeprops = {}
@@ -149,8 +150,8 @@ class UGraph(Graph):
         nodeprops: Optional[NodeProperties] = None,
         edgeprops: Optional[EdgeProperties] = None,
     ):
-        super().__init__(self, nodes, edges, A, nodeprops, edgeprops)
-        self.edges_ = [sorted(edge) for edge in self.edges_]
+        super().__init__(nodes, edges, A, nodeprops, edgeprops)
+        self.edges_ = {UEdge(edge, key=self.nodes_.index) for edge in self.edges_}
 
     @property
     def A(self):
@@ -158,10 +159,10 @@ class UGraph(Graph):
         return A + A.T
 
     def add_edge(self, edge: Edge):
-        super().add_edge(sorted(edge, key=self.nodes_.index))
+        super().add_edge(UEdge(edge, key=self.nodes_.index))
 
     def remove_edge(self, edge: Edge):
-        super().remove_edge(sorted(edge, key=self.nodes_.index))
+        super().remove_edge(UEdge(edge, key=self.nodes_.index))
         n1, n2 = edge
         i = self.nodes_.index(n1)
         j = self.nodes_.index(n2)
@@ -184,12 +185,12 @@ class Tree(Graph):
         if jsonfile is not None:
             self.from_json(jsonfile)
         else:
-            edges = []
+            edges = set()
             self.parents_ = ifnone(parents, {})
             self.children_ = ifnone(children, {})
             for node in self.children_:
                 self.children_[node] = set(self.children_[node])
-                edges.extend([(node, child) for child in self.children_[node]])
+                edges |= {(node, child) for child in self.children_[node]}
             super().__init__(
                 self, nodes=nodes, edges=edges, nodeprops=nodeprops, edgeprops=edgeprops
             )
@@ -211,10 +212,10 @@ class Tree(Graph):
         super().add_edge((parent, child))
 
     def add_children(self, parent: Node, children: Sequence[Node]):
-        edges = []
+        edges = set()
         for child in children:
             self.parents_[child] = parent
-            edges.append((parent, child))
+            edges.add((parent, child))
         try:
             self.children_[parent] |= set(children)
         except KeyError:

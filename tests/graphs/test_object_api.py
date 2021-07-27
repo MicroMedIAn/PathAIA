@@ -11,42 +11,42 @@ def test_graph_init():
     A_init = (None, csr_matrix(((1, 1), ((0, 1), (1, 2))), shape=(3, 3), dtype=bool))
 
     expected = (
-        (OrderedSet(), [], csr_matrix((0, 0), dtype=bool)),
+        (OrderedSet(), set(), csr_matrix((0, 0), dtype=bool)),
         (
             OrderedSet((0, 1, 2)),
-            [(0, 1), (1, 2)],
+            {(0, 1), (1, 2)},
             csr_matrix(((1, 1), ((0, 1), (1, 2))), shape=(3, 3), dtype=bool),
         ),
         (
             OrderedSet((1, 3, 2)),
-            [(1, 3), (1, 2), (2, 1)],
+            {(1, 3), (1, 2), (2, 1)},
             csr_matrix(((1, 1, 1), ((0, 0, 2), (1, 2, 0))), shape=(3, 3), dtype=bool),
         ),
         (
             OrderedSet((1, 3, 2)),
-            [(1, 3), (1, 2), (2, 1)],
+            {(1, 3), (1, 2), (2, 1)},
             csr_matrix(((1, 1, 1), ((0, 0, 2), (1, 2, 0))), shape=(3, 3), dtype=bool),
         ),
-        (OrderedSet((1, 2, 3)), [], csr_matrix((3, 3), dtype=bool)),
+        (OrderedSet((1, 2, 3)), set(), csr_matrix((3, 3), dtype=bool)),
         (
             OrderedSet((1, 2, 3)),
-            [(1, 2), (2, 3)],
+            {(1, 2), (2, 3)},
             csr_matrix(((1, 1), ((0, 1), (1, 2))), shape=(3, 3), dtype=bool),
         ),
         (
             OrderedSet((1, 2, 3)),
-            [(1, 3), (1, 2), (2, 1)],
+            {(1, 3), (1, 2), (2, 1)},
             csr_matrix(((1, 1, 1), ((0, 0, 1), (2, 1, 0))), shape=(3, 3), dtype=bool),
         ),
         (
             OrderedSet((1, 2, 3)),
-            [(1, 3), (1, 2), (2, 1)],
+            {(1, 3), (1, 2), (2, 1)},
             csr_matrix(((1, 1, 1), ((0, 0, 1), (2, 1, 0))), shape=(3, 3), dtype=bool),
         ),
-        (OrderedSet(("1", "2", "3")), [], csr_matrix((3, 3), dtype=bool)),
+        (OrderedSet(("1", "2", "3")), set(), csr_matrix((3, 3), dtype=bool)),
         (
             OrderedSet(("1", "2", "3")),
-            [("1", "2"), ("2", "3")],
+            {("1", "2"), ("2", "3")},
             csr_matrix(((1, 1), ((0, 1), (1, 2))), shape=(3, 3), dtype=bool),
         ),
         KeyError,
@@ -61,6 +61,25 @@ def test_graph_init():
             G = Graph(nodes, edges, A)
             assert G.nodes == exp_nodes
             assert G.edges == exp_edges
-            assert (G.A[G.A > 0] == exp_A[exp_A > 0]).A.all()
+            assert (G.A[G.A > 0].A == exp_A[exp_A > 0].A).all()
         else:
             assert raises(exp, Graph, nodes, edges, A)
+
+
+def test_ugraph_init():
+    nodes = (1, 2, 3)
+    edges = ((1, 3), (1, 2), (2, 1))
+    A = None
+
+    exp_nodes, exp_edges, exp_A = (
+        OrderedSet((1, 2, 3)),
+        {(1, 2), (1, 3)},
+        csr_matrix(
+            ((1, 1, 1, 1), ((0, 1, 0, 2), (1, 0, 2, 0))), shape=(3, 3), dtype=bool
+        ),
+    )
+
+    G = UGraph(nodes, edges, A)
+    assert G.nodes == exp_nodes
+    assert G.edges == exp_edges
+    assert (G.A[G.A > 0].A == exp_A[exp_A > 0].A).all()
