@@ -1,5 +1,5 @@
 """Classes used to represent graphs."""
-from typing import List, Sequence, Optional, Union
+from typing import List, Sequence, Optional, Union, Tuple
 import json
 from scipy.sparse import spmatrix, dok_matrix
 import numpy as np
@@ -62,7 +62,7 @@ class Graph:
                 self.nodes_ = OrderedSet(np.arange(A.shape[0]))
                 self.edges_ = []
                 for i, j in zip(*A.nonzero()):
-                    self.edges_.appends((i, j))
+                    self.edges_.append((i, j))
                     self.A_[i, j] = True
             else:
                 self.edges_ = []
@@ -77,7 +77,7 @@ class Graph:
             elif A is not None:
                 self.edges_ = []
                 for i, j in zip(*A.nonzero()):
-                    self.edges_.appends((i, j))
+                    self.edges_.append((self.nodes_[i], self.nodes_[j]))
                     self.A_[i, j] = True
             else:
                 self.edges_ = []
@@ -87,7 +87,7 @@ class Graph:
 
     @property
     def n_nodes(self):
-        return self.nodes_
+        return len(self.nodes_)
 
     @property
     def nodes(self):
@@ -221,7 +221,7 @@ class Tree(Graph):
             self.children_[parent] = set(children)
         super().add_edges(edges)
 
-    def add_edges(self, edges: Sequence[Node, Union[Node, Sequence[Node]]]):
+    def add_edges(self, edges: Sequence[Tuple[Node, Union[Node, Sequence[Node]]]]):
         for p, c in edges:
             if isinstance(c, Node):
                 self.add_edge(p, c)

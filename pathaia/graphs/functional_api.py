@@ -20,7 +20,7 @@ from .errors import (
     UnrelatedNode,
     UnknownNodeProperty
 )
-from .clustering import UFDS
+from .kruskal import UFDS
 import json
 
 
