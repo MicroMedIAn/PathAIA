@@ -1,6 +1,7 @@
 """Classes used to represent graphs."""
 from typing import List, Sequence, Optional, Union, Tuple
 import json
+import warnings
 from scipy.sparse import spmatrix, dok_matrix
 import numpy as np
 from ordered_set import OrderedSet
@@ -23,6 +24,7 @@ from .errors import (
     UnknownNodeProperty,
 )
 from .functional_api import (
+    complete_tree as _complete_tree,
     get_root as _get_root,
     get_root_path as _get_root_path,
     get_leaves as _get_leaves,
@@ -175,6 +177,7 @@ class Tree(Graph):
     def __init__(
         self,
         nodes: Optional[Sequence[Node]] = None,
+        edges: Optional[Sequence[Edge]] = None,
         parents: Optional[Parenthood] = None,
         children: Optional[Childhood] = None,
         nodeprops: Optional[NodeProperties] = None,
@@ -184,16 +187,35 @@ class Tree(Graph):
         """Init tree object."""
         if jsonfile is not None:
             self.from_json(jsonfile)
-        else:
             edges = set()
-            self.parents_ = ifnone(parents, {})
-            self.children_ = ifnone(children, {})
-            for node in self.children_:
-                self.children_[node] = set(self.children_[node])
-                edges |= {(node, child) for child in self.children_[node]}
-            super().__init__(
-                self, nodes=nodes, edges=edges, nodeprops=nodeprops, edgeprops=edgeprops
-            )
+            for parent in self.children_:
+                for child in self.children_[parent]:
+                    edges.add((parent, child))
+        else:
+            if edges is not None and (parents is not None or children is not None):
+                warnings.warn(
+                    "Be careful when specifying both edges and parents/children,"
+                    "consistency will not be checked and edges will be prioritized."
+                )
+            if edges is None:
+                edges = set()
+                self.parents_, self.children_ = _complete_tree(parents, children)
+                for parent in self.children_:
+                    for child in self.children_[parent]:
+                        edges.add((parent, child))
+            else:
+                edges = set(edges)
+                self.parents_ = {}
+                self.children_ = {}
+                for parent, child in edges:
+                    self.parents_[child] = parent
+                    try:
+                        self.children_[parent].add(child)
+                    except KeyError:
+                        self.children_[parent] = {child}
+        super().__init__(
+            nodes=nodes, edges=edges, nodeprops=nodeprops, edgeprops=edgeprops
+        )
 
     @property
     def parents(self) -> Parenthood:

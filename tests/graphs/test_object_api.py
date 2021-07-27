@@ -1,6 +1,7 @@
 from pathaia.graphs import Graph, UGraph, Tree
+from pathaia.graphs.errors import InvalidTree
 from scipy.sparse import csr_matrix
-from pytest import raises
+from pytest import raises, warns
 import itertools
 from ordered_set import OrderedSet
 
@@ -83,3 +84,41 @@ def test_ugraph_init():
     assert G.nodes == exp_nodes
     assert G.edges == exp_edges
     assert (G.A[G.A > 0].A == exp_A[exp_A > 0].A).all()
+
+
+def test_tree_init():
+    parents_init = (None, {2: 1, 3: 2, 4: 2})
+    children_init = (None, {1: [2], 2: [3, 4]}, {1: [3]})
+    edges_init = (None, ((1, 4), (2, 1)))
+
+    expected = (
+        (dict(), dict(), set()),
+        ({4: 1, 1: 2}, {1: {4}, 2: {1}}, {(1, 4), (2, 1)}),
+        ({2: 1, 3: 2, 4: 2}, {1: {2}, 2: {3, 4}}, {(1, 2), (2, 3), (2, 4)}),
+        ({4: 1, 1: 2}, {1: {4}, 2: {1}}, {(1, 4), (2, 1)}, UserWarning),
+        ({3: 1}, {1: {3}}, {(1, 3)}),
+        ({4: 1, 1: 2}, {1: {4}, 2: {1}}, {(1, 4), (2, 1)}, UserWarning),
+        ({2: 1, 3: 2, 4: 2}, {1: {2}, 2: {3, 4}}, {(1, 2), (2, 3), (2, 4)}),
+        ({4: 1, 1: 2}, {1: {4}, 2: {1}}, {(1, 4), (2, 1)}, UserWarning),
+        ({2: 1, 3: 2, 4: 2}, {1: {2}, 2: {3, 4}}, {(1, 2), (2, 3), (2, 4)}),
+        ({4: 1, 1: 2}, {1: {4}, 2: {1}}, {(1, 4), (2, 1)}, UserWarning),
+        InvalidTree,
+        ({4: 1, 1: 2}, {1: {4}, 2: {1}}, {(1, 4), (2, 1)}, UserWarning),
+    )
+
+    for exp, (parents, children, edges) in zip(
+        expected, itertools.product(parents_init, children_init, edges_init)
+    ):
+        if isinstance(exp, tuple):
+            if len(exp) == 3:
+                exp_parents, exp_children, exp_edges = exp
+                T = Tree(parents=parents, children=children, edges=edges)
+            else:
+                exp_parents, exp_children, exp_edges, warning = exp
+                with warns(warning):
+                    T = Tree(parents=parents, children=children, edges=edges)
+            assert T.parents == exp_parents
+            assert T.children == exp_children
+            assert T.edges == exp_edges
+        else:
+            assert raises(exp, Tree, parents=parents, children=children, edges=edges)
