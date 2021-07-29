@@ -13,15 +13,46 @@ from .types import (
     Childhood,
     Edge,
     EdgeProperties,
-    NumericalEdgeProperty)
+    NumericalEdgeProperty,
+)
 from .errors import (
     InvalidEdgeProps,
     InvalidNodeProps,
     UnrelatedNode,
-    UnknownNodeProperty
+    UnknownNodeProperty,
+    InvalidTree,
 )
-from .clustering import UFDS
+from .kruskal import UFDS
 import json
+
+
+def complete_tree(
+    parents: Optional[Parenthood] = None, children: Optional[Childhood] = None
+):
+    if parents is None:
+        parents = {}
+        if children is None:
+            children = {}
+        else:
+            for parent in children:
+                children[parent] = set(children[parent])
+                for child in children[parent]:
+                    parents[child] = parent
+    else:
+        if children is None:
+            children = {}
+            for child, parent in parents.items():
+                try:
+                    children[parent].add(child)
+                except KeyError:
+                    children[parent] = {child}
+        else:
+            for parent in children:
+                children[parent] = set(children[parent])
+                for child in children[parent]:
+                    if child not in parents or parents[child] != parent:
+                        raise InvalidTree
+    return parents, children
 
 
 def get_root(parents: Parenthood, node: Node = None) -> Node:
@@ -57,9 +88,7 @@ def get_root_path(parents: Parenthood, node: Node) -> List[Node]:
     return root_path
 
 
-def get_root_path_match(
-    parents: Parenthood, node: Node, target: Node
-) -> List[Node]:
+def get_root_path_match(parents: Parenthood, node: Node, target: Node) -> List[Node]:
     """
     Get path to root of a node in a tree.
     *************************************
@@ -79,10 +108,7 @@ def get_root_path_match(
         root_path.append(root)
 
 
-def get_leaves_without_prop(
-    children: Childhood,
-    node: Node,
-) -> List[Node]:
+def get_leaves_without_prop(children: Childhood, node: Node,) -> List[Node]:
     """
     Get leaves of a node in a tree.
     *******************************
@@ -104,9 +130,7 @@ def get_leaves_without_prop(
 
 
 def get_leaves_with_prop(
-    children: Childhood,
-    node: Node,
-    prop: BinaryNodeProperty
+    children: Childhood, node: Node, prop: BinaryNodeProperty
 ) -> List[Node]:
     """
     Get leaves of a node in a tree.
@@ -146,9 +170,7 @@ def get_leaves_with_prop(
 
 
 def get_leaves(
-    children: Childhood,
-    node: Node,
-    prop: Optional[BinaryNodeProperty] = None
+    children: Childhood, node: Node, prop: Optional[BinaryNodeProperty] = None
 ) -> List[Node]:
     """
     Get leaves of a node in a tree.
@@ -188,9 +210,7 @@ def kruskal_edges(
 
 
 def kruskal_tree(
-    edges: Sequence[Edge],
-    weights: NumericalEdgeProperty,
-    size: NumericalNodeProperty
+    edges: Sequence[Edge], weights: NumericalEdgeProperty, size: NumericalNodeProperty
 ) -> Tuple[Parenthood, Childhood, NumericalNodeProperty]:
     """
     Create parents an children relationships from kruskal edges.
@@ -233,7 +253,7 @@ def tree_to_json(
     children: Childhood,
     jsonfile: str,
     nodeprops: Optional[NodeProperties] = None,
-    edgeprops: Optional[EdgeProperties] = None
+    edgeprops: Optional[EdgeProperties] = None,
 ):
     """Store a jsonified tree to a json file."""
     output_dict = dict()
@@ -269,7 +289,7 @@ def _expand_on_property(
     cut: List[Node],
     children: Childhood,
     prop: NumericalNodeProperty,
-    threshold: Union[int, float]
+    threshold: Union[int, float],
 ) -> List[Node]:
     """Create a new tree by cutting based on property threshold."""
     candidates = []
@@ -288,7 +308,7 @@ def cut_on_property(
     parents: Parenthood,
     children: Childhood,
     prop: NumericalNodeProperty,
-    threshold: Union[int, float]
+    threshold: Union[int, float],
 ) -> List[Node]:
     """Produce a list of authorized nodes given a property threshold."""
     root = get_root(parents)
@@ -300,11 +320,7 @@ def cut_on_property(
     return list(cut)
 
 
-def common_ancestor(
-    parents: Parenthood,
-    node1: Node,
-    node2: Node
-) -> Node:
+def common_ancestor(parents: Parenthood, node1: Node, node2: Node) -> Node:
     """Get the common ancestor of two nodes and store their distances to him."""
     if node1 in parents and node2 in parents:
         rp1 = get_root_path(parents, node1)
@@ -317,17 +333,11 @@ def common_ancestor(
             "Nodes {} and {} have no common ancestors!!!".format(node1, node2)
         )
     raise UnrelatedNode(
-        "One of the provided nodes: ({}, {}) has no parent...".format(
-            node1, node2
-        )
+        "One of the provided nodes: ({}, {}) has no parent...".format(node1, node2)
     )
 
 
-def edge_dist(
-    parents: Parenthood,
-    node1: Node,
-    node2: Node
-) -> int:
+def edge_dist(parents: Parenthood, node1: Node, node2: Node) -> int:
     """Return the number of edges to go from node1 to node2 (by common ancestor)."""
     ancestor = common_ancestor(parents, node1, node2)
     rpm1 = get_root_path_match(parents, node1, ancestor)
@@ -336,23 +346,22 @@ def edge_dist(
 
 
 def weighted_dist(
-    parents: Parenthood,
-    weights: NumericalNodeProperty,
-    node1: Node,
-    node2: Node
+    parents: Parenthood, weights: NumericalNodeProperty, node1: Node, node2: Node
 ) -> float:
     """Return the number of edges to go from node1 to node2 (by common ancestor)."""
     ancestor = common_ancestor(parents, node1, node2)
     rpm1 = get_root_path_match(parents, node1, ancestor)
     rpm2 = get_root_path_match(parents, node2, ancestor)
-    nodes_in_path = (set(rpm1) | set(rpm2))
+    nodes_in_path = set(rpm1) | set(rpm2)
     nodes_in_path.discard(node1)
     nodes_in_path.discard(node2)
-    dist = 0.
+    dist = 0.0
     for node in nodes_in_path:
         if node not in weights:
             raise UnknownNodeProperty(
-                "Missing weight for node {} to compute a weighted distance!!!".format(node)
+                "Missing weight for node {} to compute a weighted distance!!!".format(
+                    node
+                )
             )
         dist += weights[node]
     # minus 1 otherwise ancestor is counted twice

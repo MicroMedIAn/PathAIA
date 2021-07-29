@@ -3,6 +3,12 @@ from typing import Union, Dict, List, Tuple
 Node = Union[int, str, tuple]
 Edge = Tuple[Node, Node]
 
+
+class UEdge(tuple):
+    def __new__(self, edge: Edge, key=None):
+        return tuple.__new__(UEdge, sorted(edge, key=key))
+
+
 NodeEndomorphism = Dict[Node, Node]
 Parenthood = Dict[Node, Node]
 Childhood = Dict[Node, List[Node]]

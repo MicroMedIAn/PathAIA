@@ -4,8 +4,8 @@ import numpy as np
 from tqdm import tqdm
 from typing import Tuple, Any, Union, Dict, Sequence, Optional
 from nptyping import NDArray
-from .types import Parenthood, NumericalNodeProperty, Node, Edge
-from .graph import UGraph, Tree
+from .types import Node, Edge
+from .object_api import UGraph, Tree
 
 
 class AgglomerativeClustering:
@@ -25,142 +25,15 @@ class AgglomerativeClustering:
     def __init__(self, compute_all: bool = False):
         self.compute_all = compute_all
 
-    def reset(self):
-        """
-        Reset the algorithm attributes. Populations are initiated to 1 for every node,
-        strengths are initiated to 1 for every edge, dendrogram is emptied.
-        """
-        self.populations = {k: 1 for k in range(self.n_nodes)}
-        ii, jj = self.A.nonzero()
-        self.centroids = {k: self.feats[k] for k in range(self.n_nodes)}
-        self.links = {
-            k: set(jj[ii == k].tolist() + ii[jj == k].tolist())
-            for k in range(self.n_nodes)
-        }
-        self.strengths = {(i, j): 1 for i, j in zip(ii, jj)}
-        if self.compute_all:
-            self.distances = {
-                (i, j): self.distance(i, j)
-                for i in range(self.n_nodes)
-                for j in range(i + 1, self.n_nodes)
-            }
-        else:
-            self.distances = {(i, j): self.distance(i, j) for i, j in zip(ii, jj)}
-        self.edges = SortedDict(
-            self.criterion, {(i, j): self.distances[i, j] for i, j in zip(ii, jj)}
-        )
-        self.dendrogram = np.zeros((self.n_nodes - 1, 4))
-
-    def distance(self, i: int, j: int) -> float:
-        """
-        Get squared distance between nodes `i` and `j`. If available in the adjacency
-        matrix or in the `distance` dictionary it is not recomputed.
-
-        Args:
-            i: first node.
-            j: second node
-
-        Returns:
-            Squared euclidian distance between i and j.
-        """
-        i, j = sorted((i, j))
-        try:
-            d = self.A[i, j]
-        except IndexError:
-            d = self.distances.get((i, j), 0)
-        if not d:
-            d = ((self.centroids[i] - self.centroids[j]) ** 2).sum()
-        return d
-
-    def criterion(self, x: Tuple[int, int]) -> float:
-        """
-        Criterion function used to find the next nodes to merge. Override it to use
-        another criterion.
-
-        Args:
-            x: tuple containg the two nodes to merge.
-
-        Returns:
-            Squared distance between the 2 nodes divided by link strength.
-        """
-        i, j = x
-        return self.distances[i, j] / self.strengths[i, j]
-
-    def create_centroid_link(self, i, j, c, k):
-        """
-        Create a new link between centroid `c` (that comes from merging nodes `i` and
-        `j`) and node `k`.
-
-        Args:
-            i: first merged node.
-            j: second merged node.
-            c: centroid of nodes `i` and `j`.
-            k: node linked to either `i` or `j` or both.
-        """
-        if i == k or j == k:
-            return
-        ik, ki = sorted((i, k))
-        jk, kj = sorted((j, k))
-        ck, kc = sorted((c, k))
-        ij, ji = sorted((i, j))
-
-        pi = self.populations[i]
-        pj = self.populations[j]
-        ri = pi / (pi + pj)
-        rj = pj / (pi + pj)
-        try:
-            dik = self.distances[ik, ki]
-            djk = self.distances[jk, kj]
-            dij = self.distances[ij, ji]
-            dck = ri * dik + rj * djk - ri * rj * dij
-        except KeyError:
-            dck = self.distance(c, k)
-
-        self.distances[ck, kc] = dck
-
-        self.edges.pop((ik, ki), 0)
-        self.edges.pop((jk, kj), 0)
-        sik = self.strengths.get((ik, ki), 0)
-        sjk = self.strengths.get((jk, kj), 0)
-        if sik or sjk:
-            self.strengths[ck, kc] = ri * sik + rj * sjk
-            self.edges[ck, kc] = dck
-
-        self.links[k].discard(i)
-        self.links[k].discard(j)
-        self.links[k].add(c)
-        self.links[j].discard(k)
-        self.links[c].add(k)
-
-    def add_link(self, i: int, j: int):
-        """
-        Create a new link between 2 nodes.
-
-        Args:
-            i: first node.
-            j: second node.
-        """
-        i, j = sorted((i, j))
-        dij = self.distance(i, j)
-        self.distances[i, j] = dij
-        self.strengths[i, j] = 1
-        self.edges[i, j] = dij
-        self.links[i].add(j)
-        self.links[j].add(i)
-
-    def fit(
+    def init_graph(
         self,
         G: UGraph,
         feats: Union[Dict[Node, NDArray[(Any,), Any]], Sequence[str]],
         weights: Optional[Union[Dict[Edge, float], str]] = None,
     ):
         r"""
-        Fits on the given graph and completes the dendrogram. A dendrogram is an array
-        of size :math:`(n-1) \times 4` (whre :math:`n` is the number of nodes)
-        representing the successive merges of nodes. Each row gives the two merged
-        nodes, their distance and the size of the resulting cluster. Any new node
-        resulting from a merge takes the first available index (e.g., the first merge
-        corresponds to node :math:`n`).
+        Initialize main graph attributes (adjacency matrix, n_nodes and features) using
+        a graph object, a list of features and a list of weights.
 
         Args:
             G: graph to cluster nodes on.
@@ -168,7 +41,7 @@ class AgglomerativeClustering:
                 vectors or a sequence of property names that will be used as features.
             weights: either a dictionary that maps edges to their corresponding weight
                 or a property name that will be used as weight. If `None` is passed,
-                weights are computed using euclidian distances between feature vectors.            
+                weights are computed using euclidian distances between feature vectors.
         """
         self.A = triu(G.A, format="csr").astype(np.float32)
         self.n_nodes = G.n_nodes
@@ -194,11 +67,158 @@ class AgglomerativeClustering:
                 i, j = sorted((G.nodes.index(n1), G.nodes.index(n2)))
                 self.A[i, j] = G.edgeprops[str][(n1, n2)] ** 2
 
+    def reset(self):
+        """
+        Reset the algorithm attributes. Populations are initiated to 1 for every node,
+        strengths are initiated to 1 for every edge, dendrogram is emptied.
+        """
+        self.populations_ = {k: 1 for k in range(self.n_nodes)}
+        ii, jj = self.A.nonzero()
+        self.centroids_ = {k: self.feats[k] for k in range(self.n_nodes)}
+        self.links_ = {
+            k: set(jj[ii == k].tolist() + ii[jj == k].tolist())
+            for k in range(self.n_nodes)
+        }
+        self.strengths_ = {(i, j): 1 for i, j in zip(ii, jj)}
+        if self.compute_all:
+            self.distances_ = {
+                (i, j): self.distance(i, j)
+                for i in range(self.n_nodes)
+                for j in range(i + 1, self.n_nodes)
+            }
+        else:
+            self.distances_ = {(i, j): self.distance(i, j) for i, j in zip(ii, jj)}
+        self.edges_ = SortedDict(
+            self.criterion, {(i, j): self.distances_[i, j] for i, j in zip(ii, jj)}
+        )
+        self.dendrogram_ = np.zeros((self.n_nodes - 1, 4))
+
+    def distance(self, i: int, j: int) -> float:
+        """
+        Get squared distance between nodes `i` and `j`. If available in the adjacency
+        matrix or in the `distance` dictionary it is not recomputed.
+
+        Args:
+            i: first node.
+            j: second node
+
+        Returns:
+            Squared euclidian distance between i and j.
+        """
+        i, j = sorted((i, j))
+        try:
+            d = self.A[i, j]
+        except IndexError:
+            d = self.distances_.get((i, j), 0)
+        if not d:
+            d = ((self.centroids_[i] - self.centroids_[j]) ** 2).sum()
+        return d
+
+    def criterion(self, x: Tuple[int, int]) -> float:
+        """
+        Criterion function used to find the next nodes to merge. Override it to use
+        another criterion.
+
+        Args:
+            x: tuple containg the two nodes to merge.
+
+        Returns:
+            Squared distance between the 2 nodes divided by link strength.
+        """
+        i, j = x
+        return self.distances_[i, j] / self.strengths_[i, j]
+
+    def create_centroid_link(self, i, j, c, k):
+        """
+        Create a new link between centroid `c` (that comes from merging nodes `i` and
+        `j`) and node `k`.
+
+        Args:
+            i: first merged node.
+            j: second merged node.
+            c: centroid of nodes `i` and `j`.
+            k: node linked to either `i` or `j` or both.
+        """
+        if i == k or j == k:
+            return
+        ik, ki = sorted((i, k))
+        jk, kj = sorted((j, k))
+        ck, kc = sorted((c, k))
+        ij, ji = sorted((i, j))
+
+        pi = self.populations_[i]
+        pj = self.populations_[j]
+        ri = pi / (pi + pj)
+        rj = pj / (pi + pj)
+        try:
+            dik = self.distances_[ik, ki]
+            djk = self.distances_[jk, kj]
+            dij = self.distances_[ij, ji]
+            dck = ri * dik + rj * djk - ri * rj * dij
+        except KeyError:
+            dck = self.distance(c, k)
+
+        self.distances_[ck, kc] = dck
+
+        self.edges_.pop((ik, ki), 0)
+        self.edges_.pop((jk, kj), 0)
+        sik = self.strengths_.get((ik, ki), 0)
+        sjk = self.strengths_.get((jk, kj), 0)
+        if sik or sjk:
+            self.strengths_[ck, kc] = ri * sik + rj * sjk
+            self.edges_[ck, kc] = dck
+
+        self.links_[k].discard(i)
+        self.links_[k].discard(j)
+        self.links_[k].add(c)
+        self.links_[j].discard(k)
+        self.links_[c].add(k)
+
+    def add_link(self, i: int, j: int):
+        """
+        Create a new link between 2 nodes.
+
+        Args:
+            i: first node.
+            j: second node.
+        """
+        i, j = sorted((i, j))
+        dij = self.distance(i, j)
+        self.distances_[i, j] = dij
+        self.strengths_[i, j] = 1
+        self.edges_[i, j] = dij
+        self.links_[i].add(j)
+        self.links_[j].add(i)
+
+    def fit(
+        self,
+        G: UGraph,
+        feats: Union[Dict[Node, NDArray[(Any,), Any]], Sequence[str]],
+        weights: Optional[Union[Dict[Edge, float], str]] = None,
+    ):
+        r"""
+        Fits on the given graph and completes the dendrogram. A dendrogram is an array
+        of size :math:`(n-1) \times 4` (whre :math:`n` is the number of nodes)
+        representing the successive merges of nodes. Each row gives the two merged
+        nodes, their distance and the size of the resulting cluster. Any new node
+        resulting from a merge takes the first available index (e.g., the first merge
+        corresponds to node :math:`n`).
+
+        Args:
+            G: graph to cluster nodes on.
+            feats: either a dictionary that maps nodes to their corresponding feature
+                vectors or a sequence of property names that will be used as features.
+            weights: either a dictionary that maps edges to their corresponding weight
+                or a property name that will be used as weight. If `None` is passed,
+                weights are computed using euclidian distances between feature vectors.
+        """
+        self.init_graph(G, feats, weights)
         self.reset()
+
         c = self.n_nodes
         for n in tqdm(range(self.n_nodes - 1), total=self.n_nodes - 1):
-            if not self.edges:
-                cur_dendrogram = self.dendrogram[:n]
+            if not self.edges_:
+                cur_dendrogram = self.dendrogram_[:n]
                 missing = sorted(
                     [
                         k
@@ -210,26 +230,26 @@ class AgglomerativeClustering:
                 for k, i in enumerate(missing):
                     for j in missing[k + 1 :]:
                         self.add_link(i, j)
-            (i, j), _ = self.edges.popitem(0)
+            (i, j), _ = self.edges_.popitem(0)
 
-            pi = self.populations[i]
-            pj = self.populations[j]
+            pi = self.populations_[i]
+            pj = self.populations_[j]
             ri = pi / (pi + pj)
             rj = pj / (pi + pj)
-            self.dendrogram[n] = [i, j, self.criterion((i, j)), pi + pj]
+            self.dendrogram_[n] = [i, j, self.criterion((i, j)), pi + pj]
 
-            self.centroids[c] = ri * self.centroids[i] + rj * self.centroids[j]
-            self.populations[c] = pi + pj
-            self.links[c] = set()
+            self.centroids_[c] = ri * self.centroids_[i] + rj * self.centroids_[j]
+            self.populations_[c] = pi + pj
+            self.links_[c] = set()
 
-            while self.links[i]:
-                k = self.links[i].pop()
+            while self.links_[i]:
+                k = self.links_[i].pop()
                 self.create_centroid_link(i, j, c, k)
-            while self.links[j]:
-                k = self.links[j].pop()
+            while self.links_[j]:
+                k = self.links_[j].pop()
                 self.create_centroid_link(j, i, c, k)
-            self.links.pop(i)
-            self.links.pop(j)
+            self.links_.pop(i)
+            self.links_.pop(j)
             c += 1
 
     def fit_transform(
@@ -253,6 +273,7 @@ class AgglomerativeClustering:
             The tree that describes the hierarchical clustering procedure.
         """
         self.fit(G, feats, weights)
+
         children = []
         parents = []
         nodes = list(range(G.n_nodes))
@@ -276,7 +297,7 @@ class AgglomerativeClustering:
             }
         nodeprops["population"] = {n: 1 for n in range(G.n_nodes)}
 
-        for k, row in enumerate(self.dendrogram):
+        for k, row in enumerate(self.dendrogram_):
             n = k + self.n_nodes
             n1, n2 = row[:2]
             children[n] = [n1, n2]
@@ -284,92 +305,13 @@ class AgglomerativeClustering:
             parents[n2] = n
             nodes.append(n)
             if isinstance(feats, dict):
-                for k, centroid in enumerate(self.centroids[n]):
+                for k, centroid in enumerate(self.centroids_[n]):
                     nodeprops[k][n] = centroid
             else:
                 for k, feat in enumerate(feats):
-                    nodeprops[feat][n] = self.centroids[n, k]
+                    nodeprops[feat][n] = self.centroids_[n, k]
             edgeprops[key][n, n1] = self.distance(n, n1) ** 0.5
             edgeprops[key][n, n2] = self.distance(n, n2) ** 0.5
-            nodeprops["population"][n] = self.populations[n]
+            nodeprops["population"][n] = self.populations_[n]
 
         return Tree(nodes, parents, children, nodeprops, edgeprops)
-
-
-class UFDS:
-    """
-    Union-find data structure for felzenszwalb algorithm.
-    Each unionFind instance X maintains a family of disjoint sets of
-    hashable objects, supporting the following two methods:
-    - X[item] returns a name for the set containing the given item.
-      Each set is named by an arbitrarily-chosen one of its members; as
-      long as the set remains unchanged it will keep the same name. If
-      the item is not yet part of a set in X, a new singleton set is
-      created for it.
-    - X.union(item1, item2, ...) merges the sets containing each item
-      into a single larger set.  If any item is not yet part of a set
-      in X, it is added to X as one of the members of the merged set.
-      Union-find data structure. Based on Josiah Carlson's code,
-      http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/215912
-      with significant additional changes by D. Eppstein.
-      http://www.ics.uci.edu/~eppstein/PADS/UnionFind.py
-    """
-
-    def __init__(self):
-        """
-        Create a new empty union-find structure.
-        ****************************************
-        """
-        # UFDS permit to compute the hierarchy
-        # it is responsible to keep track of:
-        # the parent is crucial, but it only guarantee the tree structure
-        # should not be used outside of the object
-        self._parent: Parenthood = {}
-        # size is subjective, it is only used to fuse objects, no real quantitative interest
-        # should not be used outside of the object
-        self._size: NumericalNodeProperty = {}
-
-    def get_root(self, node: Node) -> Node:
-        """
-        Find and return the name of the set containing the node.
-        ********************************************************
-        """
-        # check for previously unknown object
-        # if unknown, create an entry in the parent dico
-        # then, size is set to 1
-        # intra is set to 0
-        if node not in self._parent:
-            self._parent[node] = node
-            self._size[node] = 1
-            return node
-        # find path of objects leading to the root
-        path = [node]
-        root = self._parent[node]
-        while root != path[-1]:
-            path.append(root)
-            root = self._parent[root]
-        # compress the path and return
-        for ancestor in path:
-            self._parent[ancestor] = root
-        return root
-
-    def __iter__(self):
-        """
-        Iterate through all items ever found or unioned by this structure.
-        ******************************************************************
-        """
-        return iter(self.parents)
-
-    def union(self, edge: Edge):
-        """
-        Find the sets containing the objects and merge them all.
-        ********************************************************
-        """
-        n1, n2 = edge
-        roots = [self.get_root(n1), self.get_root(n2)]
-        # Find the heaviest root according to its weight.
-        heaviest = max(roots, key=lambda r: self._size[r])
-        for r in roots:
-            if r != heaviest:
-                self._size[heaviest] += self._size[r]
-                self._parent[r] = heaviest

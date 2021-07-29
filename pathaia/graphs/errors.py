@@ -43,6 +43,13 @@ class UndefinedChildhood(Error):
     pass
 
 
+class InvalidTree(Error):
+    """
+    Raise when parents and children do no match.
+    *********************************************
+    """
+
+
 class UnknownNodeProperty(Error):
     """
     Raise when trying to access unknown level.
