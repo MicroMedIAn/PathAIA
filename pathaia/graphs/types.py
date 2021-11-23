@@ -15,11 +15,11 @@ Childhood = Dict[Node, List[Node]]
 
 BinaryNodeProperty = Dict[Node, bool]
 NumericalNodeProperty = Dict[Node, Union[float, int]]
-SymbolicNodeProperty = Dict[Node, Union[str]]
+SymbolicNodeProperty = Dict[Node, str]
 
 BinaryEdgeProperty = Dict[Edge, bool]
 NumericalEdgeProperty = Dict[Edge, Union[float, int]]
-SymbolicEdgeProperty = Dict[Edge, Union[str]]
+SymbolicEdgeProperty = Dict[Edge, str]
 
 NodeProperty = Union[SymbolicNodeProperty, NumericalNodeProperty]
 EdgeProperty = Union[SymbolicEdgeProperty, NumericalEdgeProperty]

@@ -26,7 +26,8 @@ setup(
         "pandas",
         "dataclasses",
         "sortedcontainers",
-        "ordered-set"
+        "ordered-set",
+		"shapely"
     ],
     include_package_data=True,
     long_description=long_description,
