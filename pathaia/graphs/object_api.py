@@ -21,7 +21,7 @@ from .types import (
     EdgeProperties,
     NumericalEdgeProperty,
 )
-from ..utils.types import PathLike
+from ..util.types import PathLike
 from .errors import (
     InvalidNodeProps,
     UndefinedParenthood,
