@@ -27,7 +27,8 @@ setup(
         "dataclasses",
         "sortedcontainers",
         "ordered-set",
-		"shapely"
+		"shapely",
+		"scikit-learn"
     ],
     include_package_data=True,
     long_description=long_description,
