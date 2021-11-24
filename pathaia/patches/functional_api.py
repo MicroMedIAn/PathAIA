@@ -213,7 +213,7 @@ def slide_rois_no_image(
     offset: Coord = (0, 0),
     thumb_size: int = 512,
     slide_filters: Optional[Sequence[Filter]] = None,
-) -> Iterator[Tuple[Patch, NDImage]]:
+) -> Iterator[Patch]:
     """
     Get patches with coordinates.
 

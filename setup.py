@@ -26,7 +26,9 @@ setup(
         "pandas",
         "dataclasses",
         "sortedcontainers",
-        "ordered-set"
+        "ordered-set",
+		"shapely",
+		"scikit-learn"
     ],
     include_package_data=True,
     long_description=long_description,

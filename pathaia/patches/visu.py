@@ -37,12 +37,13 @@ def preview_from_queries(
     slide_size = Coord(slide.dimensions)
     if size_0 is None:
         size_0 = Coord(queries[0].size_0)
+    thickness = 2 * (thickness // 2) + 1
     res = slide_size / size_0 * (thickness + cell_size) + thickness
     thumb_w = max(min_res, res.x)
     thumb_h = max(min_res, res.y)
     image = slide.get_thumbnail((thumb_w, thumb_h))
     thumb_size = Coord(image.size)
-    dsr = slide_size / thumb_size
+    dsr = slide_size[0] / thumb_size[0]
     image = numpy.array(image)[:, :, 0:3]
     # get grid
     grid = 255 * numpy.ones((thumb_size.y, thumb_size.x), numpy.uint8)
@@ -61,7 +62,7 @@ def preview_from_queries(
         grid[starty:endy, startx] = 0
         grid[starty:endy, endx] = 0
     grid = grid < 255
-    d = disk(thickness)
+    d = disk(thickness//2)
     grid = binary_dilation(grid, d)
     image[grid] = color
     return image

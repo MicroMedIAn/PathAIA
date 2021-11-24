@@ -100,7 +100,7 @@ class AgglomerativeClustering:
 
         Args:
             i: first node.
-            j: second node
+            j: second node.
 
         Returns:
             Squared euclidian distance between i and j.
