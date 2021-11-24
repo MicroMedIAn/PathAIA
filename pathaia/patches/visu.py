@@ -37,7 +37,7 @@ def preview_from_queries(
     slide_size = Coord(slide.dimensions)
     if size_0 is None:
         size_0 = Coord(queries[0].size_0)
-    thickness = 2 * thickness // 2 + 1
+    thickness = 2 * (thickness // 2) + 1
     res = slide_size / size_0 * (thickness + cell_size) + thickness
     thumb_w = max(min_res, res.x)
     thumb_h = max(min_res, res.y)
