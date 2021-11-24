@@ -61,7 +61,7 @@ interval = {"x": 224, "y": 224}
 silent = list(range(low_level, top_level+1))
 extensions = [".svs"]
 recurse = False
-slide_filters = "full"
+slide_filters = ["full"]
 verbose = 2
 ```
 With these parameters you will find all svs slides that are directly in `infolder` and extract patch coordinates from levels 0 to 5 with a hierarchical structure. No png image will be stored as `silent` lists all levels. Patches will be contiguous with size 224 and will only be extracted from tissue zone that are determined by filtering on slide thumbnails. With `verbose=2` thumbnails of extracted areas are also stored on disk.
