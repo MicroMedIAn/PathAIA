@@ -11,7 +11,16 @@ import openslide
 from ..util.paths import slides_in_folder, slide_basename, safe_rmtree, get_files
 from ..util.images import regular_grid, get_coords_from_mask
 from ..util.basic import ifnone
-from ..util.types import Filter, FilterList, PathLike, NDImage, NDBoolMask, Coord, Patch
+from ..util.types import (
+    Filter,
+    FilterList,
+    PathLike,
+    NDImage,
+    NDBoolMask,
+    Coord,
+    Patch,
+    Slide,
+)
 from .visu import preview_from_queries
 from .filters import (
     filter_hasdapi,
@@ -32,7 +41,7 @@ from ..util.convert import (
     get_categorical_layer_edges,
     layer_segment_to_json_struct,
     gen_categorical_from_floatpreds,
-    colorCycle
+    colorCycle,
 )
 import json
 
@@ -43,10 +52,7 @@ izi_filters = {
     "has-tissue-he": filter_has_tissue_he,
 }
 
-slide_filters = {
-    "full": filter_thumbnail,
-    "fluo": filter_fluo_thumbnail
-}
+slide_filters = {"full": filter_thumbnail, "fluo": filter_fluo_thumbnail}
 
 
 def filter_image(image: NDImage, filters: Sequence[Filter]) -> bool:
@@ -99,7 +105,7 @@ def apply_slide_filters(thumb: NDImage, filters: Sequence[Filter]) -> NDBoolMask
 
 
 def slide_rois(
-    slide: openslide.OpenSlide,
+    slide: Slide,
     level: int,
     psize: Coord,
     interval: Coord = (0, 0),
@@ -205,7 +211,7 @@ def slide_rois(
 
 
 def slide_rois_no_image(
-    slide: openslide.OpenSlide,
+    slide: Slide,
     level: int,
     psize: Coord,
     interval: Coord = (0, 0),
@@ -295,7 +301,8 @@ def patchify_slide(
     thumb_size: int = 512,
     slide_filters: Optional[Sequence[Filter]] = None,
     verbose: int = 2,
-    silence: int = 0
+    silence: int = 0,
+    backend: str = "openslide",
 ):
     """
     Save patches of a given wsi.
@@ -317,6 +324,7 @@ def patchify_slide(
             processes, thumbnail export.
         silence: 0 => write images, 1 => use images, but do not write, 2 => not even
             using images for filtering.
+        backend: whether to use openslide or cucim as backend.
 
     """
     # Get name of the slide
@@ -342,7 +350,7 @@ def patchify_slide(
             print("offset: {}".format(offset))
             print("filtering: {}".format(filters))
             print("starting patchification...")
-    slide = openslide.OpenSlide(str(slidefile))
+    slide = Slide(slidefile, backend=backend)
     plist = []
     # level directory
     outleveldir = os.path.join(slide_folder_output, "level_{}".format(level))
@@ -391,7 +399,7 @@ def patchify_slide(
                 interval,
                 offset=offset,
                 thumb_size=thumb_size,
-                slide_filters=slide_filters
+                slide_filters=slide_filters,
             ):
                 plist.append(patch)
         else:
@@ -431,6 +439,7 @@ def patchify_slide_hierarchically(
     thumb_size: int = 512,
     slide_filters: Optional[Sequence[Filter]] = None,
     verbose: int = 2,
+    backend: str = "openslide",
 ):
     """
     Save patches of a given wsi in a hierarchical way.
@@ -452,6 +461,7 @@ def patchify_slide_hierarchically(
             mask.
         verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes,
             thumbnail export.
+        backend: whether to use openslide or cucim as backend.
 
     """
     filters = ifnone(filters, {})
@@ -473,7 +483,9 @@ def patchify_slide_hierarchically(
 
     csv_columns = Patch.get_fields()
     csv_path = os.path.join(slide_folder_output, "patches.csv")
-    slide = openslide.OpenSlide(str(slidefile))
+
+    slide = Slide(slidefile, backend=backend)
+
     with open(csv_path, "w") as csvfile:
         writer = csv.DictWriter(csvfile, csv_columns)
         writer.writeheader()
@@ -546,7 +558,8 @@ def patchify_folder(
     thumb_size: int = 512,
     slide_filters: Optional[Sequence[Filter]] = None,
     verbose: int = 2,
-    silence: int = 0
+    silence: int = 0,
+    backend: str = "openslide",
 ):
     """
     Save patches of all wsi inside a folder.
@@ -571,6 +584,7 @@ def patchify_folder(
             thumbnail export.
         silence: 0 => write images, 1 => use images, but do not write, 2 => not even
             using images for filtering.
+        backend: whether to use openslide or cucim as backend.
 
     """
     if os.path.isdir(outfolder):
@@ -604,7 +618,8 @@ def patchify_folder(
                 thumb_size=thumb_size,
                 slide_filters=slide_filters,
                 verbose=verbose,
-                silence=silence
+                silence=silence,
+                backend=backend,
             )
         except (
             openslide.OpenSlideUnsupportedFormatError,
@@ -630,6 +645,7 @@ def patchify_folder_hierarchically(
     thumb_size: int = 512,
     slide_filters: Optional[Sequence[Filter]] = None,
     verbose: int = 2,
+    backend: str = "openslide",
 ):
     """
     Save hierarchical patches of all wsi inside a folder.
@@ -651,6 +667,7 @@ def patchify_folder_hierarchically(
             prompted for a choice.
         verbose: 0 => nada, 1 => patchifying parameters, 2 => start-end of processes,
             thumbnail export.
+        backend: whether to use openslide or cucim as backend.
 
     """
     if os.path.isdir(outfolder):
@@ -684,6 +701,7 @@ def patchify_folder_hierarchically(
                 thumb_size=thumb_size,
                 slide_filters=slide_filters,
                 verbose=verbose,
+                backend=backend,
             )
         except (
             openslide.OpenSlideUnsupportedFormatError,
@@ -721,9 +739,7 @@ def export_floatpred_to_categorical_micromap_json(
 
     """
     color_dict = {k: colorCycle[k] for k in classnames}
-    slidefiles = get_files(
-        slidefolder, extensions=extensions, recurse=recurse
-    ).map(str)
+    slidefiles = get_files(slidefolder, extensions=extensions, recurse=recurse).map(str)
     for slidefile in tqdm(slidefiles):
         slidename, _ = os.path.splitext(os.path.basename(slidefile))
         slidedir = os.path.dirname(slidefile)
@@ -734,23 +750,13 @@ def export_floatpred_to_categorical_micromap_json(
         try:
             slide = openslide.OpenSlide(slidefile)
             # print(f'Saving to json {pathaiajson} from {pathaiacsv}')
-            gen = gen_categorical_from_floatpreds(
-                pathaiacsv,
-                level,
-                task,
-                thresholds
-            )
+            gen = gen_categorical_from_floatpreds(pathaiacsv, level, task, thresholds)
             layer_edges, layer_meta, interval = get_categorical_layer_edges(
-                gen,
-                color_dict,
-                classnames
+                gen, color_dict, classnames
             )
             layer_segments = get_categorical_segments_from_edges(layer_edges)
             annotations = layer_segment_to_json_struct(
-                interval,
-                layer_segments,
-                layer_meta,
-                slide
+                interval, layer_segments, layer_meta, slide
             )
             with open(pathaiajson, "w") as f:
                 json.dump(annotations, f)
@@ -758,9 +764,5 @@ def export_floatpred_to_categorical_micromap_json(
             warnings.warn(
                 "slide '{}'"
                 " with patch file '{}'"
-                " failed with error: '{}'".format(
-                    slidefile,
-                    pathaiacsv,
-                    str(e)
-                )
+                " failed with error: '{}'".format(slidefile, pathaiacsv, str(e))
             )

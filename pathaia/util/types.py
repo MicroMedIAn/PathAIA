@@ -1,8 +1,27 @@
-from typing import Any, Callable, Dict, Sequence, Union, NamedTuple, Optional, List, Tuple
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Sequence,
+    Union,
+    NamedTuple,
+    Optional,
+    List,
+    Tuple,
+)
 from nptyping import NDArray
 import os
 import numpy
 from dataclasses import dataclass
+from openslide import OpenSlide
+from pathlib import Path
+import warnings
+from PIL import Image
+
+try:
+    from cucim import CuImage
+except ImportError:
+    pass
 
 
 class _CoordBase(NamedTuple):
@@ -135,3 +154,77 @@ NDImageBatch = Union[NDByteImageBatch, NDFloatImageBatch]
 RefDataSet = Tuple[List, List]
 SplitDataSet = Dict[Union[int, str], RefDataSet]
 DataSet = Union[RefDataSet, SplitDataSet]
+
+
+class Slide:
+    def __init__(self, path: PathLike, backend: str = "openslide"):
+        path = Path(path)
+        if backend == "openslide":
+            opener = OpenSlide
+        else:
+            if path.suffix not in (".svs", ".tif"):
+                warnings.warn(
+                    "Cucim backend only works for svs and tiff, switching to openslide."
+                )
+                opener = OpenSlide
+                backend = "openslide"
+            else:
+                opener = CuImage
+
+        self._slide = opener(str(path))
+        self.backend = backend
+
+    @property
+    def dimensions(self):
+        if self.backend == "openslide":
+            return self._slide.dimensions
+        else:
+            return self._slide.size("XY")
+
+    @property
+    def _filename(self):
+        if self.backend == "openslide":
+            return self._slide._filename
+        else:
+            return self._slide.metadata["cucim"]["path"]
+
+    def __getattr__(self, name):
+        try:
+            return getattr(self._slide, name)
+        except AttributeError as e:
+            if self.backend == "cucim" and name in self._slide.resolutions:
+                return self._slide.resolutions[name]
+            else:
+                raise AttributeError(e)
+
+    def get_best_level_for_downsample(self, downsample: float):
+        if self.backend == "openslide":
+            return self._slide.get_best_level_for_downsample(downsample)
+        else:
+            for i in range(1, self.level_count):
+                if downsample < self.level_downsamples[i]:
+                    return max(0, i - 1)
+            return self.level_count - 1
+
+    def read_region(self, location, level, size, **kwargs):
+        if self.backend == "openslide":
+            return self._slide.read_region(location, level, size)
+        else:
+            region = self._slide.read_region(
+                location=location, level=level, size=size, **kwargs
+            )
+            return Image.fromarray(numpy.asarray(region)).convert("RGBA")
+
+    def get_thumbnail(self, size: Coord):
+        if self.backend == "openslide":
+            return self._slide.get_thumbnail(size)
+        else:
+            dsr = max(*(dim / thumb for dim, thumb in zip(self.dimensions, size)))
+            level = self.get_best_level_for_downsample(dsr)
+            tile = self.read_region((0, 0), level, self.level_dimensions[level])
+            # Apply on solid background
+            bg_color = "#ffffff"
+            thumb = Image.new("RGB", tile.size, bg_color)
+            thumb.paste(tile, None, tile)
+            thumb.thumbnail(size, Image.ANTIALIAS)
+            return thumb
