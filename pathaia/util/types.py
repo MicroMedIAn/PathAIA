@@ -41,7 +41,7 @@ class Coord(_CoordBase):
                 x, y = x
             else:
                 y = x
-        return super().__new__(cls, x, y)
+        return super().__new__(cls, int(x), int(y))
 
     def __add__(self, other):
         x, y = self.__class__(other)
