@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name="pathaia",
-    version="0.1.3",
+    version="0.2.0",
     description="procedures for wsi analysis",
     author="Arnaud Abreu",
     author_email="arnaud.abreu.p@gmail.com",
