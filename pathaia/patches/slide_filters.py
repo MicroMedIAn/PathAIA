@@ -61,7 +61,7 @@ def filter_thumbnail(x: NDByteImage) -> NDBoolMask:
     x = cv2.cvtColor(x.astype(np.float32) / 255, cv2.COLOR_RGB2Lab)
     l, a, b = x.transpose(2, 0, 1)
     mask = (
-        ((a > 10) | ((a > 5) & (b > 0)) & (l > 40))
+        ((a > 10) | ((a > 5) & (b > -10)) & (l > 40))
         & ((a < 50) | (b < 90))
         & (l < 95)
         & (l > 10)
