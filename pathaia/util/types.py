@@ -121,6 +121,17 @@ class Patch:
             "parent": "None" if self.parent is None else self.parent.id,
         }
 
+    @classmethod
+    def from_csv_row(cls, row: Dict[str, Union[str, int]], slidename: str = None):
+        return cls(
+            id=row["id"],
+            slidename=slidename,
+            position=Coord(row["x"], row["y"]),
+            level=int(row["level"]),
+            size_0=Coord(row["dx"], row["dy"]),
+            size=Coord(row["size_x"], row["size_y"])
+        )
+
 
 Filter = Sequence[Union[str, Callable]]
 FilterList = Union[str, Sequence[Filter], Dict[int, Sequence[Filter]]]
