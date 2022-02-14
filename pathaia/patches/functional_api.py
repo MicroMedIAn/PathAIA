@@ -44,6 +44,7 @@ from ..util.convert import (
     colorCycle,
 )
 import json
+from fastcore.basics import listify
 
 
 izi_filters = {
@@ -140,8 +141,8 @@ def slide_rois(
     psize = convert_coords(psize)
     offset = convert_coords(offset)
     ancestors = ifnone(ancestors, [])
-    filters = ifnone(filters, [])
-    slide_filters = ifnone(slide_filters, [])
+    filters = listify(filters)
+    slide_filters = listify(slide_filters)
     if len(ancestors) > 0:
         mag = slide.level_downsamples[level]
         shape = Coord(ancestors[0].size_0) / mag
@@ -245,7 +246,7 @@ def slide_rois_no_image(
     psize = convert_coords(psize)
     offset = convert_coords(offset)
     ancestors = ifnone(ancestors, [])
-    slide_filters = ifnone(slide_filters, [])
+    slide_filters = listify(slide_filters)
     if len(ancestors) > 0:
         mag = slide.level_downsamples[level]
         shape = Coord(ancestors[0].size_0) / mag
