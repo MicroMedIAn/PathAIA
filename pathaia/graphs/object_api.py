@@ -344,15 +344,13 @@ class Tree(Graph):
         super().add_edge((parent, child))
 
     def add_children(self, parent: Node, children: Sequence[Node]):
-        edges = set()
         for child in children:
             self.parents_[child] = parent
-            edges.add((parent, child))
+            super().add_edge((parent, child))
         try:
             self.children_[parent] |= set(children)
         except KeyError:
             self.children_[parent] = set(children)
-        super().add_edges(edges)
 
     def add_edges(self, edges: Sequence[Tuple[Node, Union[Node, Sequence[Node]]]]):
         for p, c in edges:
