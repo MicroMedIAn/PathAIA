@@ -17,6 +17,7 @@ from openslide import OpenSlide
 from pathlib import Path
 import warnings
 from PIL import Image
+from collections.abc import Iterable
 
 try:
     from cucim import CuImage
@@ -35,9 +36,11 @@ class Coord(_CoordBase):
     If only x is given then takes value (x, x).
     """
 
-    def __new__(cls, x: Union[_CoordBase, int], y: Optional[int] = None):
+    def __new__(cls, x: Union[int, Iterable], y: Optional[int] = None):
         if y is None:
-            if isinstance(x, tuple):
+            if isinstance(x, dict):
+                x, y = x["x"], x["y]
+            elif isinstance(x, Iterable):
                 x, y = x
             else:
                 y = x
