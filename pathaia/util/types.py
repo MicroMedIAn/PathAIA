@@ -39,7 +39,7 @@ class Coord(_CoordBase):
     def __new__(cls, x: Union[int, Iterable], y: Optional[int] = None):
         if y is None:
             if isinstance(x, dict):
-                x, y = x["x"], x["y]
+                x, y = x["x"], x["y"]
             elif isinstance(x, Iterable):
                 x, y = x
             else:
