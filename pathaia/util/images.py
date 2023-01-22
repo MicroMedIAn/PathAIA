@@ -8,7 +8,7 @@ from .types import NDBoolMask, PathLike, NDImage, NDByteImage, Coord
 from ..patches.compat import convert_coords
 import itertools
 from typing import Iterator, List, Tuple, Sequence, Optional, Union, Any
-from nptyping import NDArray
+from nptyping import NDArray, Shape, Float
 
 
 def regular_grid(shape: Coord, interval: Coord, psize: Coord) -> Iterator[Coord]:
@@ -116,7 +116,7 @@ def images_in_folder(
 
 def sample_img(
     image: NDImage, psize: int, spl_per_image: int, mask: NDBoolMask = None
-) -> List[NDArray[(Any,), float]]:
+) -> List[NDArray[Shape["N"], Float]]:
     """
     Split image in patches.
 
@@ -156,7 +156,7 @@ def sample_img(
 
 def sample_img_sep_channels(
     image: NDByteImage, psize: int, spl_per_image: int, mask: NDBoolMask = None
-) -> Tuple[List[NDArray[(Any,), float]], ...]:
+) -> Tuple[List[NDArray[Shape["N"], Float]], ...]:
     """Fit vocabulary on a single image.
 
     Split image in patches and fit on them.

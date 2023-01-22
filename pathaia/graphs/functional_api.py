@@ -28,8 +28,7 @@ from .errors import (
 )
 from .kruskal import UFDS
 import json
-from nptyping import NDArray
-from numbers import Number
+from nptyping import NDArray, Shape, Number
 
 
 def complete_tree(
@@ -375,8 +374,8 @@ def weighted_dist(
 
 
 def farthest_point_sampling(
-    coords: NDArray[(Any, Any), Number], n_samples: Union[int, float]
-) -> NDArray[(Any,), np.int32]:
+    coords: NDArray[Shape["N, N"], Number], n_samples: Union[int, float]
+) -> NDArray[Shape["N"], np.int32]:
     """
     Perform farthest points sampling using point coordinates array.
 
@@ -402,10 +401,10 @@ def farthest_point_sampling(
 
 
 def random_farthest_point_sampling(
-    coords: NDArray[(Any, Any), Number],
+    coords: NDArray[Shape["N, N"], Number],
     n_farthest_samples: Union[int, float] = 0.3,
     n_random_samples: Union[int, float] = 0.1,
-) -> NDArray[(Any,), np.int32]:
+) -> NDArray[Shape["N"], np.int32]:
     """
     Perform farthest points sampling using point coordinates array followed by random
     sampling .
@@ -435,7 +434,7 @@ def random_farthest_point_sampling(
 
 
 def get_kneighbors_graph(
-    points: NDArray[(Any, Any), Number],
+    points: NDArray[Shape["N, N"], Number],
     n_farthest_samples: Union[int, float] = 0.3,
     n_random_samples: Union[int, float] = 0.1,
     dmax: int = 500,
@@ -474,7 +473,7 @@ def get_kneighbors_graph(
 
 
 def get_nodeprops_edgeprops(
-    A: spmatrix, coords: NDArray[(Any, Any), Number]
+    A: spmatrix, coords: NDArray[Shape["N, N"], Number]
 ) -> Tuple[NodeProperties, EdgeProperties]:
     """
     Get coordinates and distances between edges of a graph as NodeProperties and
