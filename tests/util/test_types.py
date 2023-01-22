@@ -5,7 +5,7 @@ def test_coord():
     x1, y1 = coord1 = Coord(4, 6)
     x2, y2 = coord2 = Coord(2, 8)
     a = 3
-    b = 1.6
+    b = 1
 
     assert Coord(a) == Coord(a, a)
     assert Coord(a)[0] == a
