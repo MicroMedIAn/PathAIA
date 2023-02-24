@@ -1,5 +1,4 @@
 from typing import (
-    Any,
     Callable,
     Dict,
     Sequence,
@@ -140,28 +139,28 @@ Filter = Sequence[Union[str, Callable]]
 FilterList = Union[str, Sequence[Filter], Dict[int, Sequence[Filter]]]
 PathLike = Union[str, os.PathLike]
 
-NDByteImage = NDArray[Shape["N, N, 3"], numpy.uint8]
-NDFloat32Image = NDArray[Shape["N, N, 3"], numpy.float32]
-NDFloat64Image = NDArray[Shape["N, N, 3"], numpy.float64]
+NDByteImage = NDArray[Shape["*, *, 3"], numpy.uint8]
+NDFloat32Image = NDArray[Shape["*, *, 3"], numpy.float32]
+NDFloat64Image = NDArray[Shape["*, *, 3"], numpy.float64]
 NDFloatImage = Union[NDFloat32Image, NDFloat64Image]
 NDImage = Union[NDByteImage, NDFloatImage]
 
-NDByteGrayImage = NDArray[Shape["N, N"], numpy.uint8]
-NDFloat32GrayImage = NDArray[Shape["N, N"], numpy.float32]
-NDFloat64GrayImage = NDArray[Shape["N, N"], numpy.float64]
+NDByteGrayImage = NDArray[Shape["*, *"], numpy.uint8]
+NDFloat32GrayImage = NDArray[Shape["*, *"], numpy.float32]
+NDFloat64GrayImage = NDArray[Shape["*, *"], numpy.float64]
 NDFloatGrayImage = Union[NDFloat32GrayImage, NDFloat64GrayImage]
 NDGrayImage = Union[NDByteGrayImage, NDFloatGrayImage]
 
-NDBoolMask = NDArray[Shape["N, N"], numpy.bool8]
-NDBoolMaskBatch = NDArray[Shape["N, N, N"], numpy.bool8]
+NDBoolMask = NDArray[Shape["*, *"], numpy.bool8]
+NDBoolMaskBatch = NDArray[Shape["*, *, *"], numpy.bool8]
 
-NDIntMask2d = NDArray[Shape["N, N"], numpy.int32]
-NDIntMask3d = NDArray[Shape["N, N, N"], numpy.int32]
-NDIntMask4d = NDArray[Shape["N, N, N, N"], numpy.int32]
+NDIntMask2d = NDArray[Shape["*, *"], numpy.int32]
+NDIntMask3d = NDArray[Shape["*, *, *"], numpy.int32]
+NDIntMask4d = NDArray[Shape["*, *, *, *"], numpy.int32]
 
-NDByteImageBatch = NDArray[Shape["N, N, N, 3"], numpy.uint8]
-NDFloat32ImageBatch = NDArray[Shape["N, N, N, 3"], numpy.float32]
-NDFloat64ImageBatch = NDArray[Shape["N, N, N, 3"], numpy.float64]
+NDByteImageBatch = NDArray[Shape["*, *, *, 3"], numpy.uint8]
+NDFloat32ImageBatch = NDArray[Shape["*, *, *, 3"], numpy.float32]
+NDFloat64ImageBatch = NDArray[Shape["*, *, *, 3"], numpy.float64]
 NDFloatImageBatch = Union[NDFloat32ImageBatch, NDFloat64ImageBatch]
 NDImageBatch = Union[NDByteImageBatch, NDFloatImageBatch]
 
