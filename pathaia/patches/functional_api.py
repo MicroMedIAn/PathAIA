@@ -150,13 +150,12 @@ def slide_rois(
         patches = []
         for ancestor in ancestors:
             # ancestor is a patch
-            rx, ry = ancestor.position
             prefix = ancestor.id
             k = 0
             for patch_coord in regular_grid(shape, interval, psize):
                 k += 1
                 idx = "{}#{}".format(prefix, k)
-                position = patch_coord * mag + ry
+                position = patch_coord * mag + ancestor.position
                 patches.append(
                     Patch(
                         id=idx,
@@ -253,13 +252,12 @@ def slide_rois_no_image(
         size_0 = psize * mag
         for ancestor in ancestors:
             # ancestor is a patch
-            rx, ry = ancestor.position
             prefix = ancestor.id
             k = 0
             for patch_coord in regular_grid(shape, interval, psize):
                 k += 1
                 idx = "{}#{}".format(prefix, k)
-                position = patch_coord * mag + ry
+                position = patch_coord * mag + ancestor.position
                 yield Patch(
                     id=idx,
                     slidename=slide._filename.split("/")[-1],

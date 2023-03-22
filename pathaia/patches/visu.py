@@ -36,32 +36,33 @@ def preview_from_queries(
     # get thumbnail first
     slide_size = Coord(slide.dimensions)
     if size_0 is None:
-        size_0 = Coord(queries[0].size_0)
+        size_0 = Coord(queries[0].size_0) if len(queries) != 0 else Coord(min_res)
     thickness = 2 * (thickness // 2) + 1
     res = slide_size / size_0 * (thickness + cell_size) + thickness
     thumb_w = max(min_res, res.x)
     thumb_h = max(min_res, res.y)
     image = slide.get_thumbnail((thumb_w, thumb_h))
     thumb_size = Coord(image.size)
-    dsr = slide_size[0] / thumb_size[0]
+    dsr_x = slide_size[0] / thumb_size[0]
+    dsr_y = slide_size[1] / thumb_size[1]
     image = numpy.array(image)[:, :, 0:3]
     # get grid
-    grid = 255 * numpy.ones((thumb_size.y, thumb_size.x), numpy.uint8)
+    grid = numpy.zeros((thumb_size.y, thumb_size.x), numpy.uint8)
     for query in queries:
         # position in queries are absolute
-        x, y = query.position / dsr
-        dx, dy = query.size_0 / dsr
+        x, y = round(query.position[0] / dsr_x), round(query.position[1] / dsr_y)
+        dx, dy = round(query.size_0[0] / dsr_x), round(query.size_0[1] / dsr_y)
+        #? startx = numpy.clip(x, 0, thumb_size.x - 1)
         startx = min(x, thumb_size.x - 1)
         starty = min(y, thumb_size.y - 1)
         endx = min(x + dx, thumb_size.x - 1)
         endy = min(y + dy, thumb_size.y - 1)
         # horizontal segments
-        grid[starty, startx:endx] = 0
-        grid[endy, startx:endx] = 0
+        grid[starty, startx:endx] = 1
+        grid[endy - 1, startx:endx] = 1
         # vertical segments
-        grid[starty:endy, startx] = 0
-        grid[starty:endy, endx] = 0
-    grid = grid < 255
+        grid[starty:endy, startx] = 1
+        grid[starty:endy, endx - 1] = 1
     d = disk(thickness//2)
     grid = binary_dilation(grid, d)
     image[grid] = color
