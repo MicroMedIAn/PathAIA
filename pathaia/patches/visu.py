@@ -36,7 +36,7 @@ def preview_from_queries(
     # get thumbnail first
     slide_size = Coord(slide.dimensions)
     if size_0 is None:
-        size_0 = Coord(queries[0].size_0)
+        size_0 = Coord(queries[0].size_0) if len(queries) != 0 else Coord(min_res)
     thickness = 2 * (thickness // 2) + 1
     res = slide_size / size_0 * (thickness + cell_size) + thickness
     thumb_w = max(min_res, res.x)
@@ -50,8 +50,8 @@ def preview_from_queries(
     grid = numpy.zeros((thumb_size.y, thumb_size.x), numpy.uint8)
     for query in queries:
         # position in queries are absolute
-        x, y = int(query.position[0] / dsr_x), int(query.position[1] / dsr_y)
-        dx, dy = int(query.size_0[0] / dsr_x), int(query.size_0[1] / dsr_y)
+        x, y = round(query.position[0] / dsr_x), round(query.position[1] / dsr_y)
+        dx, dy = round(query.size_0[0] / dsr_x), round(query.size_0[1] / dsr_y)
         #? startx = numpy.clip(x, 0, thumb_size.x - 1)
         startx = min(x, thumb_size.x - 1)
         starty = min(y, thumb_size.y - 1)
