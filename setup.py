@@ -10,7 +10,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="pathaia",
-    version="0.2.2",
+    version="0.2.3",
     description="procedures for wsi analysis",
     author="Arnaud Abreu",
     author_email="arnaud.abreu.p@gmail.com",
@@ -20,7 +20,7 @@ setup(
         "fastcore>=1,<2",
         "numpy>=1,<2",
         "tqdm>=4,<5",
-        "openslide-python>=3,<4",
+        "openslide-python>=1.1,<1.2",
         "opencv-python>=4,<5",
         "scikit-image>=0.19,<1",
         "matplotlib>=3,<4",
