@@ -2,33 +2,34 @@
 A module to implement useful function to handle trees.
 Trees are stored as dictionaries.
 """
-from typing import List, Sequence, Tuple, Optional, Union, Any
+import json
 import warnings
+from typing import List, Optional, Sequence, Tuple, Union
 
 import numpy as np
+from nptyping import NDArray, Number, Shape
 from scipy.sparse import spmatrix
 from sklearn.neighbors import NearestNeighbors
-from .types import (
-    Node,
-    NodeProperties,
-    BinaryNodeProperty,
-    NumericalNodeProperty,
-    Parenthood,
-    Childhood,
-    Edge,
-    EdgeProperties,
-    NumericalEdgeProperty,
-)
+
 from .errors import (
     InvalidEdgeProps,
     InvalidNodeProps,
-    UnrelatedNode,
-    UnknownNodeProperty,
     InvalidTree,
+    UnknownNodeProperty,
+    UnrelatedNode,
 )
 from .kruskal import UFDS
-import json
-from nptyping import NDArray, Shape, Number
+from .types import (
+    BinaryNodeProperty,
+    Childhood,
+    Edge,
+    EdgeProperties,
+    Node,
+    NodeProperties,
+    NumericalEdgeProperty,
+    NumericalNodeProperty,
+    Parenthood,
+)
 
 
 def complete_tree(
@@ -113,7 +114,10 @@ def get_root_path_match(parents: Parenthood, node: Node, target: Node) -> List[N
         root_path.append(root)
 
 
-def get_leaves_without_prop(children: Childhood, node: Node,) -> List[Node]:
+def get_leaves_without_prop(
+    children: Childhood,
+    node: Node,
+) -> List[Node]:
     """
     Get leaves of a node in a tree.
     *******************************
@@ -374,8 +378,8 @@ def weighted_dist(
 
 
 def farthest_point_sampling(
-    coords: NDArray[Shape["N, N"], Number], n_samples: Union[int, float]
-) -> NDArray[Shape["N"], np.int32]:
+    coords: NDArray[Shape["N_points, N_dims"], Number], n_samples: Union[int, float]
+) -> NDArray[Shape["N_samples"], np.int32]:
     """
     Perform farthest points sampling using point coordinates array.
 
@@ -401,10 +405,10 @@ def farthest_point_sampling(
 
 
 def random_farthest_point_sampling(
-    coords: NDArray[Shape["N, N"], Number],
+    coords: NDArray[Shape["N_points, N_dims"], Number],
     n_farthest_samples: Union[int, float] = 0.3,
     n_random_samples: Union[int, float] = 0.1,
-) -> NDArray[Shape["N"], np.int32]:
+) -> NDArray[Shape["N_samples"], np.int32]:
     """
     Perform farthest points sampling using point coordinates array followed by random
     sampling .
@@ -434,7 +438,7 @@ def random_farthest_point_sampling(
 
 
 def get_kneighbors_graph(
-    points: NDArray[Shape["N, N"], Number],
+    points: NDArray[Shape["N_points, N_dims"], Number],
     n_farthest_samples: Union[int, float] = 0.3,
     n_random_samples: Union[int, float] = 0.1,
     dmax: int = 500,
@@ -473,7 +477,7 @@ def get_kneighbors_graph(
 
 
 def get_nodeprops_edgeprops(
-    A: spmatrix, coords: NDArray[Shape["N, N"], Number]
+    A: spmatrix, coords: NDArray[Shape["N_points, N_dims"], Number]
 ) -> Tuple[NodeProperties, EdgeProperties]:
     """
     Get coordinates and distances between edges of a graph as NodeProperties and

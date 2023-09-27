@@ -1,11 +1,13 @@
-from sortedcontainers import SortedDict
-from scipy.sparse import triu
+from typing import Any, Dict, Optional, Sequence, Tuple, Union
+
 import numpy as np
+from nptyping import NDArray, Shape
+from scipy.sparse import triu
+from sortedcontainers import SortedDict
 from tqdm import tqdm
-from typing import Tuple, Any, Union, Dict, Sequence, Optional
-from nptyping import NDArray
-from .types import Node, Edge
-from .object_api import UGraph, Tree
+
+from .object_api import Tree, UGraph
+from .types import Edge, Node
 
 
 class AgglomerativeClustering:
@@ -28,7 +30,7 @@ class AgglomerativeClustering:
     def init_graph(
         self,
         G: UGraph,
-        feats: Union[Dict[Node, NDArray[(Any,), Any]], Sequence[str]],
+        feats: Union[Dict[Node, NDArray[Shape["*"], Any]], Sequence[str]],
         weights: Optional[Union[Dict[Edge, float], str]] = None,
     ):
         r"""
@@ -193,7 +195,7 @@ class AgglomerativeClustering:
     def fit(
         self,
         G: UGraph,
-        feats: Union[Dict[Node, NDArray[(Any,), Any]], Sequence[str]],
+        feats: Union[Dict[Node, NDArray[Shape["*"], Any]], Sequence[str]],
         weights: Optional[Union[Dict[Edge, float], str]] = None,
     ):
         r"""
@@ -255,7 +257,7 @@ class AgglomerativeClustering:
     def fit_transform(
         self,
         G: UGraph,
-        feats: Union[Dict[Node, NDArray[(Any,), Any]], Sequence[str]],
+        feats: Union[Dict[Node, NDArray[Shape["*"], Any]], Sequence[str]],
         weights: Optional[Union[Dict[Edge, float], str]] = None,
     ) -> Tree:
         """
