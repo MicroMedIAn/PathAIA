@@ -29,7 +29,7 @@ setup(
         "dataclasses",
         "sortedcontainers>=2,<3",
         "ordered-set>=4,<5",
-        "shapely>=1,<2",
+        "shapely>=1",
         "scikit-learn>=1,<2",
     ],
     include_package_data=True,
