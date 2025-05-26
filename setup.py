@@ -21,7 +21,7 @@ setup(
         "numpy>=1,<2",
         "tqdm>=4",
         "openslide-python>=1.1",
-        "opencv-python>=4",
+        "opencv-python-headless>=4",
         "scikit-image>=0.19,<1",
         "matplotlib>=3",
         "nptyping>=2,<3",
