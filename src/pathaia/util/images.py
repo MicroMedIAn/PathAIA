@@ -4,8 +4,7 @@
 import itertools
 from typing import Iterator, List, Optional, Sequence, Tuple, Union
 
-import numpy
-import numpy.typing as npt
+import numpy as np
 from skimage.io import imread
 from skimage.transform import resize
 
@@ -32,8 +31,8 @@ def regular_grid(shape: Coord, interval: Coord, psize: Coord) -> Iterator[Coord]
     shape = convert_coords(shape)
     step = interval + psize
     maxj, maxi = step * ((shape - psize) / step + 1)
-    col = numpy.arange(start=0, stop=maxj, step=step[0], dtype=int)
-    line = numpy.arange(start=0, stop=maxi, step=step[1], dtype=int)
+    col = np.arange(start=0, stop=maxj, step=step[0], dtype=int)
+    line = np.arange(start=0, stop=maxi, step=step[1], dtype=int)
     for i, j in itertools.product(line, col):
         yield Coord(x=j, y=i)
 
@@ -60,7 +59,7 @@ def get_coords_from_mask(
     step = interval + psize
     mask_w, mask_h = (shape - psize) / step + 1
     mask = resize(mask, (mask_h, mask_w))
-    for i, j in numpy.argwhere(mask):
+    for i, j in np.argwhere(mask):
         yield step * (j, i)
 
 
@@ -79,8 +78,8 @@ def unlabeled_regular_grid_list(shape: Coord, step: int, psize: int) -> List[Coo
     """
     maxi = step * int((shape[0] - (psize - step)) / step) + 1
     maxj = step * int((shape[1] - (psize - step)) / step) + 1
-    col = numpy.arange(start=0, stop=maxj, step=step, dtype=int)
-    line = numpy.arange(start=0, stop=maxi, step=step, dtype=int)
+    col = np.arange(start=0, stop=maxj, step=step, dtype=int)
+    line = np.arange(start=0, stop=maxi, step=step, dtype=int)
     return list(itertools.product(line, col))
 
 
@@ -95,7 +94,7 @@ def images_in_folder(
     """
     Get images in a given folder.
 
-    Get all images as numpy arrays (selected by file extension).
+    Get all images as np arrays (selected by file extension).
     You can remove terms from the research.
 
     Args:
@@ -107,7 +106,7 @@ def images_in_folder(
         paths: whether to return absolute path with image data.
 
     Yields:
-        Images as numpy arrays, optionally with path.
+        Images as np arrays, optionally with path.
 
     """
     for imfile in imfiles_in_folder(folder, authorized, forbiden, randomize, datalim):
@@ -119,12 +118,12 @@ def images_in_folder(
 
 def sample_img(
     image: NDImage, psize: int, spl_per_image: int, mask: NDBoolMask = None
-) -> List[npt.NDArray[Tuple[int], float]]:
+) -> List[np.ndarray[Tuple[int], float]]:
     """
     Split image in patches.
 
     Args:
-        image: numpy image to fit on.
+        image: np image to fit on.
         psize: size in pixels of the side of a patch.
         spl_per_image: maximum number of patches to extract in image.
         mask: optional boolean array, we sample in true pixels if provided.
@@ -140,18 +139,18 @@ def sample_img(
         positions = unlabeled_regular_grid_list(spaceshape, psize)
     else:
         half_size = int(0.5 * psize)
-        cropped_mask = numpy.zeros_like(mask)
+        cropped_mask = np.zeros_like(mask)
         cropped_mask[mask > 0] = 1
         cropped_mask[0 : half_size + 1, :] = 0
         cropped_mask[di - half_size - 1 : :, :] = 0
         cropped_mask[:, 0 : half_size + 1] = 0
         cropped_mask[:, dj - half_size - 1 : :] = 0
-        y, x = numpy.where(cropped_mask > 0)
+        y, x = np.where(cropped_mask > 0)
         y -= half_size
         x -= half_size
         positions = [(i, j) for i, j in zip(y, x)]
 
-    numpy.random.shuffle(positions)
+    np.random.shuffle(positions)
     positions = positions[0:spl_per_image]
     patches = [img[i : i + psize, j : j + psize].reshape(-1) for i, j in positions]
     return patches
@@ -159,13 +158,13 @@ def sample_img(
 
 def sample_img_sep_channels(
     image: NDByteImage, psize: int, spl_per_image: int, mask: NDBoolMask = None
-) -> Tuple[List[npt.NDArray[Tuple[int], float]], ...]:
+) -> Tuple[List[np.ndarray[Tuple[int], float]], ...]:
     """Fit vocabulary on a single image.
 
     Split image in patches and fit on them.
 
     Args:
-        image: numpy image to fit on.
+        image: np image to fit on.
         psize: size in pixels of the side of a patch.
         spl_per_image: maximum number of patches to extract in image.
         mask: optional boolean array, we sample in true pixels if provided.
@@ -182,17 +181,17 @@ def sample_img_sep_channels(
         positions = unlabeled_regular_grid_list(spaceshape, psize)
     else:
         half_size = int(0.5 * psize)
-        cropped_mask = numpy.zeros_like(mask)
+        cropped_mask = np.zeros_like(mask)
         cropped_mask[mask > 0] = 1
         cropped_mask[0 : half_size + 1, :] = 0
         cropped_mask[di - half_size - 1 : :, :] = 0
         cropped_mask[:, 0 : half_size + 1] = 0
         cropped_mask[:, dj - half_size - 1 : :] = 0
-        y, x = numpy.where(cropped_mask > 0)
+        y, x = np.where(cropped_mask > 0)
         y -= half_size
         x -= half_size
         positions = [(i, j) for i, j in zip(y, x)]
-    numpy.random.shuffle(positions)
+    np.random.shuffle(positions)
     if len(positions) > spl_per_image:
         positions = positions[0:spl_per_image]
 

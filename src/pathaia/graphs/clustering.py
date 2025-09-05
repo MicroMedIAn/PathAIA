@@ -1,7 +1,6 @@
 from typing import Any, Dict, Optional, Sequence, Tuple, Union
 
 import numpy as np
-import numpy.typing as npt
 from scipy.sparse import triu
 from sortedcontainers import SortedDict
 from tqdm import tqdm
@@ -30,7 +29,7 @@ class AgglomerativeClustering:
     def init_graph(
         self,
         G: UGraph,
-        feats: Union[Dict[Node, npt.NDArray[Tuple[int], Any]], Sequence[str]],
+        feats: Union[Dict[Node, np.ndarray[Tuple[int], Any]], Sequence[str]],
         weights: Optional[Union[Dict[Edge, float], str]] = None,
     ):
         r"""
@@ -195,7 +194,7 @@ class AgglomerativeClustering:
     def fit(
         self,
         G: UGraph,
-        feats: Union[Dict[Node, npt.NDArray[Tuple[int], Any]], Sequence[str]],
+        feats: Union[Dict[Node, np.ndarray[Tuple[int], Any]], Sequence[str]],
         weights: Optional[Union[Dict[Edge, float], str]] = None,
     ):
         r"""
@@ -257,7 +256,7 @@ class AgglomerativeClustering:
     def fit_transform(
         self,
         G: UGraph,
-        feats: Union[Dict[Node, npt.NDArray[Tuple[int], Any]], Sequence[str]],
+        feats: Union[Dict[Node, np.ndarray[Tuple[int], Any]], Sequence[str]],
         weights: Optional[Union[Dict[Edge, float], str]] = None,
     ) -> Tree:
         """

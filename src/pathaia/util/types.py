@@ -5,8 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
-import numpy
-import numpy.typing as npt
+import numpy as np
 from openslide import OpenSlide
 from PIL import Image
 
@@ -131,28 +130,28 @@ Filter = Sequence[Union[str, Callable]]
 FilterList = Union[str, Sequence[Filter], Dict[int, Sequence[Filter]]]
 PathLike = Union[str, os.PathLike]
 
-NDByteImage = npt.NDArray[Tuple[int, int, 3], numpy.uint8]
-NDFloat32Image = npt.NDArray[Tuple[int, int, 3], numpy.float32]
-NDFloat64Image = npt.NDArray[Tuple[int, int, 3], numpy.float64]
+NDByteImage = np.ndarray[Tuple[int, int, 3], np.uint8]
+NDFloat32Image = np.ndarray[Tuple[int, int, 3], np.float32]
+NDFloat64Image = np.ndarray[Tuple[int, int, 3], np.float64]
 NDFloatImage = Union[NDFloat32Image, NDFloat64Image]
 NDImage = Union[NDByteImage, NDFloatImage]
 
-NDByteGrayImage = npt.NDArray[Tuple[int, int], numpy.uint8]
-NDFloat32GrayImage = npt.NDArray[Tuple[int, int], numpy.float32]
-NDFloat64GrayImage = npt.NDArray[Tuple[int, int], numpy.float64]
+NDByteGrayImage = np.ndarray[Tuple[int, int], np.uint8]
+NDFloat32GrayImage = np.ndarray[Tuple[int, int], np.float32]
+NDFloat64GrayImage = np.ndarray[Tuple[int, int], np.float64]
 NDFloatGrayImage = Union[NDFloat32GrayImage, NDFloat64GrayImage]
 NDGrayImage = Union[NDByteGrayImage, NDFloatGrayImage]
 
-NDBoolMask = npt.NDArray[Tuple[int, int], numpy.bool8]
-NDBoolMaskBatch = npt.NDArray[Tuple[int, int, int], numpy.bool8]
+NDBoolMask = np.ndarray[Tuple[int, int], np.bool8]
+NDBoolMaskBatch = np.ndarray[Tuple[int, int, int], np.bool8]
 
-NDIntMask2d = npt.NDArray[Tuple[int, int], numpy.int32]
-NDIntMask3d = npt.NDArray[Tuple[int, int, int], numpy.int32]
-NDIntMask4d = npt.NDArray[Tuple[int, int, int, int], numpy.int32]
+NDIntMask2d = np.ndarray[Tuple[int, int], np.int32]
+NDIntMask3d = np.ndarray[Tuple[int, int, int], np.int32]
+NDIntMask4d = np.ndarray[Tuple[int, int, int, int], np.int32]
 
-NDByteImageBatch = npt.NDArray[Tuple[int, int, int, 3], numpy.uint8]
-NDFloat32ImageBatch = npt.NDArray[Tuple[int, int, int, 3], numpy.float32]
-NDFloat64ImageBatch = npt.NDArray[Tuple[int, int, int, 3], numpy.float64]
+NDByteImageBatch = np.ndarray[Tuple[int, int, int, 3], np.uint8]
+NDFloat32ImageBatch = np.ndarray[Tuple[int, int, int, 3], np.float32]
+NDFloat64ImageBatch = np.ndarray[Tuple[int, int, int, 3], np.float64]
 NDFloatImageBatch = Union[NDFloat32ImageBatch, NDFloat64ImageBatch]
 NDImageBatch = Union[NDByteImageBatch, NDFloatImageBatch]
 
@@ -218,7 +217,7 @@ class Slide:
             region = self._slide.read_region(
                 location=location, level=level, size=size, **kwargs
             )
-            return Image.fromarray(numpy.asarray(region)).convert("RGBA")
+            return Image.fromarray(np.asarray(region)).convert("RGBA")
 
     def get_thumbnail(self, size: Coord):
         if self.backend == "openslide":

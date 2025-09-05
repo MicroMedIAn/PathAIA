@@ -8,7 +8,6 @@ import warnings
 from typing import List, Number, Optional, Sequence, Tuple, Union
 
 import numpy as np
-import numpy.typing as npt
 from scipy.sparse import spmatrix
 from sklearn.neighbors import NearestNeighbors
 
@@ -381,8 +380,8 @@ def weighted_dist(
 
 
 def farthest_point_sampling(
-    coords: npt.NDArray[Tuple[int, int], Number], n_samples: Union[int, float]
-) -> npt.NDArray[Tuple[int], np.int32]:
+    coords: np.ndarray[Tuple[int, int], Number], n_samples: Union[int, float]
+) -> np.ndarray[Tuple[int], np.int32]:
     """
     Perform farthest points sampling using point coordinates array.
 
@@ -408,10 +407,10 @@ def farthest_point_sampling(
 
 
 def random_farthest_point_sampling(
-    coords: npt.NDArray[Tuple[int, int], Number],
+    coords: np.ndarray[Tuple[int, int], Number],
     n_farthest_samples: Union[int, float] = 0.3,
     n_random_samples: Union[int, float] = 0.1,
-) -> npt.NDArray[Tuple[int], np.int32]:
+) -> np.ndarray[Tuple[int], np.int32]:
     """
     Perform farthest points sampling using point coordinates array followed by random
     sampling .
@@ -441,7 +440,7 @@ def random_farthest_point_sampling(
 
 
 def get_kneighbors_graph(
-    points: npt.NDArray[Tuple[int, int], Number],
+    points: np.ndarray[Tuple[int, int], Number],
     n_farthest_samples: Union[int, float] = 0.3,
     n_random_samples: Union[int, float] = 0.1,
     dmax: int = 500,
@@ -480,7 +479,7 @@ def get_kneighbors_graph(
 
 
 def get_nodeprops_edgeprops(
-    A: spmatrix, coords: npt.NDArray[Tuple[int, int], Number]
+    A: spmatrix, coords: np.ndarray[Tuple[int, int], Number]
 ) -> Tuple[NodeProperties, EdgeProperties]:
     """
     Get coordinates and distances between edges of a graph as NodeProperties and
