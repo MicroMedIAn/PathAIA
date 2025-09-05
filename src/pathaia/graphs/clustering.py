@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from nptyping import NDArray, Shape
+import numpy.typing as npt
 from scipy.sparse import triu
 from sortedcontainers import SortedDict
 from tqdm import tqdm
@@ -30,7 +30,7 @@ class AgglomerativeClustering:
     def init_graph(
         self,
         G: UGraph,
-        feats: Union[Dict[Node, NDArray[Shape["*"], Any]], Sequence[str]],
+        feats: Union[Dict[Node, npt.NDArray[Tuple[int], Any]], Sequence[str]],
         weights: Optional[Union[Dict[Edge, float], str]] = None,
     ):
         r"""
@@ -61,11 +61,11 @@ class AgglomerativeClustering:
             dists = ((feats[ii] - feats[jj]) ** 2).sum(1)
             self.A[ii, jj] = dists
         elif isinstance(weights, dict):
-            for (n1, n2) in weights:
+            for n1, n2 in weights:
                 i, j = sorted((G.nodes.index(n1), G.nodes.index(n2)))
                 self.A[i, j] = weights[n1, n2] ** 2
         else:
-            for (n1, n2) in G.edges:
+            for n1, n2 in G.edges:
                 i, j = sorted((G.nodes.index(n1), G.nodes.index(n2)))
                 self.A[i, j] = G.edgeprops[str][(n1, n2)] ** 2
 
@@ -195,7 +195,7 @@ class AgglomerativeClustering:
     def fit(
         self,
         G: UGraph,
-        feats: Union[Dict[Node, NDArray[Shape["*"], Any]], Sequence[str]],
+        feats: Union[Dict[Node, npt.NDArray[Tuple[int], Any]], Sequence[str]],
         weights: Optional[Union[Dict[Edge, float], str]] = None,
     ):
         r"""
@@ -257,7 +257,7 @@ class AgglomerativeClustering:
     def fit_transform(
         self,
         G: UGraph,
-        feats: Union[Dict[Node, NDArray[Shape["*"], Any]], Sequence[str]],
+        feats: Union[Dict[Node, npt.NDArray[Tuple[int], Any]], Sequence[str]],
         weights: Optional[Union[Dict[Edge, float], str]] = None,
     ) -> Tree:
         """

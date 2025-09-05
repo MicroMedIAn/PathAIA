@@ -2,12 +2,13 @@
 A module to implement useful function to handle trees.
 Trees are stored as dictionaries.
 """
+
 import json
 import warnings
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import List, Number, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from nptyping import NDArray, Number, Shape
+import numpy.typing as npt
 from scipy.sparse import spmatrix
 from sklearn.neighbors import NearestNeighbors
 
@@ -277,8 +278,9 @@ def tree_to_json(
                 output_dict["nodeprops"][k] = v
         else:
             raise InvalidNodeProps(
-                "Invalid node props, "
-                "expected {} but got {}".format(dict, type(nodeprops))
+                "Invalid node props, expected {} but got {}".format(
+                    dict, type(nodeprops)
+                )
             )
     if edgeprops is not None:
         if isinstance(edgeprops, dict):
@@ -286,8 +288,9 @@ def tree_to_json(
                 output_dict["edgeprops"][k] = v
         else:
             raise InvalidEdgeProps(
-                "Invalid node props, "
-                "expected {} but got {}".format(dict, type(edgeprops))
+                "Invalid node props, expected {} but got {}".format(
+                    dict, type(edgeprops)
+                )
             )
     json_dict = json.dumps(output_dict)
     with open(jsonfile, "w") as outputjson:
@@ -378,8 +381,8 @@ def weighted_dist(
 
 
 def farthest_point_sampling(
-    coords: NDArray[Shape["N_points, N_dims"], Number], n_samples: Union[int, float]
-) -> NDArray[Shape["N_samples"], np.int32]:
+    coords: npt.NDArray[Tuple[int, int], Number], n_samples: Union[int, float]
+) -> npt.NDArray[Tuple[int], np.int32]:
     """
     Perform farthest points sampling using point coordinates array.
 
@@ -405,10 +408,10 @@ def farthest_point_sampling(
 
 
 def random_farthest_point_sampling(
-    coords: NDArray[Shape["N_points, N_dims"], Number],
+    coords: npt.NDArray[Tuple[int, int], Number],
     n_farthest_samples: Union[int, float] = 0.3,
     n_random_samples: Union[int, float] = 0.1,
-) -> NDArray[Shape["N_samples"], np.int32]:
+) -> npt.NDArray[Tuple[int], np.int32]:
     """
     Perform farthest points sampling using point coordinates array followed by random
     sampling .
@@ -438,7 +441,7 @@ def random_farthest_point_sampling(
 
 
 def get_kneighbors_graph(
-    points: NDArray[Shape["N_points, N_dims"], Number],
+    points: npt.NDArray[Tuple[int, int], Number],
     n_farthest_samples: Union[int, float] = 0.3,
     n_random_samples: Union[int, float] = 0.1,
     dmax: int = 500,
@@ -477,7 +480,7 @@ def get_kneighbors_graph(
 
 
 def get_nodeprops_edgeprops(
-    A: spmatrix, coords: NDArray[Shape["N_points, N_dims"], Number]
+    A: spmatrix, coords: npt.NDArray[Tuple[int, int], Number]
 ) -> Tuple[NodeProperties, EdgeProperties]:
     """
     Get coordinates and distances between edges of a graph as NodeProperties and

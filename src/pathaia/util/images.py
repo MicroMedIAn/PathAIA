@@ -1,14 +1,17 @@
 # coding: utf8
 """Useful functions for images."""
+
+import itertools
+from typing import Iterator, List, Optional, Sequence, Tuple, Union
+
 import numpy
+import numpy.typing as npt
 from skimage.io import imread
 from skimage.transform import resize
-from .paths import imfiles_in_folder
-from .types import NDBoolMask, PathLike, NDImage, NDByteImage, Coord
+
 from ..patches.compat import convert_coords
-import itertools
-from typing import Iterator, List, Tuple, Sequence, Optional, Union, Any
-from nptyping import NDArray, Shape, Float
+from .paths import imfiles_in_folder
+from .types import Coord, NDBoolMask, NDByteImage, NDImage, PathLike
 
 
 def regular_grid(shape: Coord, interval: Coord, psize: Coord) -> Iterator[Coord]:
@@ -116,7 +119,7 @@ def images_in_folder(
 
 def sample_img(
     image: NDImage, psize: int, spl_per_image: int, mask: NDBoolMask = None
-) -> List[NDArray[Shape["N"], Float]]:
+) -> List[npt.NDArray[Tuple[int], float]]:
     """
     Split image in patches.
 
@@ -156,7 +159,7 @@ def sample_img(
 
 def sample_img_sep_channels(
     image: NDByteImage, psize: int, spl_per_image: int, mask: NDBoolMask = None
-) -> Tuple[List[NDArray[Shape["N"], Float]], ...]:
+) -> Tuple[List[npt.NDArray[Tuple[int], float]], ...]:
     """Fit vocabulary on a single image.
 
     Split image in patches and fit on them.

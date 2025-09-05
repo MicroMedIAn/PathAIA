@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Callable, Dict, List, NamedTuple, Optional, Sequence, Tuple, Union
 
 import numpy
-from nptyping import NDArray, Shape
+import numpy.typing as npt
 from openslide import OpenSlide
 from PIL import Image
 
@@ -131,28 +131,28 @@ Filter = Sequence[Union[str, Callable]]
 FilterList = Union[str, Sequence[Filter], Dict[int, Sequence[Filter]]]
 PathLike = Union[str, os.PathLike]
 
-NDByteImage = NDArray[Shape["H, W, 3"], numpy.uint8]
-NDFloat32Image = NDArray[Shape["H, W, 3"], numpy.float32]
-NDFloat64Image = NDArray[Shape["H, W, 3"], numpy.float64]
+NDByteImage = npt.NDArray[Tuple[int, int, 3], numpy.uint8]
+NDFloat32Image = npt.NDArray[Tuple[int, int, 3], numpy.float32]
+NDFloat64Image = npt.NDArray[Tuple[int, int, 3], numpy.float64]
 NDFloatImage = Union[NDFloat32Image, NDFloat64Image]
 NDImage = Union[NDByteImage, NDFloatImage]
 
-NDByteGrayImage = NDArray[Shape["H, W"], numpy.uint8]
-NDFloat32GrayImage = NDArray[Shape["H, W"], numpy.float32]
-NDFloat64GrayImage = NDArray[Shape["H, W"], numpy.float64]
+NDByteGrayImage = npt.NDArray[Tuple[int, int], numpy.uint8]
+NDFloat32GrayImage = npt.NDArray[Tuple[int, int], numpy.float32]
+NDFloat64GrayImage = npt.NDArray[Tuple[int, int], numpy.float64]
 NDFloatGrayImage = Union[NDFloat32GrayImage, NDFloat64GrayImage]
 NDGrayImage = Union[NDByteGrayImage, NDFloatGrayImage]
 
-NDBoolMask = NDArray[Shape["H, W"], numpy.bool8]
-NDBoolMaskBatch = NDArray[Shape["B, H, W"], numpy.bool8]
+NDBoolMask = npt.NDArray[Tuple[int, int], numpy.bool8]
+NDBoolMaskBatch = npt.NDArray[Tuple[int, int, int], numpy.bool8]
 
-NDIntMask2d = NDArray[Shape["H, W"], numpy.int32]
-NDIntMask3d = NDArray[Shape["H, W, D"], numpy.int32]
-NDIntMask4d = NDArray[Shape["H, W, D, T"], numpy.int32]
+NDIntMask2d = npt.NDArray[Tuple[int, int], numpy.int32]
+NDIntMask3d = npt.NDArray[Tuple[int, int, int], numpy.int32]
+NDIntMask4d = npt.NDArray[Tuple[int, int, int, int], numpy.int32]
 
-NDByteImageBatch = NDArray[Shape["B, H, W, 3"], numpy.uint8]
-NDFloat32ImageBatch = NDArray[Shape["B, H, W, 3"], numpy.float32]
-NDFloat64ImageBatch = NDArray[Shape["B, H, W, 3"], numpy.float64]
+NDByteImageBatch = npt.NDArray[Tuple[int, int, int, 3], numpy.uint8]
+NDFloat32ImageBatch = npt.NDArray[Tuple[int, int, int, 3], numpy.float32]
+NDFloat64ImageBatch = npt.NDArray[Tuple[int, int, int, 3], numpy.float64]
 NDFloatImageBatch = Union[NDFloat32ImageBatch, NDFloat64ImageBatch]
 NDImageBatch = Union[NDByteImageBatch, NDFloatImageBatch]
 
