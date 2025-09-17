@@ -142,8 +142,8 @@ NDFloat64GrayImage = np.ndarray[Tuple[int, int], np.float64]
 NDFloatGrayImage = Union[NDFloat32GrayImage, NDFloat64GrayImage]
 NDGrayImage = Union[NDByteGrayImage, NDFloatGrayImage]
 
-NDBoolMask = np.ndarray[Tuple[int, int], np.bool8]
-NDBoolMaskBatch = np.ndarray[Tuple[int, int, int], np.bool8]
+NDBoolMask = np.ndarray[Tuple[int, int], np.bool]
+NDBoolMaskBatch = np.ndarray[Tuple[int, int, int], np.bool]
 
 NDIntMask2d = np.ndarray[Tuple[int, int], np.int32]
 NDIntMask3d = np.ndarray[Tuple[int, int, int], np.int32]
