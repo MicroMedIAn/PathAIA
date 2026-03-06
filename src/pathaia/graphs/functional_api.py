@@ -5,7 +5,8 @@ Trees are stored as dictionaries.
 
 import json
 import warnings
-from typing import List, Number, Optional, Sequence, Tuple, Union
+from numbers import Number
+from typing import List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from scipy.sparse import spmatrix
