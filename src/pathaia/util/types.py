@@ -230,5 +230,5 @@ class Slide:
             bg_color = "#ffffff"
             thumb = Image.new("RGB", tile.size, bg_color)
             thumb.paste(tile, None, tile)
-            thumb.thumbnail(size, Image.ANTIALIAS)
+            thumb.thumbnail(size)
             return thumb
